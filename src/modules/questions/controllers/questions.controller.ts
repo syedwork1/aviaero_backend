@@ -1,13 +1,15 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { QuestionsService } from '../services/questions.service';
 import { CreateQuestionDto } from '../dto/create-question.dto';
 import { UpdateQuestionDto } from '../dto/update-question.dto';
-import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
+import {ApiBearerAuth, ApiConsumes, ApiTags, ApiBody} from '@nestjs/swagger';
 import { Query } from '@nestjs/common';
 import { JwtAuthGuard } from '@core/gaurds/jwt-auth.gaurd';
 import { Roles } from '@core/gaurds/roles.decorator';
 import { RolesGuard } from '@core/gaurds/roles.guard';
 import { Role } from '@core/enums/role.enum';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { Express } from 'express';
 
 
 @ApiTags('Questions')
@@ -65,4 +67,76 @@ export class QuestionsController {
   remove(@Param('id') id: string) {
     return this.questionsService.remove(id);
   }
+
+// Question insertion through CSV in the database 
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        file: {
+          type: "string",
+          format: "binary",
+        },
+      },
+    },
+  })
+  @ApiConsumes("multipart/form-data")
+  @Post("csvCreateQuestion/upload")
+  @UseInterceptors(FileInterceptor("file"))
+  public async upload(
+
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new ForbiddenException("Please select a CSV file.");
+    }
+    const expectedHeaders = [
+      "Vraag",
+      "antwoord A",
+      "Antwoord B",
+      "Antwoord C",
+      "Antwoord D",
+      "Correct antwoord",
+      "Uitleg",
+      "Categorie",
+      "Moeilijkheid",
+      "CBR-code",
+      
+    ];
+
+
+
+    
+     try {
+      const { data, errors } = await this.questionsService.readCsvFromBuffer(
+        file.buffer,
+      );
+
+      if (errors.length) {
+        throw new ForbiddenException("Error processing CSV file.");
+      }
+
+      const headers = Object.keys(data[0] || {});
+      const isValidCsv = expectedHeaders.every((header) =>
+        headers.includes(header),
+      );
+
+      if (!isValidCsv) {
+        throw new ForbiddenException(
+          "Invalid CSV file format. Please upload the correct CSV file.",
+        );
+      }
+     
+      return {
+        Message: "Successful",
+        payload: await this.questionsService.upload(file),
+      };
+    } catch (error) {
+      throw new ForbiddenException(
+        error.message || "Failed to process CSV file.",
+      );
+    }
+  }
 }
+
+

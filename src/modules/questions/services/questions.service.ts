@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { QuestionsEntity } from '../../../database/entities/question.entity';
 import {  Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import * as fastCsv from "fast-csv";
+import { Readable } from "stream";
 
 
 @Injectable()
@@ -178,4 +180,72 @@ export class QuestionsService {
       };
     }
   }
+
+
+   async readCsvFromBuffer(buffer: any): Promise<any> {
+    return new Promise<{ data: any[]; errors: string[] }>((resolve, reject) => {
+      const stream = new Readable();
+      stream.push(buffer);
+      stream.push(null);
+      const data: any[] = [];
+      const errors: string[] = [];
+      let headers: string[] = [];
+
+      stream
+        .pipe(
+          fastCsv.parse({
+            headers: true,
+          }),
+        )
+        .on("headers", (h: string[]) => {
+          headers = h.map((header) => header.trim());
+        })
+        .on("data", (row) => {
+          if (!headers.length) return;
+          const rowData: any = {};
+          let isValid = true;
+
+          headers.forEach((header) => {
+            const value = row[header] || null;
+            rowData[header] = value;
+          });
+
+          if (isValid) {
+            data.push(rowData);
+          }
+        })
+        .on("end", () => {
+          resolve({ data, errors });
+        })
+        .on("error", reject);
+    });
+  }
+
+   async upload(file: Express.Multer.File) {
+   
+      const { headers, data: rows, errors } = await this.readCsvFromBuffer(file.buffer);
+
+      const toNull = (v: any) =>
+  v === undefined || v === null || v === '' ? null : v;
+  //  console.log(rows,"rows")
+      const mapped = rows.map((r) => {
+   return {
+  question:       toNull(r["Vraag"]),
+  option_A:       toNull(r["antwoord A"]),
+  option_B:       toNull(r["Antwoord B"]),
+  option_C:       toNull(r["Antwoord C"]),
+  option_D:       toNull(r["Antwoord D"]),
+  correct_answer: toNull(r["Correct antwoord"]),
+  explanation:    toNull(r["Uitleg"]),
+  Mobility:       toNull(r["Categorie"]),
+  difficulty:     toNull(r["Moeilijkheid"]),
+  CBR_chapter:    toNull(r["CBR-code"]),
+};
+  });
+
+  return this.questionRepository.save(mapped);
+
+
+
+   }
 }
