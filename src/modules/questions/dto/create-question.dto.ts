@@ -37,19 +37,24 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   explanation: string;
 
-  @ApiProperty({ description: 'Subscription level required' })
-  @IsString()
-  @IsNotEmpty()
-  subscription_level: string;
+  // @ApiProperty({ description: 'Subscription level required' })
+  // @IsString()
+  
+  // subscription_level: string;
 
-  @ApiProperty({ description: 'Whether it is an exam question', example: false })
-  @IsBoolean()
-  is_exam_question: boolean;
+  // @ApiProperty({ description: 'Whether it is an exam question', example: false })
+  // @IsBoolean()
+  // is_exam_question: boolean;
 
   @ApiProperty({ description: 'Difficulty level' })
   @IsString()
   @IsNotEmpty()
   difficulty: string;
+
+  @ApiProperty({ description: 'category' })
+  @IsString()
+  @IsNotEmpty()
+  Mobility: string;
 
   @ApiProperty({ description: 'CBR chapter reference' })
   @IsString()

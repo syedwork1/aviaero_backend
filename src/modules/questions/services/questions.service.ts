@@ -129,10 +129,9 @@ export class QuestionsService {
         option_D: updateQuestionDto.option_D,
         correct_answer: updateQuestionDto.correct_answer,
         explanation: updateQuestionDto.explanation,
-        subscription_level: updateQuestionDto.subscription_level,
-        is_exam_question: updateQuestionDto.is_exam_question,
         difficulty: updateQuestionDto.difficulty,
         CBR_chapter: updateQuestionDto.CBR_chapter,
+        Mobility:updateQuestionDto.Mobility
       };
   
       await this.questionRepository.update(id, updatePayload);
@@ -242,7 +241,7 @@ export class QuestionsService {
   CBR_chapter:    toNull(r["CBR-code"]),
 };
   });
-
+  console.log(mapped,"mapped")
   return this.questionRepository.save(mapped);
 
 
