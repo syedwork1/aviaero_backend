@@ -21,15 +21,22 @@ export class CategoryService {
   return this.categoryEntityRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} category`;
+  async findOne(id: string): Promise<CategoryEntity | null> {
+    return await this.categoryEntityRepository.findOne({
+      where: { id },
+    });
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
-  }
+  async update(id: string, dto: UpdateCategoryDto) {
+  const category = await this.categoryEntityRepository.findOne({ where: { id } });
+  if (!category) return null;
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
-  }
+  Object.assign(category, dto);
+  return this.categoryEntityRepository.save(category);
+}
+
+async remove(id:string): Promise<boolean> {
+  const result = await this.categoryEntityRepository.delete(id);
+  return result.affected > 0;   
+}
 }

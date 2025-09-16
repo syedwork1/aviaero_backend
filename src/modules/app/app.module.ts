@@ -12,7 +12,8 @@ import {SchoolsModule} from "../schools/schools.module"
 import {SchoolStudentsModule} from "../school-students/school-students.module"
 import {CategoryModule} from "../category/category.module"
 import {SubjectModule} from "../subject/subject.module"
-
+import {ExamModule} from "../exam/exam.module"
+import {CourcesModule} from "../cources/cources.module"
 
 @Module({
   imports: [
@@ -24,6 +25,8 @@ import {SubjectModule} from "../subject/subject.module"
     SchoolStudentsModule,
     CategoryModule,
     SubjectModule,
+    ExamModule,
+    CourcesModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

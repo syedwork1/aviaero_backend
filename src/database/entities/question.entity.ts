@@ -1,11 +1,9 @@
-import { Column, Entity } from 'typeorm';
+import { Column, Entity,ManyToOne } from 'typeorm';
 import { AppBaseEntity } from './base.entity';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { ExamEntity } from './exam.entity';
 @Entity()
 export class QuestionsEntity extends AppBaseEntity {
  
-    
-
   @Column()
   question: string;
 
@@ -41,5 +39,10 @@ export class QuestionsEntity extends AppBaseEntity {
 
   @Column()
   CBR_chapter: string;
+
+   @ManyToOne(() => ExamEntity, (exam) => exam.questions, {
+    onDelete: 'NO ACTION',
+  })
+  exam: ExamEntity
 
 }
