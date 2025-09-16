@@ -1,7 +1,8 @@
 
-import { Column, Entity,OneToMany } from 'typeorm';
+import { Column, Entity,ManyToOne,JoinColumn } from 'typeorm';
 import { AppBaseEntity } from './base.entity';
-import {CategoryStatus} from '../../modules/cources/enums/status.enum'
+import {CourceStatus} from '../../modules/cources/enums/status.enum'
+import {CategoryEntity} from '../entities/category.entity'
 
 
 @Entity()
@@ -16,17 +17,22 @@ export class CourceEntity extends AppBaseEntity {
 
   @Column({
      type: 'enum',
-     enum: CategoryStatus,
+     enum: CourceStatus,
    })
-   status: CategoryStatus;
+   status: CourceStatus;
 
 
   @Column()
   description: string;
 
 
-  @Column()
+   @ManyToOne(() => CategoryEntity)
+  @JoinColumn({ name: 'categoryId' })   
+  category: CategoryEntity;
+
+  @Column({ type: 'uuid' })
   categoryId: string;
+}
 
  
-}
+

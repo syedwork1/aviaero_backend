@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete,HttpStatus ,HttpException,InternalServerErrorException} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,HttpStatus ,HttpException,InternalServerErrorException,UseGuards} from '@nestjs/common';
 import {ApiBearerAuth, ApiConsumes, ApiTags, ApiBody} from '@nestjs/swagger';
 import { CourcesService } from '../services/cources.service';
 import { CreateCourceDto } from '../dto/create-cource.dto';
 import { UpdateCourceDto } from '../dto/update-cource.dto';
+ import { JwtAuthGuard } from '@core/gaurds/jwt-auth.gaurd';
+  import { RolesGuard } from '@core/gaurds/roles.guard';
+  import { Roles } from '@core/gaurds/roles.decorator';
+  import { Role } from '@core/enums/role.enum';
 
 
 
@@ -11,6 +15,10 @@ import { UpdateCourceDto } from '../dto/update-cource.dto';
 export class CourcesController {
   constructor(private readonly courcesService: CourcesService) {}
 
+
+   @ApiBearerAuth('authorization')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
   @Post()
   async create(@Body() createCourceDto: CreateCourceDto) {
    try {
@@ -35,7 +43,9 @@ export class CourcesController {
   }
 
 
-
+ @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Get()
   async findAll() {
     try {
@@ -54,6 +64,10 @@ export class CourcesController {
     }
   }
 
+
+ @ApiBearerAuth('authorization')
+ @UseGuards(JwtAuthGuard, RolesGuard)
+ @Roles(Role.ADMIN) 
  @Get(':id')
   async findOne(@Param('id') id: string){
     try {
@@ -71,6 +85,11 @@ export class CourcesController {
       throw error; // NotFoundException or others bubble up
     }
   }
+
+
+  @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -103,6 +122,10 @@ export class CourcesController {
     }
   }
 
+
+   @ApiBearerAuth('authorization')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(Role.ADMIN)
     @Delete(':id')
   async remove(@Param('id') id: string) {
     try {

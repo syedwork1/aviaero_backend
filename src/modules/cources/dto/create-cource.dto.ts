@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString} from 'class-validator';
-import {CategoryStatus} from '../enums/status.enum'
+import {CourceStatus} from '../enums/status.enum'
 import { ApiProperty } from '@nestjs/swagger';
 
 
@@ -26,8 +26,8 @@ export class CreateCourceDto {
   categoryId: string;
   
 
-  @ApiProperty({ example: CategoryStatus.ACTIVE })  
-  @IsEnum(CategoryStatus)
-  status: CategoryStatus;
+  @ApiProperty({ example: CourceStatus.ACTIVE })  
+  @IsEnum(CourceStatus)
+  status: CourceStatus;
 
 }

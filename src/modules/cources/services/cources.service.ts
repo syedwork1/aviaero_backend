@@ -30,7 +30,12 @@ export class CourcesService {
 
   async findAll(): Promise<CourceEntity[]> {
     try {
-      return await this.courceRepository.find();
+      const test=await this.courceRepository.find({
+  relations: ['category'],
+  //  order: { createAt: 'DESC' },
+});
+console.log(test)
+return test
     } catch (error) {
       // Log the original error for debugging if needed
       console.error('Database error fetching courses:', error);

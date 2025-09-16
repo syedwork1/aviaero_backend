@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete ,HttpException,HttpStatus} from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete ,HttpException,HttpStatus,UseGuards} from '@nestjs/common';
 import { CategoryService } from '../services/category.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
+ import { JwtAuthGuard } from '@core/gaurds/jwt-auth.gaurd';
+  import { RolesGuard } from '@core/gaurds/roles.guard';
+  import { Roles } from '@core/gaurds/roles.decorator';
+  import { Role } from '@core/enums/role.enum';
 
 
 @ApiTags('category')
@@ -11,16 +15,27 @@ import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
+  @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Post()
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
 
+
+   @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Get()
   findAll() {
     return this.categoryService.findAll();
   }
 
+
+   @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
  @Get(':id')
   async findOne(@Param('id') id: string) {
     try {
@@ -50,6 +65,10 @@ export class CategoryController {
     }
   }
 
+
+   @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -82,6 +101,10 @@ export class CategoryController {
     }
   }
 
+
+   @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
    @Delete(':id')
   async remove(@Param('id') id: string) {
     try {
