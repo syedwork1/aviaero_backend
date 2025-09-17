@@ -1,8 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete,UseGuards,Request ,Query,HttpException,HttpStatus} from '@nestjs/common';
 import { ExamService } from '../services/exam.service';
 import { CreateExamDto } from '../dto/create-exam.dto';
 import { UpdateExamDto } from '../dto/update-exam.dto';
-import { ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiTags,ApiBearerAuth } from '@nestjs/swagger';
+import { JwtAuthGuard } from '@core/gaurds/jwt-auth.gaurd';
+  import { RolesGuard } from '@core/gaurds/roles.guard';
+  import { Roles } from '@core/gaurds/roles.decorator';
+  import { Role } from '@core/enums/role.enum';
 
 
 @ApiTags('exam')
@@ -10,16 +14,56 @@ import { ApiBody, ApiTags } from '@nestjs/swagger';
 export class ExamController {
   constructor(private readonly examService: ExamService) {}
 
-  @Post()
-  @ApiBody({ type: CreateExamDto })
-  create(@Body() createExamDto: CreateExamDto) {
-    return this.examService.create(createExamDto);
-  }
 
-  @Get()
-  findAll() {
-    return this.examService.findAll();
+  @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @Post()
+@ApiBody({ type: CreateExamDto })
+async create(@Request() req, @Body() createExamDto: CreateExamDto) {
+  try {
+    await this.examService.create(createExamDto, req.user.user_id);
+
+    return {
+      statusCode: 200,
+      message: 'Exam has been created successfully',
+    };
+  } catch (error) {
+    // Optional: log the error for debugging
+    console.error('Exam creation failed:', error);
+
+    // If the service threw a known HttpException, rethrow it
+    if (error instanceof HttpException) {
+      throw error;
+    }
+
+    // Otherwise wrap in a generic 500 Internal Server Error
+    throw new HttpException(
+      {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Failed to create exam. Please try again later.',
+      },
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
+}
+
+
+  @ApiBearerAuth('authorization')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+ @Get('/all/:page/:limit')
+findAll(
+  @Request() req,
+  @Param('page') page: string = '1',
+  @Param('limit') limit: string = '10',
+) {
+  return this.examService.findAll(
+    req.user.user_id,
+    Number(page),
+    Number(limit),
+  );
+}
 
   @Get(':id')
   findOne(@Param('id') id: string) {

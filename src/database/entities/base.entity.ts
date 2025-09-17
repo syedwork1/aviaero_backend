@@ -7,7 +7,7 @@ export abstract class AppBaseEntity extends BaseEntity implements IBaseModel {
 
   @Column({
     nullable: false,
-    select: false,
+    select: true,
     default: (): string => 'CURRENT_TIMESTAMP',
     type: 'timestamp without time zone',
   })

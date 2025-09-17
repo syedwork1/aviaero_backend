@@ -8,12 +8,13 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import {UserModule} from "../user/user.module";
 import {QuestionsModule} from "../questions/questions.module"
 import {AuthModule} from "../auth/auth.module";
-import {SchoolsModule} from "../schools/schools.module"
-import {SchoolStudentsModule} from "../school-students/school-students.module"
-import {CategoryModule} from "../category/category.module"
-import {SubjectModule} from "../subject/subject.module"
-import {ExamModule} from "../exam/exam.module"
-import {CourcesModule} from "../cources/cources.module"
+import {SchoolsModule} from "../schools/schools.module";
+import {SchoolStudentsModule} from "../school-students/school-students.module";
+import {CategoryModule} from "../category/category.module";
+import {SubjectModule} from "../subject/subject.module";
+import {ExamModule} from "../exam/exam.module";
+import {CourcesModule} from "../cources/cources.module";
+import {ExamQuestionsModule} from "../exam-questions/exam-questions.module"
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import {CourcesModule} from "../cources/cources.module"
     SubjectModule,
     ExamModule,
     CourcesModule,
+    ExamQuestionsModule,
 
     JwtModule.registerAsync({
       imports: [ConfigModule],

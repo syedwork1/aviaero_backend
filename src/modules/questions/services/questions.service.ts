@@ -247,4 +247,26 @@ export class QuestionsService {
 
 
    }
+
+
+// find Random Questions
+async findRandomQuestions(
+  CBR_chapter: string,
+  difficulty: string,
+  number_of_questions: number,
+): Promise<QuestionsEntity[]> {
+  const getQuestions = await this.questionRepository.find({
+    where: { CBR_chapter, difficulty },
+    take: number_of_questions,
+  });
+
+  if (!getQuestions.length) {
+   
+    return []; 
+  }
+
+  return getQuestions;
+}
+
+
 }

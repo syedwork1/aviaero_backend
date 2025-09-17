@@ -1,9 +1,7 @@
 
 
-import { Column, Entity,OneToMany } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { AppBaseEntity } from './base.entity';
-import {ExamStatus} from '../../modules/exam/enums/role.enum'
-import { QuestionsEntity } from './question.entity';
 
 @Entity()
 export class ExamEntity extends AppBaseEntity {
@@ -12,23 +10,25 @@ export class ExamEntity extends AppBaseEntity {
   name:string;
 
   @Column()
-  Mobility: string;
+  number_of_questions: number;
 
   @Column()
   difficulty: string;
 
   @Column()
   CBR_chapter: string;
-
-  @Column({
-    type: 'enum',
-    enum: ExamStatus,
   
-  })
-  status: ExamStatus;
+  
+   @Column()
+  studentId: string;
 
-   // One exam has many questions
-  @OneToMany(() => QuestionsEntity, (question) => question.exam, {
-  })
-  questions: QuestionsEntity[];
+
+   @Column()
+  end_date: Date;
+  
+ @Column()
+  time: number;
+  
+
+ 
 }

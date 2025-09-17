@@ -40,9 +40,9 @@ export class QuestionsEntity extends AppBaseEntity {
   @Column()
   CBR_chapter: string;
 
-   @ManyToOne(() => ExamEntity, (exam) => exam.questions, {
-    onDelete: 'NO ACTION',
-  })
-  exam: ExamEntity
+  //  @ManyToOne(() => ExamEntity, (exam) => exam.questions, {
+  //   onDelete: 'NO ACTION',
+  // })
+  // exam: ExamEntity
 
 }

@@ -52,7 +52,7 @@ export class AuthService {
         lastName: signupDto.lastName,
         // username: signupDto.username,
         // phone:signupDto.phone,
-         role:"ADMIN"
+         //role:"ADMIN"
       });
 
       // Generate tokens for the new user
