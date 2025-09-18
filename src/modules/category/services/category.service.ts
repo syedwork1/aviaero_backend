@@ -18,7 +18,7 @@ export class CategoryService {
   }
 
   findAll() {
-  return this.categoryEntityRepository.find();
+  return this.categoryEntityRepository.find({ order: { createAt: 'DESC' }});
   }
 
   async findOne(id: string): Promise<CategoryEntity | null> {

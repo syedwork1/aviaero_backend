@@ -32,7 +32,7 @@ export class CourcesService {
     try {
       const test=await this.courceRepository.find({
   relations: ['category'],
-    order: { createAt: 'DESC' },
+    order: { createAt: 'DESC' }, 
 });
 console.log(test)
 return test

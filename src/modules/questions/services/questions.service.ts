@@ -58,6 +58,7 @@ export class QuestionsService {
         this.questionRepository.find({
           skip,
           take: limit,
+           order: { createAt: 'DESC' },
         }),
         this.questionRepository.count(), 
       ]);

@@ -55,6 +55,7 @@ export class SchoolsService {
           this.schoolRepository.find({
             skip,
             take: limit,
+             order: { createAt: 'DESC' },
           }),
           this.schoolRepository.count(), 
         ]);

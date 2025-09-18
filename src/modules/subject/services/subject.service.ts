@@ -26,7 +26,7 @@ export class SubjectService {
 
 async findAll(): Promise<SubjectEntity[]> {
   try {
-    return await this.SubjectEntityRepository.find();
+    return await this.SubjectEntityRepository.find({ order: { createAt: 'DESC' }});
   } catch (error) {
     console.error('Error fetching subjects:', error);
     throw new InternalServerErrorException('Failed to fetch subjects');
