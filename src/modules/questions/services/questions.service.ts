@@ -130,6 +130,8 @@ export class QuestionsService {
         explanation: updateQuestionDto.explanation,
         difficulty: updateQuestionDto.difficulty,
         Mobility: updateQuestionDto.Mobility,
+        img_1: updateQuestionDto.img_1,
+        img_2: updateQuestionDto.img_2,
       };
 
       await this.questionRepository.update(id, updatePayload);
