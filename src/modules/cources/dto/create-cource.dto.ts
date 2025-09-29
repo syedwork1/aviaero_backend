@@ -16,4 +16,9 @@ export class CreateCourceDto {
   @ApiProperty({ example: CourceStatus.ACTIVE })
   @IsEnum(CourceStatus)
   status: CourceStatus;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  categoryId: string;
 }

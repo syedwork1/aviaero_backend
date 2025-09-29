@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, OneToMany } from "typeorm";
+import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { CourceEntity } from "../entities/cource.entity";
 
@@ -9,4 +9,7 @@ export class CategoryEntity extends AppBaseEntity {
 
   @Column({ nullable: true })
   CBR_chapter: string;
+
+  @OneToOne(() => CourceEntity, (cource) => cource.category, {})
+  cource: CourceEntity;
 }

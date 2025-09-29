@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne, JoinColumn } from "typeorm";
+import { Column, Entity, ManyToOne, JoinColumn, OneToOne } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { CourceStatus } from "../../modules/cources/enums/status.enum";
+import { CategoryEntity } from "./category.entity";
 
 @Entity()
 export class CourceEntity extends AppBaseEntity {
@@ -15,4 +16,8 @@ export class CourceEntity extends AppBaseEntity {
 
   @Column()
   description: string;
+
+  @OneToOne(() => CategoryEntity, (category) => category.cource, {})
+  @JoinColumn()
+  category: CategoryEntity;
 }

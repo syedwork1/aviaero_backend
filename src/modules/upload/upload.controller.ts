@@ -23,9 +23,9 @@ export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
   @Post()
-  //   @ApiBearerAuth("authorization")
-  //   @UseGuards(JwtAuthGuard, RolesGuard)
-  //   @Roles(Role.ADMIN)
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor("file"))
   @ApiConsumes("multipart/form-data")
   @ApiBody({
