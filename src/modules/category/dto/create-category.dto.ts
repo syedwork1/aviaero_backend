@@ -9,5 +9,5 @@ export class CreateCategoryDto {
   @ApiProperty({ description: "CBR chapter reference" })
   @IsString()
   @IsNotEmpty()
-  cbr: string;
+  CBR_chapter: string;
 }

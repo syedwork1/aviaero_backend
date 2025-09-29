@@ -12,8 +12,8 @@ export class CategoryService {
     private readonly categoryEntityRepository: Repository<CategoryEntity>
   ) {}
 
-  create({ name, cbr }: CreateCategoryDto) {
-    return this.categoryEntityRepository.save({ name, CBR_chapter: cbr });
+  create(createCategoryData: CreateCategoryDto) {
+    return this.categoryEntityRepository.save(createCategoryData);
   }
 
   findAll() {
