@@ -39,6 +39,12 @@ export class QuestionsEntity extends AppBaseEntity {
   @Column({ nullable: true })
   CBR_chapter: string;
 
+  @Column({ nullable: true })
+  img_1: string;
+
+  @Column({ nullable: true })
+  img_2: string;
+
   //  @ManyToOne(() => ExamEntity, (exam) => exam.questions, {
   //   onDelete: 'NO ACTION',
   // })

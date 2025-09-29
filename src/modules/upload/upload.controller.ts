@@ -2,30 +2,45 @@ import {
   Controller,
   Post,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
-import { S3Service } from "../../core/providers/s3.service";
-import { ConfigService } from "@nestjs/config";
+import { UploadService } from "./upload.service";
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+} from "@nestjs/swagger";
+import { Roles } from "@core/gaurds/roles.decorator";
+import { Role } from "@core/enums/role.enum";
+import { RolesGuard } from "@core/gaurds/roles.guard";
+import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 
 @Controller("upload")
 export class UploadController {
-  constructor(
-    private readonly s3Service: S3Service,
-    private readonly configService: ConfigService
-  ) {}
+  constructor(private readonly uploadService: UploadService) {}
 
   @Post()
+  //   @ApiBearerAuth("authorization")
+  //   @UseGuards(JwtAuthGuard, RolesGuard)
+  //   @Roles(Role.ADMIN)
   @UseInterceptors(FileInterceptor("file"))
+  @ApiConsumes("multipart/form-data")
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        file: {
+          type: "string",
+          format: "binary",
+        },
+      },
+    },
+  })
+  @ApiOperation({ summary: "Upload a single file" })
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
-    const bucket = this.configService.get("S3_BUCKET_NAME", "my-bucket");
-    const key = file.originalname;
-
-    await this.s3Service.uploadFile(bucket, key, file.buffer);
-
-    return {
-      message: "File uploaded successfully",
-      key,
-    };
+    return this.uploadService.uploadFile(file);
   }
 }

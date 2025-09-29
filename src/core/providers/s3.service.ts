@@ -21,6 +21,19 @@ export class S3Service {
     });
   }
 
+  getPublicUrl(bucket: string, key: string): string {
+    const endpoint = this.configService.get("S3_ENDPOINT");
+    const region = this.configService.get("AWS_REGION", "us-east-1");
+
+    if (endpoint) {
+      // LocalStack style URL
+      return `${endpoint.replace(/\/$/, "")}/${bucket}/${key}`;
+    }
+
+    // AWS style URL
+    return `https://${bucket}.s3.${region}.amazonaws.com/${key}`;
+  }
+
   async uploadFile(
     bucket: string,
     key: string,
@@ -30,7 +43,11 @@ export class S3Service {
       Bucket: bucket,
       Key: key,
       Body: body,
+      ACL: "public-read",
     });
-    return this.s3Client.send(command);
+    await this.s3Client.send(command);
+    const publicUrl = this.getPublicUrl(bucket, key);
+
+    return { publicUrl };
   }
 }

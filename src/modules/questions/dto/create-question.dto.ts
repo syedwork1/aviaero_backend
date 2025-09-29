@@ -56,6 +56,16 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   Mobility: string;
 
+  @ApiProperty({ description: "question image 1" })
+  @IsString()
+  @IsNotEmpty()
+  img_1: string;
+
+  @ApiProperty({ description: "question image 2" })
+  @IsString()
+  @IsNotEmpty()
+  img_2: string;
+
   // @ApiProperty({ description: 'CBR chapter reference' })
   // @IsString()
   // @IsNotEmpty()
