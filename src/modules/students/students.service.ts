@@ -39,8 +39,11 @@ export class StudentsService {
     });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} student`;
+  findOne(id: string) {
+    return this.userRepository.findOne({
+      select: ["id", "createAt", "email", "firstName", "lastName", "role"],
+      where: { id },
+    });
   }
 
   update(id: string, updateStudentDto: UpdateStudentDto) {

@@ -38,13 +38,13 @@ export class StudentsController {
     return this.studentsService.findAll();
   }
 
-  // @ApiBearerAuth("authorization")
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
-  // @Get(":id")
-  // findOne(@Param("id") id: string) {
-  //   return this.studentsService.findOne(+id);
-  // }
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get(":id")
+  findOne(@Param("id") id: string) {
+    return this.studentsService.findOne(id);
+  }
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
