@@ -1,74 +1,82 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
-import { QuestionsService } from '../services/questions.service';
-import { CreateQuestionDto } from '../dto/create-question.dto';
-import { UpdateQuestionDto } from '../dto/update-question.dto';
-import {ApiBearerAuth, ApiConsumes, ApiTags, ApiBody} from '@nestjs/swagger';
-import { Query } from '@nestjs/common';
-import { JwtAuthGuard } from '@core/gaurds/jwt-auth.gaurd';
-import { Roles } from '@core/gaurds/roles.decorator';
-import { RolesGuard } from '@core/gaurds/roles.guard';
-import { Role } from '@core/enums/role.enum';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { Express } from 'express';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  ForbiddenException,
+  UseInterceptors,
+  UploadedFile,
+} from "@nestjs/common";
+import { QuestionsService } from "../services/questions.service";
+import { CreateQuestionDto } from "../dto/create-question.dto";
+import { UpdateQuestionDto } from "../dto/update-question.dto";
+import { ApiBearerAuth, ApiConsumes, ApiTags, ApiBody } from "@nestjs/swagger";
+import { Query } from "@nestjs/common";
+import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
+import { Roles } from "@core/gaurds/roles.decorator";
+import { RolesGuard } from "@core/gaurds/roles.guard";
+import { Role } from "@core/enums/role.enum";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { Express } from "express";
 
-
-@ApiTags('Questions')
-@Controller('questions')
-
+@ApiTags("Questions")
+@Controller("questions")
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}
 
-
-
-// create single question on admin side
-  @ApiBearerAuth('authorization')
+  // create single question on admin side
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Post('/single')
+  @Post("/single")
   @Roles(Role.ADMIN)
   create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionsService.create(createQuestionDto);
   }
 
-  // get all questions 
-  @ApiBearerAuth('authorization')
+  // get all questions
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   @Roles(Role.ADMIN)
-  findAll(
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ) {
+  findAll(@Query("page") page: number = 1, @Query("limit") limit: number = 10) {
     return this.questionsService.findAll(Number(page), Number(limit));
   }
 
   // get question through question Id
-  @ApiBearerAuth('authorization')
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Get('/:id')
+  @Get("/:id")
   @Roles(Role.ADMIN)
-  findOne(@Param('id') id: string) {
+  findOne(@Param("id") id: string) {
     return this.questionsService.findOne(id);
   }
 
   // update the questions
-  @ApiBearerAuth('authorization')
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Patch('/update/:id')
+  @Patch("/update/:id")
   @Roles(Role.ADMIN)
-  update(@Param('id') id: string, @Body() updateQuestionDto: UpdateQuestionDto) {
+  update(
+    @Param("id") id: string,
+    @Body() updateQuestionDto: UpdateQuestionDto
+  ) {
     return this.questionsService.update(id, updateQuestionDto);
   }
 
   // delete the questions
-  @ApiBearerAuth('authorization')
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Delete('/:id')
+  @Delete("/:id")
   @Roles(Role.ADMIN)
-  remove(@Param('id') id: string) {
+  remove(@Param("id") id: string) {
     return this.questionsService.remove(id);
   }
 
-// Question insertion through CSV in the database 
+  // Question insertion through CSV in the database
   @ApiBody({
     schema: {
       type: "object",
@@ -83,10 +91,7 @@ export class QuestionsController {
   @ApiConsumes("multipart/form-data")
   @Post("csvCreateQuestion/upload")
   @UseInterceptors(FileInterceptor("file"))
-  public async upload(
-
-    @UploadedFile() file: Express.Multer.File,
-  ) {
+  public async upload(@UploadedFile() file: Express.Multer.File) {
     if (!file) {
       throw new ForbiddenException("Please select a CSV file.");
     }
@@ -101,15 +106,11 @@ export class QuestionsController {
       "Categorie",
       "Moeilijkheid",
       "CBR-code",
-      
     ];
 
-
-
-    
-     try {
+    try {
       const { data, errors } = await this.questionsService.readCsvFromBuffer(
-        file.buffer,
+        file.buffer
       );
 
       if (errors.length) {
@@ -118,25 +119,23 @@ export class QuestionsController {
 
       const headers = Object.keys(data[0] || {});
       const isValidCsv = expectedHeaders.every((header) =>
-        headers.includes(header),
+        headers.includes(header)
       );
 
       if (!isValidCsv) {
         throw new ForbiddenException(
-          "Invalid CSV file format. Please upload the correct CSV file.",
+          "Invalid CSV file format. Please upload the correct CSV file."
         );
       }
-     
+
       return {
         Message: "Successful",
         payload: await this.questionsService.upload(file),
       };
     } catch (error) {
       throw new ForbiddenException(
-        error.message || "Failed to process CSV file.",
+        error.message || "Failed to process CSV file."
       );
     }
   }
 }
-
-

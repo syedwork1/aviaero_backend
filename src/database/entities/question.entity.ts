@@ -1,9 +1,8 @@
-import { Column, Entity,ManyToOne } from 'typeorm';
-import { AppBaseEntity } from './base.entity';
-import { ExamEntity } from './exam.entity';
+import { Column, Entity, ManyToOne } from "typeorm";
+import { AppBaseEntity } from "./base.entity";
+import { ExamEntity } from "./exam.entity";
 @Entity()
 export class QuestionsEntity extends AppBaseEntity {
- 
   @Column()
   question: string;
 
@@ -30,19 +29,18 @@ export class QuestionsEntity extends AppBaseEntity {
 
   @Column({ default: true })
   is_exam_question: boolean;
-  
+
   @Column({ nullable: true })
   Mobility: string;
 
   @Column()
   difficulty: string;
 
-  @Column()
+  @Column({ nullable: true })
   CBR_chapter: string;
 
   //  @ManyToOne(() => ExamEntity, (exam) => exam.questions, {
   //   onDelete: 'NO ACTION',
   // })
   // exam: ExamEntity
-
 }
