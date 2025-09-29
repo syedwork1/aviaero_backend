@@ -1,6 +1,7 @@
-import { Column, Entity } from 'typeorm';
-import { AppBaseEntity } from './base.entity';
-import { IsEmail, IsNotEmpty } from 'class-validator';
+import { Column, Entity } from "typeorm";
+import { AppBaseEntity } from "./base.entity";
+import { IsEmail, IsNotEmpty } from "class-validator";
+import { Exclude } from "class-transformer";
 @Entity()
 export class UserEntity extends AppBaseEntity {
   @Column({ unique: true })
@@ -11,7 +12,7 @@ export class UserEntity extends AppBaseEntity {
   @IsNotEmpty()
   password: string;
 
-  @Column({ default: 'STUDENT' })
+  @Column({ default: "STUDENT" })
   @IsNotEmpty()
   role: string;
 

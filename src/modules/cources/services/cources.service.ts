@@ -1,28 +1,28 @@
-import { Injectable ,InternalServerErrorException,NotFoundException} from '@nestjs/common';
-import { CreateCourceDto } from '../dto/create-cource.dto';
-import { UpdateCourceDto } from '../dto/update-cource.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import {  Repository } from 'typeorm';
-import { CourceEntity } from '../../../database/entities/cource.entity';
-
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from "@nestjs/common";
+import { CreateCourceDto } from "../dto/create-cource.dto";
+import { UpdateCourceDto } from "../dto/update-cource.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { CourceEntity } from "../../../database/entities/cource.entity";
 
 @Injectable()
 export class CourcesService {
-
   constructor(
-      @InjectRepository(CourceEntity)
-      private readonly courceRepository: Repository<CourceEntity>,
-    ) {}
+    @InjectRepository(CourceEntity)
+    private readonly courceRepository: Repository<CourceEntity>
+  ) {}
 
-
- async create(createCourseDto: CreateCourceDto): Promise<CourceEntity> {
+  async create(createCourseDto: CreateCourceDto): Promise<CourceEntity> {
     try {
       const course = this.courceRepository.create(createCourseDto);
       return await this.courceRepository.save(course);
     } catch (error) {
-  
       throw new InternalServerErrorException({
-        message: 'Failed to create course',
+        message: "Failed to create course",
         error: error.message,
       });
     }
@@ -30,16 +30,16 @@ export class CourcesService {
 
   async findAll(): Promise<CourceEntity[]> {
     try {
-      const test=await this.courceRepository.find({
-  relations: ['category'],
-    order: { createAt: 'DESC' }, 
-});
-console.log(test)
-return test
+      const test = await this.courceRepository.find({
+        // relations: ['category'],
+        order: { createAt: "DESC" },
+      });
+      console.log(test);
+      return test;
     } catch (error) {
       // Log the original error for debugging if needed
-      console.error('Database error fetching courses:', error);
-      throw new InternalServerErrorException('Failed to fetch courses');
+      console.error("Database error fetching courses:", error);
+      throw new InternalServerErrorException("Failed to fetch courses");
     }
   }
 
@@ -52,22 +52,21 @@ return test
       return course;
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      console.error('Database error fetching course:', error);
-      throw new InternalServerErrorException('Failed to fetch course');
+      console.error("Database error fetching course:", error);
+      throw new InternalServerErrorException("Failed to fetch course");
     }
   }
 
-   async update(id: string, dto: UpdateCourceDto) {
-   const cource = await this.courceRepository.findOne({ where: { id } });
-   if (!cource) return null;
- 
-   Object.assign(cource, dto);
-   return this.courceRepository.save(cource);
- }
+  async update(id: string, dto: UpdateCourceDto) {
+    const cource = await this.courceRepository.findOne({ where: { id } });
+    if (!cource) return null;
 
+    Object.assign(cource, dto);
+    return this.courceRepository.save(cource);
+  }
 
- async remove(id:string): Promise<boolean> {
-  const result = await this.courceRepository.delete(id);
-  return result.affected > 0;   
-}
+  async remove(id: string): Promise<boolean> {
+    const result = await this.courceRepository.delete(id);
+    return result.affected > 0;
+  }
 }
