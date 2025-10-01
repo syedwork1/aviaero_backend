@@ -1,14 +1,19 @@
-import {BadRequestException, Injectable, UnauthorizedException, ConflictException} from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { UserEntity } from '../../../database/entities/user.entity';
-import { LoginDto } from '../dtos/login.dto';
-import { SignupDto } from '../dtos/signup.dto';
-import { ExceptionEnum } from '../enums/exception.enum';
-import { ConfigService } from '@nestjs/config';
-import { UserService } from '../../user/services/user.service';
-import { hashPassword } from '@core/helpers/core.helper';
-import { MailService } from './mail.service';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+  ConflictException,
+} from "@nestjs/common";
+import * as bcrypt from "bcrypt";
+import { JwtService } from "@nestjs/jwt";
+import { UserEntity } from "../../../database/entities/user.entity";
+import { LoginDto } from "../dtos/login.dto";
+import { SignupDto } from "../dtos/signup.dto";
+import { ExceptionEnum } from "../enums/exception.enum";
+import { ConfigService } from "@nestjs/config";
+import { UserService } from "../../user/services/user.service";
+import { hashPassword } from "@core/helpers/core.helper";
+import { MailService } from "./mail.service";
 
 @Injectable()
 export class AuthService {
@@ -16,14 +21,18 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly mailService:MailService,
+    private readonly mailService: MailService
   ) {}
 
-  async validateUser(email: string, password: string): Promise<Partial<UserEntity>> {
-    const user: UserEntity = await this.userService.findOne({ email: email.toLowerCase() });
-   
-    if (user && (await bcrypt.compare(password, user.password)))
-       {
+  async validateUser(
+    email: string,
+    password: string
+  ): Promise<Partial<UserEntity>> {
+    const user: UserEntity = await this.userService.findOne({
+      email: email.toLowerCase(),
+    });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
     }
@@ -33,7 +42,9 @@ export class AuthService {
   async signup(signupDto: SignupDto): Promise<any> {
     try {
       // Check if user already exists
-      const existingUser = await this.userService.findOneOptional({ email: signupDto.email.toLowerCase() });
+      const existingUser = await this.userService.findOneOptional({
+        email: signupDto.email.toLowerCase(),
+      });
       if (existingUser) {
         throw new ConflictException(ExceptionEnum.USER_ALREADY_EXISTS);
       }
@@ -52,22 +63,21 @@ export class AuthService {
         lastName: signupDto.lastName,
         // username: signupDto.username,
         // phone:signupDto.phone,
-         //role:"ADMIN"
+        //role:"ADMIN"
       });
 
       // Generate tokens for the new user
       const userWithoutPassword = { ...newUser, password: undefined };
-      return { 
-        message: 'User created successfully',
+      return {
+        message: "User created successfully",
         user: userWithoutPassword,
-        ...this.getAccessTokens(userWithoutPassword)
+        ...this.getAccessTokens(userWithoutPassword),
       };
     } catch (e) {
-     
       if (e instanceof ConflictException) {
         throw e;
       }
-      throw new BadRequestException('Failed to create user');
+      throw new BadRequestException("Failed to create user");
     }
   }
 
@@ -75,24 +85,22 @@ export class AuthService {
     try {
       const user = await this.validateUser(loginDto.email, loginDto.password);
 
-    if (!user) {
-      throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
-    }
+      if (!user) {
+        throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
+      }
 
-    return { ...this.getAccessTokens(user) };
+      return { ...this.getAccessTokens(user), role: user.role };
     } catch (e) {
-     
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
     }
   }
 
   getAccessTokens(user) {
-    const payload = { email: user.email, user_id: user.id ,role: user.role};
+    const payload = { email: user.email, user_id: user.id, role: user.role };
     const accessToken = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_SECRET_EXPIRY') ?? '1h',
-    }
-  );
+      secret: this.configService.get<string>("JWT_SECRET"),
+      expiresIn: this.configService.get<string>("JWT_SECRET_EXPIRY") ?? "1h",
+    });
 
     // const refreshToken = this.jwtService.sign(payload, {
     //   secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
@@ -104,18 +112,19 @@ export class AuthService {
 
   refreshToken(oldRefreshToken: string): any {
     const payload = this.jwtService.verify(oldRefreshToken, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
+      secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
     });
 
     const newPayload = { email: payload.email, sub: payload.sub };
     const accessToken = this.jwtService.sign(newPayload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_SECRET_EXPIRY') ?? '1h',
+      secret: this.configService.get<string>("JWT_SECRET"),
+      expiresIn: this.configService.get<string>("JWT_SECRET_EXPIRY") ?? "1h",
     });
 
     const newRefreshToken = this.jwtService.sign(newPayload, {
-      secret: this.configService.get<string>('JWT_REFRESH_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_REFRESH_SECRET_EXPIRY') ?? '7d',
+      secret: this.configService.get<string>("JWT_REFRESH_SECRET"),
+      expiresIn:
+        this.configService.get<string>("JWT_REFRESH_SECRET_EXPIRY") ?? "7d",
     });
 
     return { accessToken: accessToken, refreshToken: newRefreshToken };
@@ -125,24 +134,24 @@ export class AuthService {
   async createDefaultUser(email: string | undefined) {
     if (!email) {
       const user = await this.userService.findOne({
-        email: 'haider@shiftgroup.ca',
-      })
+        email: "haider@shiftgroup.ca",
+      });
 
       if (user) {
-        return ;
+        return;
       }
     }
 
     await this.userService.createUser({
-      email: email ?? 'haider@shiftgroup.ca',
-      firstName: 'Test',
-      lastName: 'Shift',
-      password: 'Aa@123456',
+      email: email ?? "haider@shiftgroup.ca",
+      firstName: "Test",
+      lastName: "Shift",
+      password: "Aa@123456",
     });
 
     return {
-      email: email ?? 'haider@shiftgroup.ca',
-      password: 'Aa@123456',
+      email: email ?? "haider@shiftgroup.ca",
+      password: "Aa@123456",
     };
   }
 
@@ -159,32 +168,35 @@ export class AuthService {
 
     const payload = { email: user.email, user_id: user.id };
     const token = this.jwtService.sign(payload, {
-      secret: this.configService.get<string>('JWT_SECRET'),
-      expiresIn: this.configService.get<string>('JWT_SECRET_EXPIRY') ?? '1h',
+      secret: this.configService.get<string>("JWT_SECRET"),
+      expiresIn: this.configService.get<string>("JWT_SECRET_EXPIRY") ?? "1h",
     });
 
-    let appUrl = this.configService.get<string>('APP_URL');
-    appUrl = appUrl ? appUrl.replace(/\/$/, '') : '';
+    let appUrl = this.configService.get<string>("APP_URL");
+    appUrl = appUrl ? appUrl.replace(/\/$/, "") : "";
     const resetUrl = `${appUrl}/resetpassword?token=${token}`;
-   console.log("resetURL")
+    console.log("resetURL");
     // Todo: Send Mail code here, when we configure email channel for SHIFT
-    const sendEmail = await this.mailService.sendPasswordResetEmail(user.email, resetUrl);
-    console.log(sendEmail,"sendEmail")
+    const sendEmail = await this.mailService.sendPasswordResetEmail(
+      user.email,
+      resetUrl
+    );
+    console.log(sendEmail, "sendEmail");
     return {
       success: true,
-      message: 'Password reset link has been sent to your email.',
-    
+      message: "Password reset link has been sent to your email.",
     };
-   
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    const { email, user_id } = this.jwtService.verify(token, { secret: this.configService.get<string>('JWT_SECRET') });
+    const { email, user_id } = this.jwtService.verify(token, {
+      secret: this.configService.get<string>("JWT_SECRET"),
+    });
     const user = await this.userService.findOne({
       id: user_id,
     });
     if (!user) {
-      throw new Error('Invalid token');
+      throw new Error("Invalid token");
     }
 
     user.password = await hashPassword(newPassword); // Hash the password before saving
@@ -192,7 +204,7 @@ export class AuthService {
       {
         id: user_id,
       },
-      user,
+      user
     );
   }
 }
