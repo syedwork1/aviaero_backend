@@ -66,7 +66,7 @@ export class CategoryController {
   }
 
 
-   @ApiBearerAuth('authorization')
+  @ApiBearerAuth('authorization')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Patch(':id')
