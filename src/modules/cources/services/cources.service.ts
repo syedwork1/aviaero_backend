@@ -46,12 +46,10 @@ export class CourcesService {
 
   async findAll(): Promise<CourceEntity[]> {
     try {
-      const test = await this.courceRepository.find({
-        // relations: ['category'],
+      return this.courceRepository.find({
+        relations: ["category"],
         order: { createAt: "DESC" },
       });
-      console.log(test);
-      return test;
     } catch (error) {
       // Log the original error for debugging if needed
       console.error("Database error fetching courses:", error);
@@ -61,7 +59,10 @@ export class CourcesService {
 
   async findOne(id: string): Promise<CourceEntity> {
     try {
-      const course = await this.courceRepository.findOne({ where: { id } });
+      const course = await this.courceRepository.findOne({
+        where: { id },
+        relations: ["category"],
+      });
       if (!course) {
         throw new NotFoundException(`Course with id ${id} not found`);
       }
