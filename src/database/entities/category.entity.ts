@@ -10,6 +10,6 @@ export class CategoryEntity extends AppBaseEntity {
   @Column({ nullable: true })
   CBR_chapter: string;
 
-  @OneToOne(() => CourceEntity, (cource) => cource.category, {})
+  @OneToMany(() => CourceEntity, (cource) => cource.category, {})
   cource: CourceEntity;
 }

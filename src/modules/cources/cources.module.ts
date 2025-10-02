@@ -14,5 +14,6 @@ import { CategoryModule } from "../category/category.module";
   ],
   controllers: [CourcesController],
   providers: [CourcesService],
+  exports: [CourcesService],
 })
 export class CourcesModule {}
