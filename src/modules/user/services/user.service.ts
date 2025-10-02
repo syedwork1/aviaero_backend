@@ -1,17 +1,21 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsSelect, Repository } from 'typeorm';
-import { UserEntity } from '../../../database/entities/user.entity';
-import { FindOptionsWhere } from 'typeorm/find-options/FindOptionsWhere';
-import { UpdateResult } from 'typeorm/query-builder/result/UpdateResult';
-import { ExceptionEnum } from '../enums/exception.enum';
-import { hashPassword } from '@core/helpers/core.helper';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { FindOptionsSelect, Repository } from "typeorm";
+import { UserEntity } from "../../../database/entities/user.entity";
+import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere";
+import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
+import { ExceptionEnum } from "../enums/exception.enum";
+import { hashPassword } from "@core/helpers/core.helper";
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>,
+    private readonly userRepository: Repository<UserEntity>
   ) {}
 
   async createUser(user: Partial<UserEntity>): Promise<UserEntity> {
@@ -46,7 +50,9 @@ export class UserService {
     return user;
   }
 
-  async findOneOptional(where: FindOptionsWhere<UserEntity>): Promise<UserEntity | null> {
+  async findOneOptional(
+    where: FindOptionsWhere<UserEntity>
+  ): Promise<UserEntity | null> {
     const user = await this.userRepository.findOne({
       where,
     });
@@ -55,12 +61,12 @@ export class UserService {
 
   async getAll(
     where: FindOptionsWhere<UserEntity> = {},
-    select: Array<string> = ['id', 'email', 'firstName', 'lastName'],
+    select: Array<string> = ["id", "email", "firstName", "lastName"]
   ): Promise<UserEntity[]> {
     const user = await this.userRepository.find({
       where: {
         ...where,
-        role: 'STUDENT', 
+        role: "STUDENT",
       },
       select: select as FindOptionsSelect<UserEntity>,
     });
@@ -70,7 +76,15 @@ export class UserService {
     return user;
   }
 
-  async update(criteria: FindOptionsWhere<UserEntity>, user: Partial<UserEntity>): Promise<UpdateResult> {
-    return this.userRepository.update(criteria, user);
+  async update(
+    criteria: FindOptionsWhere<UserEntity>,
+    user: Partial<UserEntity>
+  ): Promise<UpdateResult> {
+    return this.userRepository.update(criteria, {
+      ...user,
+      ...("password" in user
+        ? { password: await hashPassword(user.password) }
+        : {}),
+    });
   }
 }
