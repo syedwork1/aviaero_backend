@@ -7,11 +7,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from "@nestjs/common";
 import { StudentsService } from "./students.service";
 import { CreateStudentDto } from "./dto/create-student.dto";
 import { UpdateStudentDto } from "./dto/update-student.dto";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/gaurds/roles.decorator";
@@ -30,12 +33,41 @@ export class StudentsController {
     return this.studentsService.create(createStudentDto);
   }
 
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    description: "page no",
+    required: false,
+  })
+  @ApiQuery({
+    name: "limit",
+    type: Number,
+    description: "page size",
+    required: false,
+  })
+  @ApiQuery({
+    name: "sort_by",
+    type: String,
+    description: "sort by",
+    required: false,
+  })
+  @ApiQuery({
+    name: "query",
+    type: String,
+    description: "search by firstname",
+    required: false,
+  })
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  findAll() {
-    return this.studentsService.findAll();
+  findAll(
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("sort_by") sortBy: string,
+    @Query("query") query: string
+  ) {
+    return this.studentsService.findAll(page, limit, sortBy, query);
   }
 
   @ApiBearerAuth("authorization")

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateStudentDto } from "./dto/create-student.dto";
 import { UpdateStudentDto } from "./dto/update-student.dto";
 import { UserService } from "../user/services/user.service";
-import { Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { UserEntity } from "../../database/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "@core/enums/role.enum";
@@ -32,10 +32,23 @@ export class StudentsService {
     }
   }
 
-  findAll() {
+  findAll(page: number, limit: number, sortBy: string, query: string) {
+    console.log(page, limit, sortBy, query);
     return this.userRepository.find({
       select: ["id", "createAt", "email", "firstName", "lastName", "role"],
-      where: { role: Role.STUDENT },
+      where: {
+        role: Role.STUDENT,
+        ...(query ? { firstName: ILike(`%${query}%`) } : {}),
+      },
+      take: limit,
+      skip: page * limit || 0,
+      ...(sortBy
+        ? {
+            order: {
+              [sortBy]: "DESC",
+            },
+          }
+        : {}),
     });
   }
 

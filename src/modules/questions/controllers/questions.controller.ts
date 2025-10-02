@@ -10,11 +10,19 @@ import {
   ForbiddenException,
   UseInterceptors,
   UploadedFile,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from "@nestjs/common";
 import { QuestionsService } from "../services/questions.service";
 import { CreateQuestionDto } from "../dto/create-question.dto";
 import { UpdateQuestionDto } from "../dto/update-question.dto";
-import { ApiBearerAuth, ApiConsumes, ApiTags, ApiBody } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiTags,
+  ApiBody,
+  ApiQuery,
+} from "@nestjs/swagger";
 import { Query } from "@nestjs/common";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { Roles } from "@core/gaurds/roles.decorator";
@@ -42,8 +50,41 @@ export class QuestionsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get()
   @Roles(Role.ADMIN)
-  findAll(@Query("page") page: number = 1, @Query("limit") limit: number = 10) {
-    return this.questionsService.findAll(Number(page), Number(limit));
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    description: "page no",
+    required: false,
+  })
+  @ApiQuery({
+    name: "limit",
+    type: Number,
+    description: "page size",
+    required: false,
+  })
+  @ApiQuery({
+    name: "sort_by",
+    type: String,
+    description: "sort by",
+    required: false,
+  })
+  @ApiQuery({
+    name: "query",
+    type: String,
+    description: "search by question",
+    required: false,
+  })
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get()
+  findAll(
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("sort_by") sortBy: string,
+    @Query("query") query: string
+  ) {
+    return this.questionsService.findAll(page, limit, sortBy, query);
   }
 
   // get question through question Id

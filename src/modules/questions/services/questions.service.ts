@@ -3,7 +3,7 @@ import { CreateQuestionDto } from "../dto/create-question.dto";
 import { UpdateQuestionDto } from "../dto/update-question.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../../database/entities/question.entity";
-import { Repository, In } from "typeorm";
+import { Repository, In, ILike } from "typeorm";
 import { NotFoundException } from "@nestjs/common";
 import * as fastCsv from "fast-csv";
 import { Readable } from "stream";
@@ -53,8 +53,10 @@ export class QuestionsService {
   }
 
   async findAll(
-    page = 1,
-    limit = 10
+    page: number,
+    limit: number,
+    sortBy: string,
+    query: string
   ): Promise<{
     success: boolean;
     message: string;
@@ -64,14 +66,13 @@ export class QuestionsService {
     limit?: number;
   }> {
     try {
-      const skip = (page - 1) * limit;
-
       const [data, total] = await Promise.all([
         this.questionRepository.find({
           relations: ["Mobility"],
-          skip,
+          ...(query ? { where: { question: ILike(`%${query}%`) } } : {}),
+          skip: page * limit,
           take: limit,
-          order: { createAt: "DESC" },
+          order: { [sortBy]: "DESC" },
         }),
         this.questionRepository.count(),
       ]);
@@ -234,34 +235,6 @@ export class QuestionsService {
         .on("error", reject);
     });
   }
-
-  // async upload(file: Express.Multer.File) {
-  //   const {
-  //     headers,
-  //     data: rows,
-  //     errors,
-  //   } = await this.readCsvFromBuffer(file.buffer);
-
-  //   const toNull = (v: any) =>
-  //     v === undefined || v === null || v === "" ? null : v;
-  //   //  console.log(rows,"rows")
-  //   const mapped = rows.map((r) => {
-  //     return {
-  //       question: toNull(r["Vraag"]),
-  //       option_A: toNull(r["antwoord A"]),
-  //       option_B: toNull(r["Antwoord B"]),
-  //       option_C: toNull(r["Antwoord C"]),
-  //       option_D: toNull(r["Antwoord D"]),
-  //       correct_answer: toNull(r["Correct antwoord"]),
-  //       explanation: toNull(r["Uitleg"]),
-  //       Mobility: toNull(r["Categorie"]),
-  //       difficulty: toNull(r["Moeilijkheid"]),
-  //       CBR_chapter: toNull(r["CBR-code"]),
-  //     };
-  //   });
-  //   console.log(mapped, "mapped");
-  //   return this.questionRepository.save(mapped);
-  // }
 
   async upload(file: Express.Multer.File) {
     const { data: rows } = await this.readCsvFromBuffer(file.buffer);

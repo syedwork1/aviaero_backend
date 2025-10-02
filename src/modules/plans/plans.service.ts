@@ -3,7 +3,7 @@ import { CreatePlanDto } from "./dto/create-plan.dto";
 import { UpdatePlanDto } from "./dto/update-plan.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PlanEntity } from "../../database/entities/plan.entity";
-import { Repository } from "typeorm";
+import { ILike, Repository } from "typeorm";
 import { CourcesService } from "../cources/services/cources.service";
 
 @Injectable()
@@ -24,8 +24,19 @@ export class PlansService {
     return this.planRepository.save({ ...createPlanDto, course });
   }
 
-  findAll() {
-    return this.planRepository.find();
+  findAll(page: number, limit: number, sortBy: string, query: string) {
+    return this.planRepository.find({
+      ...(query ? { where: { name: ILike(`%${query}%`) } } : {}),
+      take: limit,
+      skip: page * limit || 0,
+      ...(sortBy
+        ? {
+            order: {
+              [sortBy]: "DESC",
+            },
+          }
+        : {}),
+    });
   }
 
   findOne(id: string) {
