@@ -39,6 +39,10 @@ export class PlansService {
     });
   }
 
+  stats() {
+    return { total: 10, inProgress: 4, completed: 3 };
+  }
+
   findOne(id: string) {
     return this.planRepository.findOne({
       where: { id },

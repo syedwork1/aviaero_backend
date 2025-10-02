@@ -73,6 +73,14 @@ export class StudentsController {
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
+  @Get("stats")
+  stats() {
+    return this.studentsService.stats();
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Get(":id")
   findOne(@Param("id") id: string) {
     return this.studentsService.findOne(id);

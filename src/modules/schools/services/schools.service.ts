@@ -106,6 +106,10 @@ export class SchoolsService {
     }
   }
 
+  stats() {
+    return { total: 10, inActive: 1, active: 5 };
+  }
+
   async update(id: string, updateSchoolDto: UpdateSchoolDto) {
     // Check if school exists
     const findSchool = await this.schoolRepository.findOne({ where: { id } });

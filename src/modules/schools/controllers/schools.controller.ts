@@ -82,6 +82,14 @@ export class SchoolsController {
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
+  @Get("stats")
+  stats() {
+    return this.schoolsService.stats();
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updateSchoolDto: UpdateSchoolDto) {
     return this.schoolsService.update(id, updateSchoolDto);

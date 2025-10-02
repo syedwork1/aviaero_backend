@@ -33,7 +33,6 @@ export class StudentsService {
   }
 
   findAll(page: number, limit: number, sortBy: string, query: string) {
-    console.log(page, limit, sortBy, query);
     return this.userRepository.find({
       select: ["id", "createAt", "email", "firstName", "lastName", "role"],
       where: {
@@ -57,6 +56,10 @@ export class StudentsService {
       select: ["id", "createAt", "email", "firstName", "lastName", "role"],
       where: { id },
     });
+  }
+
+  stats() {
+    return { total: 10, new: 1, active: 4 };
   }
 
   update(id: string, updateStudentDto: UpdateStudentDto) {

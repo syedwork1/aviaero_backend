@@ -81,6 +81,14 @@ export class PlansController {
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
+  @Get("stats")
+  stats() {
+    return this.plansService.stats();
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
   @Patch(":id")
   update(@Param("id") id: string, @Body() updatePlanDto: UpdatePlanDto) {
     return this.plansService.update(id, updatePlanDto);
