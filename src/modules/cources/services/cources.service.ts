@@ -76,16 +76,24 @@ export class CourcesService {
 
   async update(id: string, dto: UpdateCourceDto) {
     const cource = await this.courceRepository.findOne({ where: { id } });
-    if (!cource) return null;
+    if (!cource) {
+      throw new Error(`Cource with id ${id} not found!`);
+    }
 
-    const category = await this.categoryService.findOne(dto.categoryId);
+    let category: any;
+    if ("categoryId" in dto) {
+      category = await this.categoryService.findOne(dto.categoryId);
 
-    if (!category) {
-      throw new Error(`Category with id ${dto.categoryId} not found!`);
+      if (!category) {
+        throw new Error(`Category with id ${dto.categoryId} not found!`);
+      }
     }
 
     Object.assign(cource, dto);
-    return this.courceRepository.save({ ...cource, category });
+    return this.courceRepository.save({
+      ...cource,
+      ...(category ? { category } : {}),
+    });
   }
 
   async remove(id: string): Promise<boolean> {

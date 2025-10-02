@@ -7,12 +7,14 @@ import { Repository } from "typeorm";
 import { NotFoundException } from "@nestjs/common";
 import * as fastCsv from "fast-csv";
 import { Readable } from "stream";
+import { CategoryService } from "../../category/services/category.service";
 
 @Injectable()
 export class QuestionsService {
   constructor(
     @InjectRepository(QuestionsEntity)
-    private readonly questionRepository: Repository<QuestionsEntity>
+    private readonly questionRepository: Repository<QuestionsEntity>,
+    private readonly categoryService: CategoryService
   ) {}
 
   async create(createQuestionDto: CreateQuestionDto): Promise<{
@@ -21,8 +23,18 @@ export class QuestionsService {
     data?: QuestionsEntity;
   }> {
     try {
+      const category = await this.categoryService.findOne(
+        createQuestionDto.categoryId
+      );
+
+      if (!category) {
+        throw new NotFoundException(
+          `Category with id ${createQuestionDto.categoryId} not found!`
+        );
+      }
       const savedQuestion = await this.questionRepository.save({
         ...createQuestionDto,
+        Mobility: category,
       });
 
       return {
@@ -120,30 +132,28 @@ export class QuestionsService {
         throw new NotFoundException(`Question with id ${id} not found`);
       }
 
-      const updatePayload = {
-        question: updateQuestionDto.question,
-        option_A: updateQuestionDto.option_A,
-        option_B: updateQuestionDto.option_B,
-        option_C: updateQuestionDto.option_C,
-        option_D: updateQuestionDto.option_D,
-        correct_answer: updateQuestionDto.correct_answer,
-        explanation: updateQuestionDto.explanation,
-        difficulty: updateQuestionDto.difficulty,
-        Mobility: updateQuestionDto.Mobility,
-        img_1: updateQuestionDto.img_1,
-        img_2: updateQuestionDto.img_2,
-      };
+      let category: any;
 
-      await this.questionRepository.update(id, updatePayload);
+      if ("categoryId" in updateQuestionDto) {
+        category = await this.categoryService.findOne(
+          updateQuestionDto.categoryId
+        );
 
-      const updatedQuestion = await this.questionRepository.findOne({
-        where: { id },
-      });
+        if (!category) {
+          throw new NotFoundException(
+            `Category with id ${updateQuestionDto.categoryId} not found!`
+          );
+        }
+      }
 
+      Object.assign(question, updateQuestionDto);
       return {
         success: true,
         message: "Question updated successfully",
-        data: updatedQuestion,
+        data: await this.questionRepository.save({
+          ...question,
+          ...(category ? { category } : {}),
+        }),
       };
     } catch (error) {
       return {

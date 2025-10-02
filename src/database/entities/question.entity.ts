@@ -1,6 +1,7 @@
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { ExamEntity } from "./exam.entity";
+import { CategoryEntity } from "./category.entity";
 @Entity()
 export class QuestionsEntity extends AppBaseEntity {
   @Column()
@@ -30,8 +31,9 @@ export class QuestionsEntity extends AppBaseEntity {
   @Column({ default: true })
   is_exam_question: boolean;
 
-  @Column({ nullable: true })
-  Mobility: string;
+  @ManyToOne(() => CategoryEntity, (category) => category.questions)
+  @JoinColumn()
+  Mobility: CategoryEntity;
 
   @Column()
   difficulty: string;

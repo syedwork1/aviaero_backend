@@ -51,10 +51,10 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   difficulty: string;
 
-  @ApiProperty({ description: "category" })
+  @ApiProperty({ description: "category id" })
   @IsString()
   @IsNotEmpty()
-  Mobility: string;
+  categoryId: string;
 
   @ApiProperty({ description: "question image 1" })
   @IsString()
