@@ -66,6 +66,7 @@ export class QuestionsService {
 
       const [data, total] = await Promise.all([
         this.questionRepository.find({
+          relations: ["Mobility"],
           skip,
           take: limit,
           order: { createAt: "DESC" },
@@ -95,7 +96,10 @@ export class QuestionsService {
     data?: QuestionsEntity;
   }> {
     try {
-      const question = await this.questionRepository.findOne({ where: { id } });
+      const question = await this.questionRepository.findOne({
+        where: { id },
+        relations: ["Mobility"],
+      });
 
       if (!question) {
         return {
