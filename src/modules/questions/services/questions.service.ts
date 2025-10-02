@@ -24,14 +24,15 @@ export class QuestionsService {
   }> {
     try {
       const category = await this.categoryService.findOne(
-        createQuestionDto.categoryId
+        createQuestionDto.Mobility
       );
 
       if (!category) {
         throw new NotFoundException(
-          `Category with id ${createQuestionDto.categoryId} not found!`
+          `Category with id ${createQuestionDto.Mobility} not found!`
         );
       }
+      delete createQuestionDto.Mobility;
       const savedQuestion = await this.questionRepository.save({
         ...createQuestionDto,
         Mobility: category,
@@ -138,25 +139,25 @@ export class QuestionsService {
 
       let category: any;
 
-      if ("categoryId" in updateQuestionDto) {
+      if ("Mobility" in updateQuestionDto) {
         category = await this.categoryService.findOne(
-          updateQuestionDto.categoryId
+          updateQuestionDto.Mobility
         );
 
         if (!category) {
           throw new NotFoundException(
-            `Category with id ${updateQuestionDto.categoryId} not found!`
+            `Category with id ${updateQuestionDto.Mobility} not found!`
           );
         }
       }
-
+      delete updateQuestionDto.Mobility;
       Object.assign(question, updateQuestionDto);
       return {
         success: true,
         message: "Question updated successfully",
         data: await this.questionRepository.save({
           ...question,
-          ...(category ? { category } : {}),
+          ...(category ? { Mobility: category } : {}),
         }),
       };
     } catch (error) {
