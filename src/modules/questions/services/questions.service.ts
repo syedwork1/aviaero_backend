@@ -3,11 +3,12 @@ import { CreateQuestionDto } from "../dto/create-question.dto";
 import { UpdateQuestionDto } from "../dto/update-question.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../../database/entities/question.entity";
-import { Repository } from "typeorm";
+import { Repository, In } from "typeorm";
 import { NotFoundException } from "@nestjs/common";
 import * as fastCsv from "fast-csv";
 import { Readable } from "stream";
 import { CategoryService } from "../../category/services/category.service";
+import { CategoryEntity } from "../../../database/entities/category.entity";
 
 @Injectable()
 export class QuestionsService {
@@ -234,32 +235,108 @@ export class QuestionsService {
     });
   }
 
+  // async upload(file: Express.Multer.File) {
+  //   const {
+  //     headers,
+  //     data: rows,
+  //     errors,
+  //   } = await this.readCsvFromBuffer(file.buffer);
+
+  //   const toNull = (v: any) =>
+  //     v === undefined || v === null || v === "" ? null : v;
+  //   //  console.log(rows,"rows")
+  //   const mapped = rows.map((r) => {
+  //     return {
+  //       question: toNull(r["Vraag"]),
+  //       option_A: toNull(r["antwoord A"]),
+  //       option_B: toNull(r["Antwoord B"]),
+  //       option_C: toNull(r["Antwoord C"]),
+  //       option_D: toNull(r["Antwoord D"]),
+  //       correct_answer: toNull(r["Correct antwoord"]),
+  //       explanation: toNull(r["Uitleg"]),
+  //       Mobility: toNull(r["Categorie"]),
+  //       difficulty: toNull(r["Moeilijkheid"]),
+  //       CBR_chapter: toNull(r["CBR-code"]),
+  //     };
+  //   });
+  //   console.log(mapped, "mapped");
+  //   return this.questionRepository.save(mapped);
+  // }
+
   async upload(file: Express.Multer.File) {
-    const {
-      headers,
-      data: rows,
-      errors,
-    } = await this.readCsvFromBuffer(file.buffer);
+    const { data: rows } = await this.readCsvFromBuffer(file.buffer);
 
     const toNull = (v: any) =>
       v === undefined || v === null || v === "" ? null : v;
-    //  console.log(rows,"rows")
-    const mapped = rows.map((r) => {
-      return {
-        question: toNull(r["Vraag"]),
-        option_A: toNull(r["antwoord A"]),
-        option_B: toNull(r["Antwoord B"]),
-        option_C: toNull(r["Antwoord C"]),
-        option_D: toNull(r["Antwoord D"]),
-        correct_answer: toNull(r["Correct antwoord"]),
-        explanation: toNull(r["Uitleg"]),
-        Mobility: toNull(r["Categorie"]),
-        difficulty: toNull(r["Moeilijkheid"]),
-        CBR_chapter: toNull(r["CBR-code"]),
-      };
+
+    // Step 1: Normalize rows
+    const mapped = rows.map((r) => ({
+      question: toNull(r["Vraag"]),
+      option_A: toNull(r["antwoord A"]),
+      option_B: toNull(r["Antwoord B"]),
+      option_C: toNull(r["Antwoord C"]),
+      option_D: toNull(r["Antwoord D"]),
+      correct_answer: toNull(r["Correct antwoord"]),
+      explanation: toNull(r["Uitleg"]),
+      difficulty: toNull(r["Moeilijkheid"]),
+      CBR_chapter: toNull(r["CBR-code"]),
+      categoryName: toNull(r["Categorie"]),
+    }));
+
+    // Step 2: Extract unique categories with chapter info
+    const categoryInput = new Map<
+      string,
+      { name: string; CBR_chapter?: string }
+    >();
+    for (const row of mapped) {
+      if (row.categoryName && !categoryInput.has(row.categoryName)) {
+        categoryInput.set(row.categoryName, {
+          name: row.categoryName,
+          CBR_chapter: row.CBR_chapter,
+        });
+      }
+    }
+
+    const categoryNames = [...categoryInput.keys()];
+
+    // Step 3: Fetch existing categories in one go
+    const existingCategories = await this.categoryService.findAll({
+      name: In(categoryNames),
     });
-    console.log(mapped, "mapped");
-    return this.questionRepository.save(mapped);
+
+    const categoryMap = new Map<string, CategoryEntity>();
+    existingCategories.forEach((cat) => categoryMap.set(cat.name, cat));
+
+    // Step 4: Create missing categories
+    const missing = categoryNames.filter((name) => !categoryMap.has(name));
+    if (missing.length) {
+      const savedCategories = await this.categoryService.bulkCreate(
+        missing.map((name) => ({
+          name,
+          CBR_chapter: categoryInput.get(name)?.CBR_chapter || null,
+        }))
+      );
+      savedCategories.forEach((cat) => categoryMap.set(cat.name, cat));
+    }
+
+    // Step 5: Build questions with category relation
+    const questions = mapped.map((r) =>
+      this.questionRepository.create({
+        question: r.question,
+        option_A: r.option_A,
+        option_B: r.option_B,
+        option_C: r.option_C,
+        option_D: r.option_D,
+        correct_answer: r.correct_answer,
+        explanation: r.explanation,
+        difficulty: r.difficulty,
+        CBR_chapter: r.CBR_chapter,
+        Mobility: categoryMap.get(r.categoryName), // ManyToOne relation
+      })
+    );
+
+    // Step 6: Bulk insert questions
+    return this.questionRepository.save(questions);
   }
 
   // find Random Questions

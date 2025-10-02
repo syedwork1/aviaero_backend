@@ -2,7 +2,12 @@ import { Injectable } from "@nestjs/common";
 import { CreateCategoryDto } from "../dto/create-category.dto";
 import { UpdateCategoryDto } from "../dto/update-category.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import {
+  FindManyOptions,
+  FindOneOptions,
+  FindOptionsWhere,
+  Repository,
+} from "typeorm";
 import { CategoryEntity } from "../../../database/entities/category.entity";
 
 @Injectable()
@@ -16,8 +21,19 @@ export class CategoryService {
     return this.categoryEntityRepository.save(createCategoryData);
   }
 
-  findAll() {
-    return this.categoryEntityRepository.find({ order: { createAt: "DESC" } });
+  bulkCreate(entities: CreateCategoryDto[]) {
+    return this.categoryEntityRepository.save(entities);
+  }
+
+  findAll(
+    where?:
+      | FindOptionsWhere<CategoryEntity>
+      | FindOptionsWhere<CategoryEntity>[]
+  ) {
+    return this.categoryEntityRepository.find({
+      ...(where ? { where } : {}),
+      order: { createAt: "DESC" },
+    });
   }
 
   async findOne(id: string): Promise<CategoryEntity | null> {

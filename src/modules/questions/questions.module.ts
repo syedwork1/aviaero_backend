@@ -5,10 +5,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../database/entities/question.entity";
 import { ConfigModule } from "@nestjs/config";
 import { CategoryModule } from "../category/category.module";
-import { CategoryService } from "../category/services/category.service";
+import { CategoryEntity } from "../../database/entities/category.entity";
 @Module({
   imports: [
-    TypeOrmModule.forFeature([QuestionsEntity]),
+    TypeOrmModule.forFeature([QuestionsEntity, CategoryEntity]),
     ConfigModule,
     CategoryModule,
   ],

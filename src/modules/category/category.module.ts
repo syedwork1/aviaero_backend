@@ -7,7 +7,6 @@ import { ConfigModule } from "@nestjs/config";
 
 @Module({
   imports: [TypeOrmModule.forFeature([CategoryEntity]), ConfigModule],
-
   controllers: [CategoryController],
   providers: [CategoryService],
   exports: [CategoryService],
