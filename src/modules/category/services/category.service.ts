@@ -6,6 +6,7 @@ import {
   FindManyOptions,
   FindOneOptions,
   FindOptionsWhere,
+  ILike,
   Repository,
 } from "typeorm";
 import { CategoryEntity } from "../../../database/entities/category.entity";
@@ -28,11 +29,24 @@ export class CategoryService {
   findAll(
     where?:
       | FindOptionsWhere<CategoryEntity>
-      | FindOptionsWhere<CategoryEntity>[]
+      | FindOptionsWhere<CategoryEntity>[],
+    page?: number,
+    limit?: number,
+    sortBy?: string,
+    query?: string
   ) {
     return this.categoryEntityRepository.find({
-      ...(where ? { where } : {}),
-      order: { createAt: "DESC" },
+      ...(where || query
+        ? {
+            where: {
+              ...where,
+              ...(query ? { name: ILike(`%${query}%`) } : {}),
+            },
+          }
+        : {}),
+      skip: page * limit,
+      take: limit,
+      order: { [sortBy]: "DESC" },
     });
   }
 

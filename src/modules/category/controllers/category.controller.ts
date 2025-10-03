@@ -1,21 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete ,HttpException,HttpStatus,UseGuards} from '@nestjs/common';
-import { CategoryService } from '../services/category.service';
-import { CreateCategoryDto } from '../dto/create-category.dto';
-import { UpdateCategoryDto } from '../dto/update-category.dto';
-import {ApiBearerAuth, ApiTags} from '@nestjs/swagger';
- import { JwtAuthGuard } from '@core/gaurds/jwt-auth.gaurd';
-  import { RolesGuard } from '@core/gaurds/roles.guard';
-  import { Roles } from '@core/gaurds/roles.decorator';
-  import { Role } from '@core/enums/role.enum';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  HttpException,
+  HttpStatus,
+  UseGuards,
+  DefaultValuePipe,
+  Query,
+  ParseIntPipe,
+} from "@nestjs/common";
+import { CategoryService } from "../services/category.service";
+import { CreateCategoryDto } from "../dto/create-category.dto";
+import { UpdateCategoryDto } from "../dto/update-category.dto";
+import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
+import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
+import { RolesGuard } from "@core/gaurds/roles.guard";
+import { Roles } from "@core/gaurds/roles.decorator";
+import { Role } from "@core/enums/role.enum";
 
-
-@ApiTags('category')
-@Controller('category')
-
+@ApiTags("category")
+@Controller("category")
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
-  @ApiBearerAuth('authorization')
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Post()
@@ -23,28 +35,55 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto);
   }
 
-
-   @ApiBearerAuth('authorization')
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    description: "page no",
+    required: false,
+  })
+  @ApiQuery({
+    name: "limit",
+    type: Number,
+    description: "page size",
+    required: false,
+  })
+  @ApiQuery({
+    name: "sort_by",
+    type: String,
+    description: "sort by",
+    required: false,
+  })
+  @ApiQuery({
+    name: "query",
+    type: String,
+    description: "search by name",
+    required: false,
+  })
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  findAll() {
-    return this.categoryService.findAll();
+  findAll(
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
+    @Query("query") query: string
+  ) {
+    return this.categoryService.findAll(undefined, page, limit, sortBy, query);
   }
 
-
-   @ApiBearerAuth('authorization')
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
- @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @Get(":id")
+  async findOne(@Param("id") id: string) {
     try {
       const category = await this.categoryService.findOne(id);
 
       if (!category) {
         throw new HttpException(
-          { statusCode: HttpStatus.NOT_FOUND, message: 'Category not found' },
-          HttpStatus.NOT_FOUND,
+          { statusCode: HttpStatus.NOT_FOUND, message: "Category not found" },
+          HttpStatus.NOT_FOUND
         );
       }
 
@@ -57,30 +96,29 @@ export class CategoryController {
       throw new HttpException(
         {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Failed to fetch category',
+          message: "Failed to fetch category",
           error: error.message,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
   }
 
-
-  @ApiBearerAuth('authorization')
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @Patch(':id')
+  @Patch(":id")
   async update(
-    @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
+    @Param("id") id: string,
+    @Body() updateCategoryDto: UpdateCategoryDto
   ) {
     try {
       const updated = await this.categoryService.update(id, updateCategoryDto);
 
       if (!updated) {
         throw new HttpException(
-          { statusCode: HttpStatus.NOT_FOUND, message: 'Category not found' },
-          HttpStatus.NOT_FOUND,
+          { statusCode: HttpStatus.NOT_FOUND, message: "Category not found" },
+          HttpStatus.NOT_FOUND
         );
       }
 
@@ -93,27 +131,26 @@ export class CategoryController {
       throw new HttpException(
         {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Failed to update category',
+          message: "Failed to update category",
           error: error.message,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
   }
 
-
-   @ApiBearerAuth('authorization')
+  @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  @Delete(":id")
+  async remove(@Param("id") id: string) {
     try {
       const deleted = await this.categoryService.remove(id);
       if (!deleted) {
         // Nothing was deleted → 404
         throw new HttpException(
-          { statusCode: HttpStatus.NOT_FOUND, message: 'Course not found' },
-          HttpStatus.NOT_FOUND,
+          { statusCode: HttpStatus.NOT_FOUND, message: "Course not found" },
+          HttpStatus.NOT_FOUND
         );
       }
 
@@ -125,10 +162,10 @@ export class CategoryController {
       throw new HttpException(
         {
           statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Failed to delete course',
+          message: "Failed to delete course",
           error: error.message,
         },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.BAD_REQUEST
       );
     }
   }

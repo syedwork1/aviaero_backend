@@ -46,9 +46,6 @@ export class QuestionsController {
   }
 
   // get all questions
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Get()
   @Roles(Role.ADMIN)
   @ApiQuery({
     name: "page",
