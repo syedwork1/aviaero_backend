@@ -15,6 +15,11 @@ export class CreatePlanDto {
   @IsNotEmpty()
   description: string;
 
+  @ApiProperty({ description: "Plan status", example: "INACTIVE" })
+  @IsString()
+  @IsNotEmpty()
+  status: string;
+
   @ApiProperty({ description: "Plan price", example: 100 })
   @IsNumber()
   @IsNotEmpty()

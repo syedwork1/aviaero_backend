@@ -12,6 +12,10 @@ export class PlanEntity extends AppBaseEntity {
   @IsNotEmpty()
   description: string;
 
+  @Column({ default: "ACTIVE" })
+  @IsNotEmpty()
+  status: string;
+
   @Column()
   @IsNotEmpty()
   price: number;
