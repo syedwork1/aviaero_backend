@@ -89,7 +89,7 @@ export class AuthService {
         throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
       }
 
-      return { ...this.getAccessTokens(user), role: user.role };
+      return { ...this.getAccessTokens(user), ...user };
     } catch (e) {
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
     }

@@ -31,7 +31,7 @@ export class CategoryService {
       | FindOptionsWhere<CategoryEntity>
       | FindOptionsWhere<CategoryEntity>[],
     page?: number,
-    limit?: number,
+    limit?: string,
     sortBy?: string,
     query?: string
   ) {
@@ -45,8 +45,8 @@ export class CategoryService {
               },
             }
           : {}),
-        skip: page * limit,
-        take: limit,
+        ...(page ? { skip: page * parseInt(limit) } : {}),
+        ...(limit ? { take: parseInt(limit) } : {}),
         order: { [sortBy]: "DESC" },
       });
 

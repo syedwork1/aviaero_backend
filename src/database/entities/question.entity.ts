@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
-import { ExamEntity } from "./exam.entity";
+// import { ExamEntity } from "./exam.entity";
 import { CategoryEntity } from "./category.entity";
 @Entity()
 export class QuestionsEntity extends AppBaseEntity {

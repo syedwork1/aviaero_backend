@@ -1,7 +1,7 @@
-import { Column, Entity } from "typeorm";
+import { Column, Entity, OneToMany } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { IsEmail, IsNotEmpty } from "class-validator";
-import { Exclude } from "class-transformer";
+import { FeedbackEntity } from "./feedback.entity";
 @Entity()
 export class UserEntity extends AppBaseEntity {
   @Column({ unique: true })
@@ -21,6 +21,9 @@ export class UserEntity extends AppBaseEntity {
 
   @Column()
   lastName: string;
+
+  @OneToMany(() => FeedbackEntity, (feeback) => feeback.student)
+  feedback: FeedbackEntity;
 
   // @Column()
   // phone: string;

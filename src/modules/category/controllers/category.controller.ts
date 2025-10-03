@@ -65,7 +65,7 @@ export class CategoryController {
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
-    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("limit") limit: string,
     @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
     @Query("query") query: string
   ) {
