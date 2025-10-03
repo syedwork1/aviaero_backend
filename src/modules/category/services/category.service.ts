@@ -26,7 +26,7 @@ export class CategoryService {
     return this.categoryEntityRepository.save(entities);
   }
 
-  findAll(
+  async findAll(
     where?:
       | FindOptionsWhere<CategoryEntity>
       | FindOptionsWhere<CategoryEntity>[],
@@ -35,19 +35,22 @@ export class CategoryService {
     sortBy?: string,
     query?: string
   ) {
-    return this.categoryEntityRepository.find({
-      ...(where || query
-        ? {
-            where: {
-              ...where,
-              ...(query ? { name: ILike(`%${query}%`) } : {}),
-            },
-          }
-        : {}),
-      skip: page * limit,
-      take: limit,
-      order: { [sortBy]: "DESC" },
-    });
+    const [categories, total] =
+      await this.categoryEntityRepository.findAndCount({
+        ...(where || query
+          ? {
+              where: {
+                ...where,
+                ...(query ? { name: ILike(`%${query}%`) } : {}),
+              },
+            }
+          : {}),
+        skip: page * limit,
+        take: limit,
+        order: { [sortBy]: "DESC" },
+      });
+
+    return { categories, total };
   }
 
   async findOne(id: string): Promise<CategoryEntity | null> {

@@ -273,9 +273,10 @@ export class QuestionsService {
     const categoryNames = [...categoryInput.keys()];
 
     // Step 3: Fetch existing categories in one go
-    const existingCategories = await this.categoryService.findAll({
-      name: In(categoryNames),
-    });
+    const { categories: existingCategories } =
+      await this.categoryService.findAll({
+        name: In(categoryNames),
+      });
 
     const categoryMap = new Map<string, CategoryEntity>();
     existingCategories.forEach((cat) => categoryMap.set(cat.name, cat));
