@@ -70,6 +70,14 @@ export class SchoolsController {
     return this.schoolsService.findAll(page, limit, sortBy, query);
   }
 
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get("/stats")
+  stats() {
+    return this.schoolsService.stats();
+  }
+
   //get single School
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -77,14 +85,6 @@ export class SchoolsController {
   @Get("/:id")
   findOne(@Param("id") id: string) {
     return this.schoolsService.findOne(id);
-  }
-
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  @Get("stats")
-  stats() {
-    return this.schoolsService.stats();
   }
 
   @ApiBearerAuth("authorization")

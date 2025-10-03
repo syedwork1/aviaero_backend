@@ -73,17 +73,17 @@ export class PlansController {
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.plansService.findOne(id);
+  @Get("stats")
+  stats() {
+    return this.plansService.stats();
   }
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
-  @Get("stats")
-  stats() {
-    return this.plansService.stats();
+  @Get(":id")
+  findOne(@Param("id") id: string) {
+    return this.plansService.findOne(id);
   }
 
   @ApiBearerAuth("authorization")

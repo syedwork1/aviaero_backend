@@ -106,8 +106,11 @@ export class SchoolsService {
     }
   }
 
-  stats() {
-    return { total: 10, inActive: 1, active: 5 };
+  async stats() {
+    const [stats] = await this.schoolRepository.query(
+      `SELECT COUNT(*) AS total, COUNT(*) FILTER (WHERE s.status = 'Active') AS active, COUNT(*) FILTER (WHERE s.status = 'In-Active') AS inactive FROM school_entity s;`
+    );
+    return stats;
   }
 
   async update(id: string, updateSchoolDto: UpdateSchoolDto) {
