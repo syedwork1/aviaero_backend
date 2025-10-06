@@ -9,10 +9,10 @@ import { Repository } from "typeorm";
 export class FeedbackService {
   constructor(
     @InjectRepository(FeedbackEntity)
-    private readonly planRepository: Repository<FeedbackEntity>
+    private readonly feedbackRepository: Repository<FeedbackEntity>
   ) {}
   create(createFeedbackDto: CreateFeedbackDto) {
-    return;
+    return this.feedbackRepository.save(createFeedbackDto);
   }
 
   findAll() {

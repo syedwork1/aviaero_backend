@@ -24,8 +24,8 @@ export class PlansService {
     return this.planRepository.save({ ...createPlanDto, course });
   }
 
-  findAll(page: number, limit: number, sortBy: string, query: string) {
-    return this.planRepository.find({
+  async findAll(page: number, limit: number, sortBy: string, query: string) {
+    const [data, total] = await this.planRepository.findAndCount({
       ...(query ? { where: { name: ILike(`%${query}%`) } } : {}),
       take: limit,
       skip: page * limit || 0,
@@ -37,6 +37,8 @@ export class PlansService {
           }
         : {}),
     });
+
+    return { data, total };
   }
 
   stats() {
