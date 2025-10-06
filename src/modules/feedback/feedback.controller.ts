@@ -7,6 +7,9 @@ import {
   Param,
   Delete,
   UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { FeedbackService } from "./feedback.service";
 import { CreateFeedbackDto } from "./dto/create-feedback.dto";
@@ -48,22 +51,28 @@ export class FeedbackController {
     required: false,
   })
   @ApiQuery({
-    name: "query",
+    name: "rating",
     type: String,
-    description: "search by category name",
+    description: "filter feedback by rating",
     required: false,
   })
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  findAll() {
-    return this.feedbackService.findAll();
+  @Get()
+  findAll(
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("sort_by") sortBy: string,
+    @Query("rating") rating: number
+  ) {
+    return this.feedbackService.findAll(page, limit, sortBy, rating);
   }
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.feedbackService.findOne(+id);
+    return this.feedbackService.findOne(id);
   }
 
   @ApiBearerAuth("authorization")
@@ -73,13 +82,13 @@ export class FeedbackController {
     @Param("id") id: string,
     @Body() updateFeedbackDto: UpdateFeedbackDto
   ) {
-    return this.feedbackService.update(+id, updateFeedbackDto);
+    return this.feedbackService.update(id, updateFeedbackDto);
   }
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Delete(":id")
   remove(@Param("id") id: string) {
-    return this.feedbackService.remove(+id);
+    return this.feedbackService.remove(id);
   }
 }

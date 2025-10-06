@@ -1,9 +1,9 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateFeedbackDto } from "./dto/create-feedback.dto";
 import { UpdateFeedbackDto } from "./dto/update-feedback.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FeedbackEntity } from "../../database/entities/feedback.entity";
-import { Repository } from "typeorm";
+import { MoreThanOrEqual, Repository } from "typeorm";
 
 @Injectable()
 export class FeedbackService {
@@ -12,22 +12,66 @@ export class FeedbackService {
     private readonly feedbackRepository: Repository<FeedbackEntity>
   ) {}
   create(createFeedbackDto: CreateFeedbackDto) {
-    return this.feedbackRepository.save(createFeedbackDto);
+    const feedback = this.feedbackRepository.create({
+      feedback: createFeedbackDto.feedback,
+      rating: createFeedbackDto.rating,
+      student: { id: createFeedbackDto.studentId },
+      exam: { id: createFeedbackDto.examId },
+      category: { id: createFeedbackDto.categoryId },
+      subject: { id: createFeedbackDto.subjectId },
+    });
+    return this.feedbackRepository.save(feedback);
   }
 
-  findAll() {
-    return `This action returns all feedback`;
+  async findAll(page: number, limit: number, sortBy: string, rating: number) {
+    const [data, total] = await this.feedbackRepository.findAndCount({
+      ...(rating ? { where: { rating: MoreThanOrEqual(rating) } } : {}),
+      ...(limit ? { take: limit } : {}),
+      skip: page * limit || 0,
+      ...(sortBy
+        ? {
+            order: {
+              [sortBy]: "DESC",
+            },
+          }
+        : {}),
+    });
+
+    return { data, total };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} feedback`;
+  findOne(id: string) {
+    return this.feedbackRepository.findOne({
+      where: { id },
+      relations: ["exam", "subject", "student", "category"],
+      relationLoadStrategy: "join",
+    });
   }
 
-  update(id: number, updateFeedbackDto: UpdateFeedbackDto) {
-    return `This action updates a #${id} feedback`;
+  async update(id: string, updateFeedbackDto: UpdateFeedbackDto) {
+    const feedbackEntity = await this.feedbackRepository.findOne({
+      where: { id },
+    });
+    if (!feedbackEntity) {
+      throw new NotFoundException(
+        `Feedback data not found with this id: ${id}`
+      );
+    }
+    const { feedback, rating, studentId, examId, categoryId, subjectId } =
+      updateFeedbackDto;
+
+    const updatedFeedback = this.feedbackRepository.create({
+      ...(feedback ? { feedback } : {}),
+      ...(rating ? { rating } : {}),
+      ...(studentId ? { student: { id: studentId } } : {}),
+      ...(examId ? { exam: { id: examId } } : {}),
+      ...(categoryId ? { category: { id: categoryId } } : {}),
+      ...(subjectId ? { subject: { id: subjectId } } : {}),
+    });
+    return this.feedbackRepository.update({ id }, updatedFeedback);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} feedback`;
+  remove(id: string) {
+    return this.feedbackRepository.delete({ id });
   }
 }
