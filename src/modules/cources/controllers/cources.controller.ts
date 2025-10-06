@@ -20,7 +20,7 @@ import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/gaurds/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 
-@ApiTags("Cources")
+@ApiTags("courses")
 @Controller("cources")
 export class CourcesController {
   constructor(private readonly courcesService: CourcesService) {}

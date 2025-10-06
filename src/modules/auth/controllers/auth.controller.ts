@@ -25,7 +25,7 @@ import {
 } from "../dtos/forgetPassword.dto";
 
 @Controller("auth")
-@ApiTags("Auth")
+@ApiTags("auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
