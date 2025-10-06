@@ -31,7 +31,7 @@ import { Role } from "@core/enums/role.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Express } from "express";
 
-@ApiTags("Questions")
+@ApiTags("questions")
 @Controller("questions")
 export class QuestionsController {
   constructor(private readonly questionsService: QuestionsService) {}

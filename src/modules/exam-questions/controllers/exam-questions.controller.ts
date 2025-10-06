@@ -1,9 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ExamQuestionsService } from '../services/exam-questions.service';
-import { CreateExamQuestionDto } from '../dto/create-exam-question.dto';
-import { UpdateExamQuestionDto } from '../dto/update-exam-question.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from "@nestjs/common";
+import { ExamQuestionsService } from "../services/exam-questions.service";
+import { CreateExamQuestionDto } from "../dto/create-exam-question.dto";
+import { UpdateExamQuestionDto } from "../dto/update-exam-question.dto";
+import { ApiTags } from "@nestjs/swagger";
 
-@Controller('exam-questions')
+@ApiTags("exam-questions")
+@Controller("exam-questions")
 export class ExamQuestionsController {
   constructor(private readonly examQuestionsService: ExamQuestionsService) {}
 
@@ -17,18 +27,21 @@ export class ExamQuestionsController {
     return this.examQuestionsService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
+  @Get(":id")
+  findOne(@Param("id") id: string) {
     return this.examQuestionsService.findOne(+id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateExamQuestionDto: UpdateExamQuestionDto) {
+  @Patch(":id")
+  update(
+    @Param("id") id: string,
+    @Body() updateExamQuestionDto: UpdateExamQuestionDto
+  ) {
     return this.examQuestionsService.update(+id, updateExamQuestionDto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
+  @Delete(":id")
+  remove(@Param("id") id: string) {
     return this.examQuestionsService.remove(+id);
   }
 }

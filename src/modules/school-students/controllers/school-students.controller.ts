@@ -10,7 +10,7 @@ import {
 import { SchoolStudentsService } from "../services/school-students.service";
 import { CreateSchoolStudentDto } from "../dto/create-school-student.dto";
 import { UpdateSchoolStudentDto } from "../dto/update-school-student.dto";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 
 @ApiTags("school-students")
 @Controller("school-students")
