@@ -239,6 +239,7 @@ export class QuestionsService {
   async upload(file: Express.Multer.File) {
     const { data: rows } = await this.readCsvFromBuffer(file.buffer);
 
+    console.log(rows);
     const toNull = (v: any) =>
       v === undefined || v === null || v === "" ? null : v;
 

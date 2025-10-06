@@ -35,19 +35,20 @@ export class CategoryService {
     sortBy?: string,
     query?: string
   ) {
+    let whereObj = {};
+    if (where) {
+      whereObj = { ...where };
+    }
+    if (query) {
+      whereObj = { name: ILike(`%${query}%`) };
+    }
+
     const [categories, total] =
       await this.categoryEntityRepository.findAndCount({
-        ...(where || query
-          ? {
-              where: {
-                ...where,
-                ...(query ? { name: ILike(`%${query}%`) } : {}),
-              },
-            }
-          : {}),
+        ...(Object.keys(whereObj).length ? { where: whereObj } : {}),
         ...(page ? { skip: page * parseInt(limit) } : {}),
         ...(limit ? { take: parseInt(limit) } : {}),
-        order: { [sortBy]: "DESC" },
+        ...(sortBy ? { order: { [sortBy]: "DESC" } } : {}),
       });
 
     return { categories, total };
