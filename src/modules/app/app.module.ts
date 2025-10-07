@@ -19,6 +19,7 @@ import { StudentsModule } from "../students/students.module";
 import { UploadModule } from "../upload/upload.module";
 import { PlansModule } from "../plans/plans.module";
 import { FeedbackModule } from "../feedback/feedback.module";
+import { QuizModule } from "../quiz/quiz.module";
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { FeedbackModule } from "../feedback/feedback.module";
     UploadModule,
     PlansModule,
     FeedbackModule,
+    QuizModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
