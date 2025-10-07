@@ -3,6 +3,7 @@ import { AppBaseEntity } from "./base.entity";
 import { CourceEntity } from "../entities/cource.entity";
 import { QuestionsEntity } from "./question.entity";
 import { FeedbackEntity } from "./feedback.entity";
+import { QuizEntity } from "./quiz.entity";
 
 @Entity()
 export class CategoryEntity extends AppBaseEntity {
@@ -20,4 +21,7 @@ export class CategoryEntity extends AppBaseEntity {
 
   @OneToMany(() => FeedbackEntity, (question) => question.category, {})
   feedback: FeedbackEntity;
+
+  @OneToOne(() => QuizEntity, (question) => question.category, {})
+  quiz: QuizEntity;
 }

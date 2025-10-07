@@ -143,14 +143,14 @@ export class AuthService {
     }
 
     await this.userService.createUser({
-      email: email ?? "haider@shiftgroup.ca",
-      firstName: "Test",
-      lastName: "Shift",
+      email: email ?? "example@mail.com",
+      firstName: "Example",
+      lastName: "Test",
       password: "Aa@123456",
     });
 
     return {
-      email: email ?? "haider@shiftgroup.ca",
+      email: email ?? "example@mail.com",
       password: "Aa@123456",
     };
   }
