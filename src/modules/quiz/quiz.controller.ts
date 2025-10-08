@@ -16,6 +16,7 @@ import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/gaurds/roles.decorator";
 import { Role } from "@core/enums/role.enum";
+import { SubmitQuizAnswerDto } from "./dto/submit-answer.dto";
 
 @ApiTags("quiz")
 @Controller("quiz")
@@ -25,7 +26,14 @@ export class QuizController {
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard)
   @Post("start")
-  practice(@Body() body: StartQuizDto) {
+  start(@Body() body: StartQuizDto) {
     return this.quizService.start(body);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard)
+  @Post("submit-answer")
+  submitAnswer(@Body() body: SubmitQuizAnswerDto) {
+    return this.quizService.submitAnswer(body);
   }
 }

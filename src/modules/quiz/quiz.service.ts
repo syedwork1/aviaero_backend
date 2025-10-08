@@ -6,6 +6,7 @@ import { StartQuizDto } from "./dto/start-quiz.dto";
 import { QuizEntity } from "../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
 import { QuizStatus } from "@core/enums/quiz.enum";
+import { SubmitQuizAnswerDto } from "./dto/submit-answer.dto";
 
 @Injectable()
 export class QuizService {
@@ -45,6 +46,28 @@ export class QuizService {
         take: 15,
       });
       return { questions, startedAt, isPractice, quizId: quiz.id };
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
+  }
+
+  async submitAnswer(answerData: SubmitQuizAnswerDto) {
+    try {
+      const { questionId, quizId, selectedAnswer } = answerData;
+      const answerEntity = this.quizAnswerRepository.create({
+        question: { id: questionId },
+        selectedAnswer,
+        quiz: { id: quizId },
+      });
+      const answer = await this.quizAnswerRepository.save(answerEntity);
+      const question = await this.questionRepository.findOne({
+        where: { id: questionId },
+      });
+
+      return {
+        isCorrect: selectedAnswer === question.correct_answer,
+        correctAnswer: question.correct_answer,
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
