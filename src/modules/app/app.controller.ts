@@ -15,7 +15,15 @@ export class AppController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
   @Get()
-  stats() {
+  admin() {
+    return this.appService.stats();
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @Get("student")
+  student() {
     return this.appService.stats();
   }
 }

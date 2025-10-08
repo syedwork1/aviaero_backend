@@ -18,4 +18,34 @@ export class AppService {
       courseCompletion: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 12, 1, 11, 22, 12],
     };
   }
+
+  student() {
+    return {
+      total: {
+        subject: 1,
+        exam: 1,
+        quiz: 1,
+      },
+      courses: [
+        { name: "course", progress: 89 },
+        { name: "course", progress: 89 },
+        { name: "course", progress: 89 },
+        { name: "course", progress: 89 },
+      ],
+      exams: [
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      ],
+    };
+  }
 }
