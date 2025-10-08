@@ -18,6 +18,6 @@ export class QuizAnswerEntity extends AppBaseEntity {
   )
   question: QuestionsEntity;
 
-  @Column()
+  @Column({ nullable: true })
   selectedAnswer: string;
 }

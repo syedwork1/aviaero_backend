@@ -22,6 +22,40 @@ export class QuizService {
     private readonly quizAnswerRepository: Repository<QuizAnswerEntity>
   ) {}
 
+  getQuiz(quizId: string) {
+    return this.quizRepository
+      .createQueryBuilder("quiz")
+      .leftJoinAndSelect("quiz.category", "category")
+      .leftJoinAndSelect("quiz.student", "student")
+      .leftJoinAndSelect("quiz.answers", "answers")
+      .leftJoinAndSelect("answers.question", "question")
+      .where("quiz.id = :quizId", { quizId })
+      .select([
+        "quiz.id",
+        "quiz.status",
+        "quiz.isPractice",
+        "quiz.startedAt",
+        "category.id",
+        "category.CBR_chapter",
+        "student.id",
+        "student.firstName",
+        "student.lastName",
+        "student.email",
+        "answers.selectedAnswer",
+        "question.id",
+        "question.question",
+        "question.option_A",
+        "question.option_B",
+        "question.option_C",
+        "question.option_D",
+        "question.correct_answer",
+        "question.explanation",
+        "question.img_1",
+        "question.img_2",
+      ])
+      .getOne();
+  }
+
   async start(quizData: StartQuizDto) {
     try {
       const {
@@ -62,33 +96,76 @@ export class QuizService {
   async submitAnswer(answerData: SubmitQuizAnswerDto) {
     try {
       const { questionId, quizId, selectedAnswer } = answerData;
-      const answerEntity = this.quizAnswerRepository.create({
-        question: { id: questionId },
-        selectedAnswer,
-        quiz: { id: quizId },
-      });
-      const answer = await this.quizAnswerRepository.save(answerEntity);
+      const quiz = await this.quizRepository.findOne({ where: { id: quizId } });
+      if (!quiz) {
+        throw new BadRequestException(`Quiz with id ${quizId} not found`);
+      }
+      if (
+        quiz.status === QuizStatus.COMPLETED ||
+        quiz.status === QuizStatus.TIMEOUT
+      ) {
+        throw new BadRequestException(`Quiz already ${quiz.status}!`);
+      }
+
+      if (!this.isWithin60Min(quiz.startedAt)) {
+        await this.quizRepository.update(
+          { id: quizId },
+          { status: QuizStatus.TIMEOUT }
+        );
+        throw new BadRequestException("Quiz timeout!");
+      }
       const question = await this.questionRepository.findOne({
         where: { id: questionId },
       });
+      if (!question) {
+        throw new BadRequestException(`Question with id ${quizId} not found`);
+      }
+      const answerEntity = this.quizAnswerRepository.create({
+        question,
+        selectedAnswer,
+        quiz: { id: quizId },
+      });
+
+      await this.quizAnswerRepository.save(answerEntity);
 
       return {
+        skipped: !selectedAnswer,
         isCorrect: selectedAnswer === question.correct_answer,
         correctAnswer: question.correct_answer,
+        questionId,
       };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
+  isWithin60Min = (date: Date | string): boolean => {
+    return Date.now() - new Date(date).getTime() <= 60 * 60 * 1000;
+  };
+
   async finish(quizData: FinishQuizDto) {
     try {
       const { quizId } = quizData;
 
-      return this.quizRepository.update(
+      const quiz = await this.getQuiz(quizId);
+
+      if (!quiz) {
+        throw new BadRequestException(`Quiz not found with id ${quizId}`);
+      }
+
+      if (
+        quiz.status === QuizStatus.COMPLETED ||
+        quiz.status === QuizStatus.TIMEOUT
+      ) {
+        throw new BadRequestException(`Quiz already ${quiz.status}!`);
+      }
+
+      await this.quizRepository.update(
         { id: quizId },
         { status: QuizStatus.COMPLETED }
       );
+
+      return quiz;
     } catch (error) {
       throw new BadRequestException(error.message);
     }

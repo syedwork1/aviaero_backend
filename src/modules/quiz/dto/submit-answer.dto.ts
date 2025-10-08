@@ -14,6 +14,5 @@ export class SubmitQuizAnswerDto {
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
   selectedAnswer: string;
 }
