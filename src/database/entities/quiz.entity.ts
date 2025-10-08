@@ -10,9 +10,14 @@ import { AppBaseEntity } from "./base.entity";
 import { UserEntity } from "./user.entity";
 import { CategoryEntity } from "./category.entity";
 import { QuizAnswerEntity } from "./quiz-answer.entity";
+import { ExamEntity } from "./exam.entity";
 
 @Entity()
 export class QuizEntity extends AppBaseEntity {
+  @JoinColumn()
+  @ManyToOne(() => ExamEntity, (exam: ExamEntity) => exam.quizes)
+  exam: ExamEntity;
+
   @JoinColumn()
   @ManyToOne(() => UserEntity, (student: UserEntity) => student.quiz)
   student: UserEntity;

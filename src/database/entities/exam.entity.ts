@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { FeedbackEntity } from "./feedback.entity";
+import { QuizEntity } from "./quiz.entity";
 
 @Entity()
 export class ExamEntity extends AppBaseEntity {
@@ -27,4 +28,7 @@ export class ExamEntity extends AppBaseEntity {
 
   @OneToMany(() => FeedbackEntity, (feedback) => feedback.exam)
   feedback: FeedbackEntity;
+
+  @OneToMany(() => QuizEntity, (feedback) => feedback.exam)
+  quizes: QuizEntity;
 }

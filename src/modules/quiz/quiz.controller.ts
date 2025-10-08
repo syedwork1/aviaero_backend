@@ -17,6 +17,7 @@ import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/gaurds/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 import { SubmitQuizAnswerDto } from "./dto/submit-answer.dto";
+import { FinishQuizDto } from "./dto/finish-quiz.dto";
 
 @ApiTags("quiz")
 @Controller("quiz")
@@ -35,5 +36,12 @@ export class QuizController {
   @Post("submit-answer")
   submitAnswer(@Body() body: SubmitQuizAnswerDto) {
     return this.quizService.submitAnswer(body);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard)
+  @Post("finish")
+  finish(@Body() body: FinishQuizDto) {
+    return this.quizService.finish(body);
   }
 }

@@ -60,8 +60,7 @@ export class CategoryController {
     required: false,
   })
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
