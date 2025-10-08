@@ -1,0 +1,5 @@
+export enum QuizStatus {
+  INPROGRESS = "INPROGRESS",
+  COMPLETED = "COMPLETED",
+  TIMEOUT = "TIMEOUT",
+}

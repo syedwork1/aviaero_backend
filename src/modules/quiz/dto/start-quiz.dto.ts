@@ -1,19 +1,16 @@
-import {
-  IsString,
-  IsNotEmpty,
-  IsDateString,
-  IsArray,
-  ArrayNotEmpty,
-  IsNumber,
-  IsBoolean,
-} from "class-validator";
+import { IsString, IsNotEmpty, IsNumber, IsBoolean } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class PracticeQuizDto {
+export class StartQuizDto {
   @ApiProperty()
   @IsString()
   @IsNotEmpty()
   categoryId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  studentId: string;
 
   @ApiProperty()
   @IsNumber()
