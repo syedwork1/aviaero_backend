@@ -26,3 +26,26 @@ export class StartQuizDto {
   @IsNotEmpty()
   isPractice: boolean;
 }
+
+export class FinishQuizDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  quizId: string;
+}
+
+export class SubmitQuizAnswerDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  quizId: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  questionId: string;
+
+  @ApiProperty()
+  @IsString()
+  selectedAnswer: string;
+}

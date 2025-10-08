@@ -11,13 +11,8 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { QuizService } from "./quiz.service";
-import { StartQuizDto } from "./dto/start-quiz.dto";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
-import { RolesGuard } from "@core/gaurds/roles.guard";
-import { Roles } from "@core/gaurds/roles.decorator";
-import { Role } from "@core/enums/role.enum";
-import { SubmitQuizAnswerDto } from "./dto/submit-answer.dto";
-import { FinishQuizDto } from "./dto/finish-quiz.dto";
+import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 
 @ApiTags("quiz")
 @Controller("quiz")

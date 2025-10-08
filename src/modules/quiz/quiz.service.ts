@@ -2,12 +2,10 @@ import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../database/entities/question.entity";
 import { Repository } from "typeorm";
-import { StartQuizDto } from "./dto/start-quiz.dto";
 import { QuizEntity } from "../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
 import { QuizStatus } from "@core/enums/quiz.enum";
-import { SubmitQuizAnswerDto } from "./dto/submit-answer.dto";
-import { FinishQuizDto } from "./dto/finish-quiz.dto";
+import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 
 @Injectable()
 export class QuizService {
