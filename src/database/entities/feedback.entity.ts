@@ -4,6 +4,7 @@ import { UserEntity } from "./user.entity";
 import { CategoryEntity } from "./category.entity";
 import { ExamEntity } from "./exam.entity";
 import { SubjectEntity } from "./subject.entity";
+import { QuizEntity } from "./quiz.entity";
 
 @Entity()
 export class FeedbackEntity extends AppBaseEntity {
@@ -17,18 +18,7 @@ export class FeedbackEntity extends AppBaseEntity {
   @JoinColumn()
   student: UserEntity;
 
-  @ManyToOne(
-    () => CategoryEntity,
-    (category: CategoryEntity) => category.feedback
-  )
+  @ManyToOne(() => QuizEntity, (quiz: QuizEntity) => quiz.feedback)
   @JoinColumn()
-  category: CategoryEntity;
-
-  @ManyToOne(() => ExamEntity, (student: ExamEntity) => student.feedback)
-  @JoinColumn()
-  exam: ExamEntity;
-
-  @ManyToOne(() => SubjectEntity, (student: SubjectEntity) => student.feedback)
-  @JoinColumn()
-  subject: SubjectEntity;
+  quiz: QuizEntity;
 }

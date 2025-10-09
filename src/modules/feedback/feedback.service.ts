@@ -16,9 +16,7 @@ export class FeedbackService {
       feedback: createFeedbackDto.feedback,
       rating: createFeedbackDto.rating,
       student: { id: createFeedbackDto.studentId },
-      exam: { id: createFeedbackDto.examId },
-      category: { id: createFeedbackDto.categoryId },
-      subject: { id: createFeedbackDto.subjectId },
+      quiz: { id: createFeedbackDto.quizId },
     });
     return this.feedbackRepository.save(feedback);
   }
@@ -43,7 +41,7 @@ export class FeedbackService {
   findOne(id: string) {
     return this.feedbackRepository.findOne({
       where: { id },
-      relations: ["exam", "subject", "student", "category"],
+      relations: ["quiz"],
       relationLoadStrategy: "join",
     });
   }
@@ -57,16 +55,13 @@ export class FeedbackService {
         `Feedback data not found with this id: ${id}`
       );
     }
-    const { feedback, rating, studentId, examId, categoryId, subjectId } =
-      updateFeedbackDto;
+    const { feedback, rating, studentId, quizId } = updateFeedbackDto;
 
     const updatedFeedback = this.feedbackRepository.create({
       ...(feedback ? { feedback } : {}),
       ...(rating ? { rating } : {}),
       ...(studentId ? { student: { id: studentId } } : {}),
-      ...(examId ? { exam: { id: examId } } : {}),
-      ...(categoryId ? { category: { id: categoryId } } : {}),
-      ...(subjectId ? { subject: { id: subjectId } } : {}),
+      ...(quizId ? { quiz: { id: quizId } } : {}),
     });
     return this.feedbackRepository.update({ id }, updatedFeedback);
   }

@@ -6,7 +6,4 @@ import { FeedbackEntity } from "./feedback.entity";
 export class SubjectEntity extends AppBaseEntity {
   @Column()
   name: string;
-
-  @OneToMany(() => FeedbackEntity, (feedback) => feedback.subject)
-  feedback: FeedbackEntity;
 }

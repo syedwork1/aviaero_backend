@@ -12,20 +12,10 @@ export class CreateFeedbackDto {
   @IsNotEmpty()
   rating: number;
 
-  @ApiProperty({ description: "category id" })
+  @ApiProperty({ description: "quiz id" })
   @IsString()
   @IsNotEmpty()
-  categoryId: string;
-
-  @ApiProperty({ description: "exam id" })
-  @IsString()
-  @IsNotEmpty()
-  examId: string;
-
-  @ApiProperty({ description: "subject id" })
-  @IsString()
-  @IsNotEmpty()
-  subjectId: string;
+  quizId: string;
 
   @ApiProperty({ description: "student id" })
   @IsString()

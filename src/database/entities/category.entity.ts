@@ -19,9 +19,6 @@ export class CategoryEntity extends AppBaseEntity {
   @OneToMany(() => QuestionsEntity, (question) => question.Mobility, {})
   questions: QuestionsEntity;
 
-  @OneToMany(() => FeedbackEntity, (question) => question.category, {})
-  feedback: FeedbackEntity;
-
   @OneToOne(() => QuizEntity, (question) => question.category, {})
   quiz: QuizEntity;
 }

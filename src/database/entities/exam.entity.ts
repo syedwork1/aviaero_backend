@@ -26,9 +26,6 @@ export class ExamEntity extends AppBaseEntity {
   @Column()
   time: number;
 
-  @OneToMany(() => FeedbackEntity, (feedback) => feedback.exam)
-  feedback: FeedbackEntity;
-
   @OneToMany(() => QuizEntity, (feedback) => feedback.exam)
   quizes: QuizEntity;
 }
