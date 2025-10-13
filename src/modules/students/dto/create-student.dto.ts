@@ -19,6 +19,12 @@ export class CreateStudentDto {
   @MinLength(8)
   password: string;
 
+  @ApiProperty({
+    description: "school id",
+  })
+  @IsString()
+  schoolId: string;
+
   @ApiProperty({ description: "student first name", example: "John" })
   @IsString()
   @IsNotEmpty()

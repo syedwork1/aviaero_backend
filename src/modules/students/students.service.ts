@@ -6,13 +6,16 @@ import { ILike, Repository } from "typeorm";
 import { UserEntity } from "../../database/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "@core/enums/role.enum";
+import { StudentSchoolEntity } from "../../database/entities/student-school.entity";
 
 @Injectable()
 export class StudentsService {
   constructor(
     private readonly userService: UserService,
     @InjectRepository(UserEntity)
-    private readonly userRepository: Repository<UserEntity>
+    private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(StudentSchoolEntity)
+    private readonly studentSchoolRepository: Repository<StudentSchoolEntity>
   ) {}
   async create(createStudentDto: CreateStudentDto) {
     try {
@@ -25,6 +28,12 @@ export class StudentsService {
       }
       const student = await this.userService.createUser(createStudentDto);
       delete student.password;
+      if (createStudentDto?.schoolId) {
+        await this.studentSchoolRepository.save({
+          schoolId: createStudentDto.schoolId,
+          studentId: student.id,
+        });
+      }
       return student;
     } catch (error) {
       console.log(error);

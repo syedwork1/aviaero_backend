@@ -29,7 +29,6 @@ export class FeedbackService {
     rating: number,
     user: any
   ) {
-    console.log(user.role);
     const [data, total] = await this.feedbackRepository.findAndCount({
       ...(user?.role === Role.STUDENT
         ? { where: { student: { id: user?.user_id } } }
