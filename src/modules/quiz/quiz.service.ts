@@ -98,19 +98,21 @@ export class QuizService {
       if (!quiz) {
         throw new BadRequestException(`Quiz with id ${quizId} not found`);
       }
-      if (
-        quiz.status === QuizStatus.COMPLETED ||
-        quiz.status === QuizStatus.TIMEOUT
-      ) {
-        throw new BadRequestException(`Quiz already ${quiz.status}!`);
-      }
+      if (!quiz.isPractice) {
+        if (
+          quiz.status === QuizStatus.COMPLETED ||
+          quiz.status === QuizStatus.TIMEOUT
+        ) {
+          throw new BadRequestException(`Quiz already ${quiz.status}!`);
+        }
 
-      if (!this.isWithin60Min(quiz.startedAt)) {
-        await this.quizRepository.update(
-          { id: quizId },
-          { status: QuizStatus.TIMEOUT }
-        );
-        throw new BadRequestException("Quiz timeout!");
+        if (!this.isWithin60Min(quiz.startedAt)) {
+          await this.quizRepository.update(
+            { id: quizId },
+            { status: QuizStatus.TIMEOUT }
+          );
+          throw new BadRequestException("Quiz timeout!");
+        }
       }
       const question = await this.questionRepository.findOne({
         where: { id: questionId },
@@ -118,13 +120,23 @@ export class QuizService {
       if (!question) {
         throw new BadRequestException(`Question with id ${quizId} not found`);
       }
-      const answerEntity = this.quizAnswerRepository.create({
-        question,
-        selectedAnswer,
-        quiz: { id: quizId },
+
+      const existedAnswer = await this.quizAnswerRepository.findOne({
+        where: { question: { id: questionId }, quiz: { id: quizId } },
       });
 
-      await this.quizAnswerRepository.save(answerEntity);
+      if (existedAnswer) {
+        await this.quizAnswerRepository.update(
+          { question: { id: questionId }, quiz: { id: quizId } },
+          { selectedAnswer }
+        );
+      } else {
+        await this.quizAnswerRepository.save({
+          question,
+          selectedAnswer,
+          quiz: { id: quizId },
+        });
+      }
 
       return {
         skipped: !selectedAnswer,

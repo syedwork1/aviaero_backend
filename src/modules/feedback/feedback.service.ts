@@ -4,6 +4,7 @@ import { UpdateFeedbackDto } from "./dto/update-feedback.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { FeedbackEntity } from "../../database/entities/feedback.entity";
 import { MoreThanOrEqual, Repository } from "typeorm";
+import { Role } from "@core/enums/role.enum";
 
 @Injectable()
 export class FeedbackService {
@@ -21,8 +22,27 @@ export class FeedbackService {
     return this.feedbackRepository.save(feedback);
   }
 
-  async findAll(page: number, limit: number, sortBy: string, rating: number) {
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    rating: number,
+    user: any
+  ) {
+    console.log(user.role);
     const [data, total] = await this.feedbackRepository.findAndCount({
+      ...(user?.role === Role.STUDENT
+        ? { where: { student: { id: user?.user_id } } }
+        : {}),
+      relationLoadStrategy: "join",
+      select: {
+        student: {
+          id: true,
+          lastName: true,
+          firstName: true,
+        },
+      },
+      relations: ["student"],
       ...(rating ? { where: { rating: MoreThanOrEqual(rating) } } : {}),
       ...(limit ? { take: limit } : {}),
       skip: page * limit || 0,

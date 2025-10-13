@@ -10,6 +10,7 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
+  Req,
 } from "@nestjs/common";
 import { FeedbackService } from "./feedback.service";
 import { CreateFeedbackDto } from "./dto/create-feedback.dto";
@@ -63,9 +64,10 @@ export class FeedbackController {
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by") sortBy: string,
-    @Query("rating") rating: number
+    @Query("rating") rating: number,
+    @Req() req: any
   ) {
-    return this.feedbackService.findAll(page, limit, sortBy, rating);
+    return this.feedbackService.findAll(page, limit, sortBy, rating, req?.user);
   }
 
   @ApiBearerAuth("authorization")
