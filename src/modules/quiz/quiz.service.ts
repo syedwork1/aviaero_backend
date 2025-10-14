@@ -20,6 +20,31 @@ export class QuizService {
     private readonly quizAnswerRepository: Repository<QuizAnswerEntity>
   ) {}
 
+  results(user: any) {
+    console.log(user, "user");
+    return this.quizRepository.query(
+      `select
+      count(qae.id) as total,
+      sum(case when qae."selectedAnswer" is null or qae."selectedAnswer" = '' then 1 else 0 end) as skipped,
+      sum(case when qae."selectedAnswer" = qu.correct_answer then 1 else 0 end) as correct,
+      sum(case when qae."selectedAnswer" != qu.correct_answer then 1 else 0 end) as wrong,
+      ce."name" as category,
+    qe."isPractice" , qe."startedAt", qe.id 
+    from
+      quiz_entity qe
+    left join quiz_answer_entity qae on
+      qe.id = qae."quizId"
+    left join questions_entity qu on
+      qu.id = qae."questionId" 
+    left join category_entity ce on
+      ce.id = qe."categoryId" 
+    where
+      qe."studentId" = $1
+    group by ce.name, qe."startedAt", qe."isPractice", qe.id;`,
+      [user.user_id]
+    );
+  }
+
   getQuiz(quizId: string) {
     return this.quizRepository
       .createQueryBuilder("quiz")

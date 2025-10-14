@@ -245,24 +245,28 @@ export class QuestionsService {
 
   async upload(file: Express.Multer.File) {
     const { data: rows } = await this.readCsvFromBuffer(file.buffer);
-
-    console.log(rows);
+    console.log(rows.length);
     const toNull = (v: any) =>
       v === undefined || v === null || v === "" ? null : v;
 
-    // Step 1: Normalize rows
-    const mapped = rows.map((r) => ({
-      question: toNull(r["Vraag"]),
-      option_A: toNull(r["antwoord A"]),
-      option_B: toNull(r["Antwoord B"]),
-      option_C: toNull(r["Antwoord C"]),
-      option_D: toNull(r["Antwoord D"]),
-      correct_answer: toNull(r["Correct antwoord"]),
-      explanation: toNull(r["Uitleg"]),
-      difficulty: toNull(r["Moeilijkheid"]),
-      CBR_chapter: toNull(r["CBR-code"]),
-      categoryName: toNull(r["Categorie"]),
-    }));
+    const mapped: any = [];
+    for (const r of rows) {
+      if (!toNull(r["Vraag"])) {
+        continue;
+      }
+      mapped.push({
+        question: toNull(r["Vraag"]),
+        option_A: toNull(r["antwoord A"]),
+        option_B: toNull(r["Antwoord B"]),
+        option_C: toNull(r["Antwoord C"]),
+        option_D: toNull(r["Antwoord D"]),
+        correct_answer: toNull(r["Correct antwoord"]),
+        explanation: toNull(r["Uitleg"]),
+        difficulty: toNull(r["Moeilijkheid"]),
+        CBR_chapter: toNull(r["CBR-code"]),
+        categoryName: toNull(r["Categorie"]),
+      });
+    }
 
     // Step 2: Extract unique categories with chapter info
     const categoryInput = new Map<

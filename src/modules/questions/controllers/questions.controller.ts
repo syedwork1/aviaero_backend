@@ -164,10 +164,14 @@ export class QuestionsController {
         throw new ForbiddenException("Error processing CSV file.");
       }
 
+      console.log(errors, "errors", data[0]);
+
       const headers = Object.keys(data[0] || {})?.map((h) => h.toLowerCase());
       const isValidCsv = expectedHeaders.every((header) =>
         headers.includes(header.toLowerCase())
       );
+
+      console.log(isValidCsv);
 
       if (!isValidCsv) {
         throw new ForbiddenException(
