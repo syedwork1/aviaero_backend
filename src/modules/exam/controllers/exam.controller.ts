@@ -11,11 +11,13 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { ExamService } from "../services/exam.service";
 import { CreateExamDto } from "../dto/create-exam.dto";
 import { UpdateExamDto } from "../dto/update-exam.dto";
-import { ApiBody, ApiTags, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiBody, ApiTags, ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/gaurds/roles.decorator";
@@ -59,20 +61,42 @@ export class ExamController {
     }
   }
 
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    description: "page no",
+    required: false,
+  })
+  @ApiQuery({
+    name: "limit",
+    type: Number,
+    description: "page size",
+    required: false,
+  })
+  @ApiQuery({
+    name: "sort_by",
+    type: String,
+    description: "sort by",
+    required: false,
+  })
+  @ApiQuery({
+    name: "query",
+    type: String,
+    description: "search by firstname",
+    required: false,
+  })
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.STUDENT)
-  @Get("/all/:page/:limit")
+  @Roles(Role.ADMIN)
+  @Get()
   findAll(
-    @Request() req,
-    @Param("page") page: string = "1",
-    @Param("limit") limit: string = "10"
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("sort_by") sortBy: string,
+    @Query("query") query: string,
+    @Request() req
   ) {
-    return this.examService.findAll(
-      req.user.user_id,
-      Number(page),
-      Number(limit)
-    );
+    return this.examService.findAll(req.user.user_id, page, limit);
   }
 
   @Get(":id")
