@@ -84,6 +84,14 @@ export class QuestionsController {
     return this.questionsService.findAll(page, limit, sortBy, query);
   }
 
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Get("/difficulties")
+  @Roles(Role.ADMIN)
+  difficulties() {
+    return this.questionsService.difficulties();
+  }
+
   // get question through question Id
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -144,6 +152,7 @@ export class QuestionsController {
       "Categorie",
       "Moeilijkheid",
       "CBR-code",
+      "Membership",
     ];
 
     try {
@@ -155,9 +164,9 @@ export class QuestionsController {
         throw new ForbiddenException("Error processing CSV file.");
       }
 
-      const headers = Object.keys(data[0] || {});
+      const headers = Object.keys(data[0] || {})?.map((h) => h.toLowerCase());
       const isValidCsv = expectedHeaders.every((header) =>
-        headers.includes(header)
+        headers.includes(header.toLowerCase())
       );
 
       if (!isValidCsv) {

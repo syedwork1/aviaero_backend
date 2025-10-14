@@ -124,6 +124,13 @@ export class QuestionsService {
     }
   }
 
+  difficulties() {
+    return this.questionRepository
+      .createQueryBuilder("q")
+      .select("DISTINCT q.difficulty", "difficulty")
+      .getRawMany();
+  }
+
   async update(
     id: string,
     updateQuestionDto: UpdateQuestionDto
