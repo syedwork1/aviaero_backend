@@ -40,8 +40,24 @@ export class FeedbackService {
           lastName: true,
           firstName: true,
         },
+        quiz: {
+          id: true,
+          category: {
+            id: true,
+            name: true,
+            // cource: {
+            //   id: true,
+            //   name: true,
+            // },
+          },
+        },
       },
-      relations: ["student"],
+      relations: [
+        "student",
+        "quiz",
+        "quiz.category",
+        // "quiz.category.cource"
+      ],
       ...(rating ? { where: { rating: MoreThanOrEqual(rating) } } : {}),
       ...(limit ? { take: limit } : {}),
       skip: page * limit || 0,
@@ -60,7 +76,18 @@ export class FeedbackService {
   findOne(id: string) {
     return this.feedbackRepository.findOne({
       where: { id },
-      relations: ["quiz"],
+      select: {
+        id: true,
+        rating: true,
+        feedback: true,
+        createAt: true,
+        student: {
+          id: true,
+          firstName: true,
+          lastName: true,
+        },
+      },
+      relations: ["student"],
       relationLoadStrategy: "join",
     });
   }
