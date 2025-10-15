@@ -30,7 +30,7 @@ export class ExamController {
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.STUDENT)
+  @Roles(Role.ADMIN)
   @Post()
   @ApiBody({ type: CreateExamDto })
   async create(@Request() req, @Body() createExamDto: CreateExamDto) {
