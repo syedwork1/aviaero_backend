@@ -20,17 +20,17 @@ export class ExamService {
     private readonly examQuestionsService: ExamQuestionsService
   ) {}
   async create(createExamDto: CreateExamDto, userId: string) {
-    const getRandomQuestions = await this.questionSerice.findRandomQuestions(
-      createExamDto.CBR_chapter,
-      createExamDto.difficulty,
-      createExamDto.number_of_questions
-    );
+    // const getRandomQuestions = await this.questionSerice.findRandomQuestions(
+    //   createExamDto.CBR_chapter,
+    //   createExamDto.difficulty,
+    //   createExamDto.number_of_questions
+    // );
 
-    if (!getRandomQuestions || getRandomQuestions.length === 0) {
-      throw new BadRequestException(
-        "No questions available for the given criteria."
-      );
-    }
+    // if (!getRandomQuestions || getRandomQuestions.length === 0) {
+    //   throw new BadRequestException(
+    //     "No questions available for the given criteria."
+    //   );
+    // }
     const savedExamData = {
       name: createExamDto.name,
       number_of_questions: createExamDto.number_of_questions,
@@ -42,13 +42,15 @@ export class ExamService {
     };
     const savedExam = await this.examRepository.save(savedExamData);
 
-    return getRandomQuestions.map(
-      async (q) =>
-        await this.examQuestionsService.savedStudentExamQuestions(
-          q.id,
-          savedExam.id
-        )
-    );
+    // return getRandomQuestions.map(
+    //   async (q) =>
+    //     await this.examQuestionsService.savedStudentExamQuestions(
+    //       q.id,
+    //       savedExam.id
+    //     )
+    // );
+
+    return savedExam;
   }
   async findAll(
     userId: string,

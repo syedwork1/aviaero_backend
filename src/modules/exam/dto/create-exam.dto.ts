@@ -7,6 +7,9 @@ import {
   ValidateNested,
   IsDate,
   IsNumber,
+  isDate,
+  MinDate,
+  IsDateString,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { ExamStatus } from "../enums/role.enum";
@@ -33,6 +36,10 @@ export class CreateExamDto {
   CBR_chapter: string;
 
   @ApiProperty({ example: "Quiz End Date" })
+  @IsNotEmpty({ message: "Booking date cannot be empty." })
+  @IsDate()
+  @MinDate(new Date(), { message: "Booking date must be in the future." })
+  @Type(() => Date)
   end_date: Date;
 
   @ApiProperty({
