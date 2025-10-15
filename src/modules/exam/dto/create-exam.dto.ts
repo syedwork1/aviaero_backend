@@ -6,6 +6,7 @@ import {
   IsArray,
   ValidateNested,
   IsDate,
+  IsNumber,
 } from "class-validator";
 import { Type } from "class-transformer";
 import { ExamStatus } from "../enums/role.enum";
@@ -19,21 +20,19 @@ export class CreateExamDto {
   name: string;
 
   @ApiProperty({ example: "number of questions" })
+  @IsNumber()
   @IsNotEmpty()
   number_of_questions: number;
 
   @ApiProperty({ example: "Difficulty" })
   @IsString()
-  @IsNotEmpty()
   difficulty: string;
 
   @ApiProperty({ example: "CBR Chapter" })
   @IsString()
-  @IsNotEmpty()
   CBR_chapter: string;
 
   @ApiProperty({ example: "Quiz End Date" })
-  @IsNotEmpty()
   end_date: Date;
 
   @ApiProperty({
