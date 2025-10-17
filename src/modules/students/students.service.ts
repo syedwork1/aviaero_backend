@@ -41,8 +41,8 @@ export class StudentsService {
     }
   }
 
-  async findAll(page: number, limit: number, sortBy: string, query: string) {
-    const students = await this.userRepository.find({
+  findAll(page: number, limit: number, sortBy: string, query: string) {
+    return this.userRepository.find({
       select: ["id", "createAt", "email", "firstName", "lastName", "role"],
       where: {
         role: Role.STUDENT,
@@ -58,7 +58,6 @@ export class StudentsService {
           }
         : {}),
     });
-    const studentIds = students.map((student) => student.id);
   }
 
   findOne(id: string) {
