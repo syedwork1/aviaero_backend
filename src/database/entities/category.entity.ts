@@ -1,8 +1,14 @@
-import { Column, Entity, ManyToOne, OneToMany, OneToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { CourceEntity } from "../entities/cource.entity";
 import { QuestionsEntity } from "./question.entity";
-import { FeedbackEntity } from "./feedback.entity";
 import { QuizEntity } from "./quiz.entity";
 
 @Entity()
@@ -13,7 +19,8 @@ export class CategoryEntity extends AppBaseEntity {
   @Column({ nullable: true })
   CBR_chapter: string;
 
-  @OneToMany(() => CourceEntity, (cource) => cource.category, {})
+  @ManyToOne(() => CourceEntity, (cource) => cource.category, {})
+  @JoinColumn()
   cource: CourceEntity;
 
   @OneToMany(() => QuestionsEntity, (question) => question.Mobility, {})

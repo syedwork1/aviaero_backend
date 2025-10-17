@@ -6,7 +6,7 @@ import { ILike, Repository } from "typeorm";
 import { UserEntity } from "../../database/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "@core/enums/role.enum";
-import { StudentSchoolEntity } from "../../database/entities/student-school.entity";
+import { StudentEntity } from "../../database/entities/student.entity";
 
 @Injectable()
 export class StudentsService {
@@ -14,29 +14,43 @@ export class StudentsService {
     private readonly userService: UserService,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
-    @InjectRepository(StudentSchoolEntity)
-    private readonly studentSchoolRepository: Repository<StudentSchoolEntity>
+    @InjectRepository(StudentEntity)
+    private readonly studentRepository: Repository<StudentEntity>
   ) {}
   async create(createStudentDto: CreateStudentDto) {
+    let user: UserEntity, student: StudentEntity;
     try {
       const existed = await this.userRepository.findOneBy({
         email: createStudentDto.email,
       });
       if (existed) {
         return { error: "Email already linked to another account!" };
-        // throw new Error("Email already linked to another account!");
       }
-      const student = await this.userService.createUser(createStudentDto);
-      delete student.password;
-      if (createStudentDto?.schoolId) {
-        await this.studentSchoolRepository.save({
-          schoolId: createStudentDto.schoolId,
-          studentId: student.id,
-        });
-      }
-      return student;
+      user = await this.userService.createUser(createStudentDto);
+      student = this.studentRepository.create({
+        ...createStudentDto,
+        user: { id: user.id },
+        school: { id: createStudentDto.schoolId },
+        createAt: new Date(),
+      });
+      student = await this.studentRepository.save(student, { reload: true });
+      return this.studentRepository.findOne({
+        select: {
+          school: {
+            id: true,
+            name: true,
+          },
+        },
+        where: { id: student.id },
+        relations: ["school"],
+      });
     } catch (error) {
-      console.log(error);
+      if (user) {
+        await user.remove();
+      }
+      if (student) {
+        await student.remove();
+      }
       throw new Error(error);
     }
   }

@@ -1,7 +1,15 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+} from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { IsEmail, IsNotEmpty } from "class-validator";
 import { CourceEntity } from "./cource.entity";
+import { PlanFeatureEntity } from "./plan-feature.entity";
 @Entity()
 export class PlanEntity extends AppBaseEntity {
   @Column()
@@ -19,6 +27,9 @@ export class PlanEntity extends AppBaseEntity {
   @Column()
   @IsNotEmpty()
   price: number;
+
+  @OneToMany(() => PlanFeatureEntity, (feature) => feature.plan)
+  features: PlanFeatureEntity;
 
   @Column()
   @IsNotEmpty()

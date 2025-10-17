@@ -245,7 +245,6 @@ export class QuestionsService {
 
   async upload(file: Express.Multer.File) {
     const { data: rows } = await this.readCsvFromBuffer(file.buffer);
-    console.log(rows.length);
     const toNull = (v: any) =>
       v === undefined || v === null || v === "" ? null : v;
 
@@ -265,6 +264,7 @@ export class QuestionsService {
         difficulty: toNull(r["Moeilijkheid"]),
         CBR_chapter: toNull(r["CBR-code"]),
         categoryName: toNull(r["Categorie"]),
+        subscription_level: toNull(r["Membership"]),
       });
     }
 

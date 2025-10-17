@@ -25,8 +25,7 @@ export class CourceEntity extends AppBaseEntity {
   @Column()
   description: string;
 
-  @ManyToOne(() => CategoryEntity, (category) => category.cource, {})
-  @JoinColumn()
+  @OneToMany(() => CategoryEntity, (category) => category.cource, {})
   category: CategoryEntity;
 
   @OneToMany(() => PlanEntity, (plan) => plan.course, {})

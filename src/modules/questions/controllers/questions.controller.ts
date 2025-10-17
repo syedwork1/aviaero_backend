@@ -171,8 +171,6 @@ export class QuestionsController {
         headers.includes(header.toLowerCase())
       );
 
-      console.log(isValidCsv);
-
       if (!isValidCsv) {
         throw new ForbiddenException(
           "Invalid CSV file format. Please upload the correct CSV file."
