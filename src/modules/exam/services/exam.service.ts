@@ -50,7 +50,7 @@ export class ExamService {
     //     )
     // );
 
-    return savedExam;      
+    return savedExam;
   }
   async findAll(
     userId: string,
@@ -64,7 +64,7 @@ export class ExamService {
     totalPages: number;
   }> {
     const [data, total] = await this.examRepository.findAndCount({
-      where: { studentId: userId },
+      // where: { studentId: userId },
       skip: page * limit,
       take: limit,
       order: { createAt: "DESC" },
