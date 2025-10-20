@@ -1,6 +1,13 @@
-import { IsEnum, IsNotEmpty, IsString } from "class-validator";
+import {
+  ArrayMinSize,
+  IsArray,
+  IsEnum,
+  IsNotEmpty,
+  IsString,
+} from "class-validator";
 import { CourceStatus } from "../enums/status.enum";
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 
 export class CreateCourceDto {
   @ApiProperty({ example: "cource Name" })
@@ -18,7 +25,8 @@ export class CreateCourceDto {
   status: CourceStatus;
 
   @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  categoryId: string;
+  @IsArray()
+  @IsString({ each: true })
+  @ArrayMinSize(1)
+  categoryId: string[];
 }

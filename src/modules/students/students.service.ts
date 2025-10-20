@@ -56,10 +56,15 @@ export class StudentsService {
   }
 
   findAll(page: number, limit: number, sortBy: string, query: string) {
-    return this.userRepository.find({
-      select: ["id", "createAt", "email", "firstName", "lastName", "role"],
+    return this.studentRepository.find({
+      relations: ["school"],
+      select: {
+        school: {
+          id: true,
+          name: true,
+        },
+      },
       where: {
-        role: Role.STUDENT,
         ...(query ? { firstName: ILike(`%${query}%`) } : {}),
       },
       take: limit,

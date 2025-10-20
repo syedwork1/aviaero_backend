@@ -20,19 +20,18 @@ export class CourcesService {
 
   async create(createCourseDto: CreateCourceDto): Promise<CourceEntity> {
     try {
-      const category = await this.categoryService.findOne(
-        createCourseDto.categoryId
-      );
+      // const category = await this.categoryService.findOne(
+      //   createCourseDto.categoryId
+      // );
 
-      if (!category) {
-        throw new NotFoundException(
-          `Category with id ${createCourseDto.categoryId} not found!`
-        );
-      }
+      // if (!category) {
+      //   throw new NotFoundException(
+      //     `Category with id ${createCourseDto.categoryId} not found!`
+      //   );
+      // }
 
       const course = this.courceRepository.create({
         ...createCourseDto,
-        category,
       });
       await this.courceRepository.save(course);
       return course;
@@ -80,19 +79,19 @@ export class CourcesService {
       throw new Error(`Cource with id ${id} not found!`);
     }
 
-    let category: any;
-    if ("categoryId" in dto) {
-      category = await this.categoryService.findOne(dto.categoryId);
+    // let category: any;
+    // if ("categoryId" in dto) {
+    //   category = await this.categoryService.findOne(dto.categoryId);
 
-      if (!category) {
-        throw new Error(`Category with id ${dto.categoryId} not found!`);
-      }
-    }
+    //   if (!category) {
+    //     throw new Error(`Category with id ${dto.categoryId} not found!`);
+    //   }
+    // }
 
     Object.assign(cource, dto);
     return this.courceRepository.save({
       ...cource,
-      ...(category ? { category } : {}),
+      // ...(category ? { category } : {}),
     });
   }
 
