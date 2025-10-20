@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateStudentDto } from "./dto/create-student.dto";
 import { UpdateStudentDto } from "./dto/update-student.dto";
 import { UserService } from "../user/services/user.service";
@@ -80,8 +80,11 @@ export class StudentsService {
   }
 
   findOne(id: string) {
-    return this.userRepository.findOne({
-      select: ["id", "createAt", "email", "firstName", "lastName", "role"],
+    return this.studentRepository.findOne({
+      select: {
+        school: { id: true, name: true },
+      },
+      relations: ["school"],
       where: { id },
     });
   }
@@ -91,10 +94,12 @@ export class StudentsService {
   }
 
   update(id: string, updateStudentDto: UpdateStudentDto) {
-    return this.userService.update({ id }, updateStudentDto);
+    return this.studentRepository.update({ id }, updateStudentDto);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} student`;
+  async remove(id: string) {
+    const student = await this.studentRepository.findOne({ where: { id } });
+    if (!student) throw new NotFoundException("student not found");
+    return student.remove();
   }
 }

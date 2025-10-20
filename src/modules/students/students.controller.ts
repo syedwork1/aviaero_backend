@@ -94,11 +94,11 @@ export class StudentsController {
     return this.studentsService.update(id, updateStudentDto);
   }
 
-  // @ApiBearerAuth("authorization")
-  // @UseGuards(JwtAuthGuard, RolesGuard)
-  // @Roles(Role.ADMIN)
-  // @Delete(":id")
-  // remove(@Param("id") id: string) {
-  //   return this.studentsService.remove(+id);
-  // }
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Delete(":id")
+  remove(@Param("id") id: string) {
+    return this.studentsService.remove(id);
+  }
 }
