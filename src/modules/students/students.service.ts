@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateStudentDto } from "./dto/create-student.dto";
 import { UpdateStudentDto } from "./dto/update-student.dto";
 import { UserService } from "../user/services/user.service";
-import { ILike, Repository } from "typeorm";
+import { ILike, MoreThanOrEqual, Repository } from "typeorm";
 import { UserEntity } from "../../database/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "@core/enums/role.enum";
@@ -89,8 +89,16 @@ export class StudentsService {
     });
   }
 
-  stats() {
-    return { total: 10, new: 1, active: 4 };
+  async stats() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      total: await this.studentRepository.count(),
+      new: await this.studentRepository.count({
+        where: { createAt: MoreThanOrEqual(today) },
+      }),
+      active: 4,
+    };
   }
 
   update(id: string, updateStudentDto: UpdateStudentDto) {
