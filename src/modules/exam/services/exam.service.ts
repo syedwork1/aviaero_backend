@@ -36,9 +36,8 @@ export class ExamService {
       number_of_questions: createExamDto.number_of_questions,
       difficulty: createExamDto.difficulty,
       studentId: userId,
-      CBR_chapter: createExamDto.CBR_chapter,
+      // CBR_chapter: createExamDto.CBR_chapter,
       time: createExamDto.time,
-      end_date: createExamDto.end_date,
     };
     const savedExam = await this.examRepository.save(savedExamData);
 
