@@ -71,7 +71,7 @@ export class QuestionsService {
           relations: ["Mobility"],
           ...(query ? { where: { question: ILike(`%${query}%`) } } : {}),
           skip: page * limit,
-          take: limit,
+          take: limit || undefined,
           order: { [sortBy]: "DESC" },
         }),
         this.questionRepository.count(),
