@@ -92,10 +92,9 @@ export class ExamController {
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by") sortBy: string,
-    @Query("query") query: string,
-    @Request() req
+    @Query("query") query: string
   ) {
-    return this.examService.findAll(req.user.user_id, page, limit);
+    return this.examService.findAll(page, limit, sortBy, query);
   }
 
   @Get(":id")

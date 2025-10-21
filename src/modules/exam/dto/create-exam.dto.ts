@@ -1,14 +1,11 @@
 import {
   IsNotEmpty,
   IsString,
-  IsDate,
   IsNumber,
-  MinDate,
   ArrayMinSize,
   IsArray,
 } from "class-validator";
-import { Type } from "class-transformer";
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateExamDto {
   @ApiProperty({ example: "Exam Name" })
@@ -35,21 +32,14 @@ export class CreateExamDto {
   @ArrayMinSize(1)
   coursesIds: string[];
 
+  @ApiProperty()
+  @IsArray()
+  @ArrayMinSize(1)
+  questionIds: string[];
+
   @ApiProperty({
     description: "The scheduled time for the quiz .",
   })
   @IsNotEmpty()
   time: number;
-
-  // @ApiProperty({ example: 'Status' })
-  // @IsEnum(ExamStatus)
-  // status: ExamStatus;
-
-  // Optional array of questions to create with the exam
-  // @ApiProperty({ example: 'Questions' })
-  // @IsOptional()
-  // @IsArray()
-  // @ValidateNested({ each: true })
-  // @Type(() => CreateQuestionDto)
-  // questions?: CreateQuestionDto[];
 }

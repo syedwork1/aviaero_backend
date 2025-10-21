@@ -14,7 +14,6 @@ import { CategoryModule } from "../category/category.module";
 import { SubjectModule } from "../subject/subject.module";
 import { ExamModule } from "../exam/exam.module";
 import { CourcesModule } from "../cources/cources.module";
-import { ExamQuestionsModule } from "../exam-questions/exam-questions.module";
 import { StudentsModule } from "../students/students.module";
 import { UploadModule } from "../upload/upload.module";
 import { PlansModule } from "../plans/plans.module";
@@ -33,7 +32,6 @@ import { QuizModule } from "../quiz/quiz.module";
     SubjectModule,
     ExamModule,
     CourcesModule,
-    ExamQuestionsModule,
     StudentsModule,
     UploadModule,
     PlansModule,

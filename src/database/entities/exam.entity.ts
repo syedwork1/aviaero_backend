@@ -1,7 +1,9 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
-import { FeedbackEntity } from "./feedback.entity";
 import { QuizEntity } from "./quiz.entity";
+import { CategoryEntity } from "./category.entity";
+import { CourceEntity } from "./cource.entity";
+import { QuestionsEntity } from "./question.entity";
 
 @Entity()
 export class ExamEntity extends AppBaseEntity {
@@ -15,16 +17,19 @@ export class ExamEntity extends AppBaseEntity {
   difficulty: string;
 
   @Column()
-  CBR_chapter: string;
-
-  @Column()
-  studentId: string;
-
-  @Column()
-  end_date: Date;
-
-  @Column()
   time: number;
+
+  @ManyToMany(() => CategoryEntity)
+  @JoinTable()
+  CBR_chapters: CategoryEntity[];
+
+  @ManyToMany(() => CourceEntity)
+  @JoinTable()
+  courses: CourceEntity[];
+
+  @ManyToMany(() => QuestionsEntity)
+  @JoinTable()
+  questions: QuestionsEntity[];
 
   @OneToMany(() => QuizEntity, (feedback) => feedback.exam)
   quizes: QuizEntity;
