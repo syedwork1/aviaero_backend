@@ -7,12 +7,18 @@ import { QuizEntity } from "../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
 import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "../auth/auth.module";
+import { ExamEntity } from "../../database/entities/exam.entity";
 
 @Module({
   imports: [
     ConfigModule,
     AuthModule,
-    TypeOrmModule.forFeature([QuestionsEntity, QuizEntity, QuizAnswerEntity]),
+    TypeOrmModule.forFeature([
+      QuestionsEntity,
+      QuizEntity,
+      QuizAnswerEntity,
+      ExamEntity,
+    ]),
   ],
   controllers: [QuizController],
   providers: [QuizService],
