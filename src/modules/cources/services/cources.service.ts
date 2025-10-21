@@ -6,15 +6,20 @@ import {
 import { CreateCourceDto } from "../dto/create-cource.dto";
 import { UpdateCourceDto } from "../dto/update-cource.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { CourceEntity } from "../../../database/entities/cource.entity";
 import { CategoryService } from "../../category/services/category.service";
+import { CategoryEntity } from "../../../database/entities/category.entity";
 
 @Injectable()
 export class CourcesService {
   constructor(
     @InjectRepository(CourceEntity)
     private readonly courceRepository: Repository<CourceEntity>,
+
+    @InjectRepository(CategoryEntity)
+    private readonly categoryRepository: Repository<CategoryEntity>,
+
     private readonly categoryService: CategoryService
   ) {}
 
@@ -65,13 +70,22 @@ export class CourcesService {
   }
 
   async update(id: string, dto: UpdateCourceDto) {
+    const { categoryIds, ...data } = dto;
     const cource = await this.courceRepository.findOne({ where: { id } });
     if (!cource) {
       throw new Error(`Cource with id ${id} not found!`);
     }
-    return cource.save({
-      data: { ...dto, category: dto.categoryIds.map((c) => ({ id: c })) },
+
+    const categories = await this.categoryRepository.find({
+      where: {
+        id: In(categoryIds),
+      },
     });
+
+    Object.assign(cource, data);
+    cource.category = categories;
+    await cource.save();
+    return cource;
   }
 
   async remove(id: string): Promise<boolean> {

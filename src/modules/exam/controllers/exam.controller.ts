@@ -61,6 +61,39 @@ export class ExamController {
     }
   }
 
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Post("bulk")
+  @ApiBody({ type: CreateExamDto })
+  async upload(@Request() req, @Body() createExamDto: CreateExamDto) {
+    try {
+      await this.examService.create(createExamDto, req.user.user_id);
+
+      return {
+        statusCode: 200,
+        message: "Exam has been created successfully",
+      };
+    } catch (error) {
+      // Optional: log the error for debugging
+      console.error("Exam creation failed:", error);
+
+      // If the service threw a known HttpException, rethrow it
+      if (error instanceof HttpException) {
+        throw error;
+      }
+
+      // Otherwise wrap in a generic 500 Internal Server Error
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+          message: "Failed to create exam. Please try again later.",
+        },
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
   @ApiQuery({
     name: "page",
     type: Number,
