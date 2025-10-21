@@ -69,20 +69,8 @@ export class CourcesService {
     if (!cource) {
       throw new Error(`Cource with id ${id} not found!`);
     }
-
-    // let category: any;
-    // if ("categoryId" in dto) {
-    //   category = await this.categoryService.findOne(dto.categoryId);
-
-    //   if (!category) {
-    //     throw new Error(`Category with id ${dto.categoryId} not found!`);
-    //   }
-    // }
-
-    Object.assign(cource, dto);
-    return this.courceRepository.save({
-      ...cource,
-      // ...(category ? { category } : {}),
+    return cource.save({
+      data: { ...dto, category: dto.categoryIds.map((c) => ({ id: c })) },
     });
   }
 
