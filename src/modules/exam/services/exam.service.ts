@@ -20,6 +20,7 @@ export class ExamService {
     private readonly examQuestionsService: ExamQuestionsService
   ) {}
   async create(createExamDto: CreateExamDto, userId: string) {
+    return createExamDto;
     // const getRandomQuestions = await this.questionSerice.findRandomQuestions(
     //   createExamDto.CBR_chapter,
     //   createExamDto.difficulty,

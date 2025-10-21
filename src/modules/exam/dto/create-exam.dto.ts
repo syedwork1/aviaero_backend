@@ -26,14 +26,12 @@ export class CreateExamDto {
   difficulty: string;
 
   @ApiProperty()
-  @IsArray({ each: true })
-  @IsString({ each: true })
+  @IsArray()
   @ArrayMinSize(1)
   CBR_chapters: string[];
 
   @ApiProperty()
-  @IsArray({ each: true })
-  @IsString({ each: true })
+  @IsArray()
   @ArrayMinSize(1)
   coursesIds: string[];
 
