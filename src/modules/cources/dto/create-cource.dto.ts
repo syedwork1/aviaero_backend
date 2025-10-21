@@ -28,5 +28,5 @@ export class CreateCourceDto {
   @IsArray()
   @IsString({ each: true })
   @ArrayMinSize(1)
-  categoryId: string[];
+  categoryIds: string[];
 }

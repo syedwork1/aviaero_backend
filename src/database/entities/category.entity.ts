@@ -2,6 +2,7 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
   ManyToOne,
   OneToMany,
   OneToOne,
@@ -19,9 +20,9 @@ export class CategoryEntity extends AppBaseEntity {
   @Column({ nullable: true })
   CBR_chapter: string;
 
-  @ManyToOne(() => CourceEntity, (cource) => cource.category, {})
+  @ManyToMany(() => CourceEntity, (cource) => cource.category, {})
   @JoinColumn()
-  cource: CourceEntity;
+  cource: CourceEntity[];
 
   @OneToMany(() => QuestionsEntity, (question) => question.Mobility, {})
   questions: QuestionsEntity;

@@ -20,21 +20,12 @@ export class CourcesService {
 
   async create(createCourseDto: CreateCourceDto): Promise<CourceEntity> {
     try {
-      // const category = await this.categoryService.findOne(
-      //   createCourseDto.categoryId
-      // );
-
-      // if (!category) {
-      //   throw new NotFoundException(
-      //     `Category with id ${createCourseDto.categoryId} not found!`
-      //   );
-      // }
-
+      const { categoryIds, ...courseData } = createCourseDto;
       const course = this.courceRepository.create({
-        ...createCourseDto,
+        ...courseData,
+        category: categoryIds.map((c) => ({ id: c })),
       });
-      await this.courceRepository.save(course);
-      return course;
+      return this.courceRepository.save(course);
     } catch (error) {
       throw new InternalServerErrorException({
         message: "Failed to create course",
