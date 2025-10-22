@@ -1,10 +1,20 @@
-import { IsString, IsNotEmpty, IsNumber, IsBoolean } from "class-validator";
+import {
+  IsString,
+  IsNotEmpty,
+  IsNumber,
+  IsBoolean,
+  IsArray,
+} from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class StartQuizDto {
   @ApiProperty()
   @IsString()
   examId: string;
+
+  @ApiProperty()
+  @IsArray({ each: true })
+  cbr_chapters: string[];
 
   @ApiProperty()
   @IsString()
