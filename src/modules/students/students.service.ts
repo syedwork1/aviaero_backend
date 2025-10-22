@@ -7,11 +7,13 @@ import { UserEntity } from "../../database/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Role } from "@core/enums/role.enum";
 import { StudentEntity } from "../../database/entities/student.entity";
+import { SchoolsService } from "../schools/services/schools.service";
 
 @Injectable()
 export class StudentsService {
   constructor(
     private readonly userService: UserService,
+    private readonly schoolService: SchoolsService,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(StudentEntity)
@@ -101,8 +103,37 @@ export class StudentsService {
     };
   }
 
-  update(id: string, updateStudentDto: UpdateStudentDto) {
-    return this.studentRepository.update({ id }, updateStudentDto);
+  async update(id: string, updateStudentDto: UpdateStudentDto) {
+    const { email, password, schoolId, ...updateData } = updateStudentDto;
+    const student = await this.studentRepository.findOne({
+      where: { id },
+      relationLoadStrategy: "join",
+      relations: ["school", "user"],
+      select: {
+        user: {
+          id: true,
+          email: true,
+        },
+      },
+    });
+    if (!student) {
+      throw new NotFoundException("Student not found");
+    }
+    const { data: school } = await this.schoolService.findOne(schoolId);
+    if (!school) {
+      throw new NotFoundException("School not found");
+    }
+    Object.assign(student, { ...updateData, email });
+    student.school = school;
+    await student.save();
+    if (password || email) {
+      await this.userService.update(
+        { id: student.user.id },
+        { ...(password ? { password } : {}), ...(email ? { email } : {}) }
+      );
+    }
+    delete student.user;
+    return student;
   }
 
   async remove(id: string) {
