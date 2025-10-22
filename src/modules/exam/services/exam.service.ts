@@ -41,6 +41,8 @@ export class ExamService {
     totalPages: number;
   }> {
     const [data, total] = await this.examRepository.findAndCount({
+      relationLoadStrategy: "join",
+      relations: ["CBR_chapters", "courses"],
       skip: page * limit,
       take: limit,
       order: { createAt: "DESC" },
