@@ -19,6 +19,7 @@ import { Role } from "@core/enums/role.enum";
 import { Roles } from "@core/gaurds/roles.decorator";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
+import { ActivatePlanDto } from "./dto/activate-plan.dto";
 
 @ApiTags("plans")
 @Controller("plans")
@@ -31,6 +32,13 @@ export class PlansController {
   @Post()
   create(@Body() createPlanDto: CreatePlanDto) {
     return this.plansService.create(createPlanDto);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard)
+  @Post("activate")
+  activate(@Body() activatePlanDto: ActivatePlanDto) {
+    return this.plansService.activate(activatePlanDto);
   }
 
   @ApiQuery({

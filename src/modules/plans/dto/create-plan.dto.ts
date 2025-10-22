@@ -24,27 +24,4 @@ export class CreatePlanDto {
   @IsNumber()
   @IsNotEmpty()
   price: number;
-
-  @ApiProperty({ description: "No of exams plan include", example: 1000 })
-  @IsNumber()
-  @IsNotEmpty()
-  exam: number;
-
-  @ApiProperty({ description: "No of quiz plan include", example: 10 })
-  @IsNumber()
-  @IsNotEmpty()
-  quiz: number;
-
-  @ApiProperty({ description: "No of students plan include", example: 1000 })
-  @IsNumber()
-  @IsNotEmpty()
-  student: number;
-
-  @ApiProperty({
-    description: "Plan description",
-    example: "This is a plan description",
-  })
-  @IsString()
-  @IsNotEmpty()
-  courseId: string;
 }

@@ -5,6 +5,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { PlanEntity } from "../../database/entities/plan.entity";
 import { ILike, Repository } from "typeorm";
 import { CourcesService } from "../cources/services/cources.service";
+import { ActivatePlanDto } from "./dto/activate-plan.dto";
 
 @Injectable()
 export class PlansService {
@@ -14,14 +15,11 @@ export class PlansService {
     private readonly coureService: CourcesService
   ) {}
   async create(createPlanDto: CreatePlanDto) {
-    const course = await this.coureService.findOne(createPlanDto.courseId);
-    if (!course) {
-      throw new NotFoundException(
-        `Course with id ${createPlanDto.courseId} not found`
-      );
-    }
+    return this.planRepository.save(createPlanDto);
+  }
 
-    return this.planRepository.save({ ...createPlanDto, course });
+  async activate(activatePlanDto: ActivatePlanDto) {
+    return { ...activatePlanDto, activated: true };
   }
 
   async findAll(page: number, limit: number, sortBy: string, query: string) {
@@ -54,24 +52,14 @@ export class PlansService {
   }
 
   async update(id: string, updatePlanDto: UpdatePlanDto) {
-    let course: any, plan: PlanEntity;
-    if ("courseId" in updatePlanDto) {
-      course = await this.coureService.findOne(updatePlanDto.courseId);
-      if (!course) {
-        throw new NotFoundException(
-          `Course with id ${updatePlanDto.courseId} not found`
-        );
-      }
-    }
-
-    plan = await this.planRepository.findOneBy({ id });
+    const plan = await this.planRepository.findOneBy({ id });
 
     if (!plan) {
       throw new NotFoundException(`Plan with id ${id} not found`);
     }
 
     Object.assign(plan, updatePlanDto);
-    return this.planRepository.save({ ...plan, ...(course ? { course } : {}) });
+    return this.planRepository.save(plan);
   }
 
   remove(id: string) {
