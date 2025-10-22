@@ -4,21 +4,24 @@ import {
   IsNumber,
   IsBoolean,
   IsArray,
+  IsOptional,
 } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class StartQuizDto {
   @ApiProperty()
   @IsString()
+  @IsOptional()
   examId: string;
 
   @ApiProperty()
-  @IsArray({ each: true })
+  @IsString({ each: true })
+  @IsOptional()
   cbr_chapters: string[];
 
   @ApiProperty()
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   categoryId: string;
 
   @ApiProperty()

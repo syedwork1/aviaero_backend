@@ -90,6 +90,7 @@ export class QuizService {
         categoryId,
         studentId,
         examId,
+        cbr_chapters,
         questions: noOfQuestion,
       } = quizData;
 
@@ -99,7 +100,7 @@ export class QuizService {
         isPractice: isPractice,
         student: { id: studentId },
         status: QuizStatus.INPROGRESS,
-        category: { id: categoryId },
+        ...(categoryId ? { category: { id: categoryId } } : {}),
         ...(examId ? { exam: { id: examId } } : {}),
       });
       let exam: ExamEntity | null;
