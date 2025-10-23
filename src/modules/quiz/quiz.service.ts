@@ -30,7 +30,7 @@ export class QuizService {
       count(qae.id) as total,
       sum(case when qae."selectedAnswer" is null or qae."selectedAnswer" = '' then 1 else 0 end) as skipped,
       sum(case when qae."selectedAnswer" = qu.correct_answer then 1 else 0 end) as correct,
-      sum(case when qae."selectedAnswer" != qu.correct_answer then 1 else 0 end) as wrong,
+      sum(case when (qae."selectedAnswer" is null or qae."selectedAnswer" != '') and qae."selectedAnswer" != qu.correct_answer then 1 else 0 end) as wrong,
       ce."name" as category,
       ee."name" as exam,
     qe."isPractice" , qe."startedAt", qe.id 
