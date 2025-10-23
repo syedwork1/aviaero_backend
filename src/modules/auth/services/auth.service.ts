@@ -87,18 +87,20 @@ export class AuthService {
   async login(loginDto: LoginDto): Promise<any> {
     try {
       const user = await this.validateUser(loginDto.email, loginDto.password);
-
       if (!user) {
         throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
       }
 
-      if (user.role === Role.STUDENT) {
-        const subscription = await this.planService.getUserSuscirption(user.id);
+      if (user?.role === Role.STUDENT) {
+        const subscription = await this.planService.getUserSuscirption(
+          user?.id
+        );
         return { ...this.getAccessTokens(user), user, subscription };
       }
 
       return { ...this.getAccessTokens(user), user, subscription: null };
     } catch (e) {
+      console.log(e);
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
     }
   }

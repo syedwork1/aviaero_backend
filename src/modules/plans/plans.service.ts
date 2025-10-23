@@ -45,10 +45,13 @@ export class PlansService {
     const student = await this.studentRepository.findOne({
       where: { user: { id: userId } },
     });
+    if (!student) return null;
+
     return this.subscriptionRepository.findOne({
-      where: { student: { id: student.id } },
       relationLoadStrategy: "join",
       relations: ["plan"],
+      where: { student: { id: student.id } },
+      order: { createAt: "DESC" },
     });
   }
 
