@@ -66,9 +66,7 @@ export class StudentsService {
           name: true,
         },
       },
-      where: {
-        ...(query ? { firstName: ILike(`%${query}%`) } : {}),
-      },
+      ...(query ? { where: { user: { firstName: ILike(`%${query}%`) } } } : {}),
       take: limit,
       skip: page * limit || 0,
       ...(sortBy
@@ -103,8 +101,20 @@ export class StudentsService {
     };
   }
 
+  async dashboard(user: any) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      total: await this.studentRepository.count(),
+      new: await this.studentRepository.count({
+        where: { createAt: MoreThanOrEqual(today) },
+      }),
+      active: 4,
+    };
+  }
+
   async update(id: string, updateStudentDto: UpdateStudentDto) {
-    const { email, password, schoolId, ...updateData } = updateStudentDto;
+    const { email, password, schoolId, firstName, lastName } = updateStudentDto;
     const student = await this.studentRepository.findOne({
       where: { id },
       relationLoadStrategy: "join",
@@ -119,17 +129,23 @@ export class StudentsService {
     if (!student) {
       throw new NotFoundException("Student not found");
     }
-    const { data: school } = await this.schoolService.findOne(schoolId);
-    if (!school) {
-      throw new NotFoundException("School not found");
+    if (schoolId) {
+      const { data: school } = await this.schoolService.findOne(schoolId);
+      if (!school) {
+        throw new NotFoundException("School not found");
+      }
+      student.school = school;
+      await student.save();
     }
-    Object.assign(student, { ...updateData, email });
-    student.school = school;
-    await student.save();
-    if (password || email) {
+    if (password || email || firstName || lastName) {
       await this.userService.update(
         { id: student.user.id },
-        { ...(password ? { password } : {}), ...(email ? { email } : {}) }
+        {
+          ...(password ? { password } : {}),
+          ...(email ? { email } : {}),
+          ...(firstName ? { firstName } : {}),
+          ...(lastName ? { lastName } : {}),
+        }
       );
     }
     delete student.user;

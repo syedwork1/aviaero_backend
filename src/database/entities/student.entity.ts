@@ -15,16 +15,6 @@ import { SchoolEntity } from "./school.entity";
 import { SubscriptionEntity } from "./subscription.entity";
 @Entity()
 export class StudentEntity extends AppBaseEntity {
-  @Column({ unique: true })
-  @IsEmail()
-  email: string;
-
-  @Column()
-  firstName: string;
-
-  @Column()
-  lastName: string;
-
   @OneToMany(() => FeedbackEntity, (feeback) => feeback.student)
   feedback: FeedbackEntity;
 

@@ -10,6 +10,7 @@ import {
   Query,
   ParseIntPipe,
   DefaultValuePipe,
+  Req,
 } from "@nestjs/common";
 import { StudentsService } from "./students.service";
 import { CreateStudentDto } from "./dto/create-student.dto";
@@ -76,6 +77,14 @@ export class StudentsController {
   @Get("stats")
   stats() {
     return this.studentsService.stats();
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @Get("dashboard")
+  dashboard(@Req() req) {
+    return this.studentsService.dashboard(req.user);
   }
 
   @ApiBearerAuth("authorization")
