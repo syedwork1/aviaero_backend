@@ -25,12 +25,9 @@ export class PlansService {
   async activate(activatePlanDto: ActivatePlanDto, user: any) {
     const expireAt = new Date();
     expireAt.setMonth(expireAt.getMonth() + 1);
-    const student = await this.studentRepository.findOne({
-      where: { user: { id: user.userId } },
-    });
     const subscriptionEntity = this.subscriptionRepository.create({
       plan: { id: activatePlanDto.planId },
-      student,
+      user: { id: user.userId },
       expireAt,
     });
     const subscription =
@@ -42,15 +39,10 @@ export class PlansService {
   }
 
   async getUserSuscirption(userId: string) {
-    const student = await this.studentRepository.findOne({
-      where: { user: { id: userId } },
-    });
-    if (!student) return null;
-
     return this.subscriptionRepository.findOne({
       relationLoadStrategy: "join",
       relations: ["plan"],
-      where: { student: { id: student.id } },
+      where: { user: { id: userId } },
       order: { createAt: "DESC" },
     });
   }

@@ -5,9 +5,9 @@ import { UserService } from "../user/services/user.service";
 import { ILike, MoreThanOrEqual, Repository } from "typeorm";
 import { UserEntity } from "../../database/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Role } from "@core/enums/role.enum";
 import { StudentEntity } from "../../database/entities/student.entity";
 import { SchoolsService } from "../schools/services/schools.service";
+import { QuizEntity } from "../../database/entities/quiz.entity";
 
 @Injectable()
 export class StudentsService {
@@ -17,7 +17,9 @@ export class StudentsService {
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(StudentEntity)
-    private readonly studentRepository: Repository<StudentEntity>
+    private readonly studentRepository: Repository<StudentEntity>,
+    @InjectRepository(QuizEntity)
+    private readonly quizRepository: Repository<QuizEntity>
   ) {}
   async create(createStudentDto: CreateStudentDto) {
     let user: UserEntity, student: StudentEntity;
@@ -102,14 +104,23 @@ export class StudentsService {
   }
 
   async dashboard(user: any) {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    //total exam total quiz
+    let totalExam = 0,
+      totalQuizes = 0;
+    const quizes = await this.quizRepository.find({
+      where: { student: { id: user.userId } },
+    });
+    for (const quiz of quizes) {
+      if (quiz.isPractice) {
+        totalQuizes += 1;
+      } else {
+        totalExam += 1;
+      }
+    }
+
     return {
-      total: await this.studentRepository.count(),
-      new: await this.studentRepository.count({
-        where: { createAt: MoreThanOrEqual(today) },
-      }),
-      active: 4,
+      totalExam,
+      totalQuizes,
     };
   }
 

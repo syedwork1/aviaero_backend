@@ -43,6 +43,8 @@ export class UserService {
   async findOne(where: FindOptionsWhere<UserEntity>): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
       where,
+      relationLoadStrategy: "join",
+      relations: ["subscription"],
     });
     if (!user) {
       throw new NotFoundException(ExceptionEnum.USER_NOT_FOUND);

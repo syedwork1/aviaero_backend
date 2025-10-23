@@ -8,6 +8,7 @@ import { ConfigModule } from "@nestjs/config";
 import { UserService } from "../user/services/user.service";
 import { MailService } from "./services/mail.service";
 import { PlansModule } from "../plans/plans.module";
+import { StudentsModule } from "../students/students.module";
 
 @Global()
 @Module({
@@ -23,6 +24,7 @@ import { PlansModule } from "../plans/plans.module";
     // }),
     ConfigModule,
     forwardRef(() => PlansModule),
+    StudentsModule,
   ],
   providers: [AuthService, JwtService, UserService, MailService],
   controllers: [AuthController],

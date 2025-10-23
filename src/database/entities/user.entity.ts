@@ -1,20 +1,18 @@
 import { Column, Entity, OneToMany } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
-import { IsEmail, IsNotEmpty } from "class-validator";
 import { FeedbackEntity } from "./feedback.entity";
 import { QuizEntity } from "./quiz.entity";
+import { SubscriptionEntity } from "./subscription.entity";
+import { Role } from "@core/enums/role.enum";
 @Entity()
 export class UserEntity extends AppBaseEntity {
   @Column({ unique: true })
-  @IsEmail()
   email: string;
 
-  @Column()
-  @IsNotEmpty()
+  @Column({ nullable: false })
   password: string;
 
-  @Column({ default: "STUDENT" })
-  @IsNotEmpty()
+  @Column({ default: Role.STUDENT, nullable: false })
   role: string;
 
   @Column()
@@ -29,9 +27,6 @@ export class UserEntity extends AppBaseEntity {
   @OneToMany(() => QuizEntity, (quiz) => quiz.student)
   quiz: QuizEntity;
 
-  // @Column()
-  // phone: string;
-
-  // @Column({ unique: true })
-  // username: string;
+  @OneToMany(() => SubscriptionEntity, (subscription) => subscription.user)
+  subscription: SubscriptionEntity;
 }

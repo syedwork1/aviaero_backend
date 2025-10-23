@@ -16,6 +16,7 @@ import { hashPassword } from "@core/helpers/core.helper";
 import { MailService } from "./mail.service";
 import { PlansService } from "../../plans/plans.service";
 import { Role } from "@core/enums/role.enum";
+import { StudentsService } from "../../../modules/students/students.service";
 
 @Injectable()
 export class AuthService {
@@ -24,7 +25,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
-    private readonly planService: PlansService
+    private readonly planService: PlansService,
+    private readonly studentService: StudentsService
   ) {}
 
   async validateUser(
@@ -91,14 +93,7 @@ export class AuthService {
         throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
       }
 
-      if (user?.role === Role.STUDENT) {
-        const subscription = await this.planService.getUserSuscirption(
-          user?.id
-        );
-        return { ...this.getAccessTokens(user), user, subscription };
-      }
-
-      return { ...this.getAccessTokens(user), user, subscription: null };
+      return { ...this.getAccessTokens(user), user };
     } catch (e) {
       console.log(e);
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
