@@ -61,11 +61,16 @@ export class StudentsService {
 
   findAll(page: number, limit: number, sortBy: string, query: string) {
     return this.studentRepository.find({
-      relations: ["school"],
+      relations: ["school", "user"],
       select: {
         school: {
           id: true,
           name: true,
+        },
+        user: {
+          firstName: true,
+          lastName: true,
+          email: true,
         },
       },
       ...(query ? { where: { user: { firstName: ILike(`%${query}%`) } } } : {}),
@@ -85,6 +90,11 @@ export class StudentsService {
     return this.studentRepository.findOne({
       select: {
         school: { id: true, name: true },
+        user: {
+          firstName: true,
+          lastName: true,
+          email: true,
+        },
       },
       relations: ["school"],
       where: { id },
@@ -159,13 +169,16 @@ export class StudentsService {
         }
       );
     }
-    delete student.user;
     return student;
   }
 
   async remove(id: string) {
     const student = await this.studentRepository.findOne({ where: { id } });
     if (!student) throw new NotFoundException("student not found");
-    return student.remove();
+    Promise.all([
+      student.remove(),
+      this.userService.deleteUser(student.user.id),
+    ]);
+    return true;
   }
 }
