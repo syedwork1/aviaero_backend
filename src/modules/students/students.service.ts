@@ -32,7 +32,6 @@ export class StudentsService {
       }
       user = await this.userService.createUser(createStudentDto);
       student = this.studentRepository.create({
-        ...createStudentDto,
         user: { id: user.id },
         school: { id: createStudentDto.schoolId },
         createAt: new Date(),
@@ -44,9 +43,14 @@ export class StudentsService {
             id: true,
             name: true,
           },
+          user: {
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
         },
         where: { id: student.id },
-        relations: ["school"],
+        relations: ["school", "user"],
       });
     } catch (error) {
       if (user) {
