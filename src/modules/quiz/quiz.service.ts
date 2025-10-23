@@ -24,9 +24,8 @@ export class QuizService {
     private readonly examRepository: Repository<ExamEntity>
   ) {}
 
-  results(user: any) {
-    console.log(user, "user");
-    return this.quizRepository.query(
+  async results(user: any) {
+    const results = await this.quizRepository.query(
       `select
       count(qae.id) as total,
       sum(case when qae."selectedAnswer" is null or qae."selectedAnswer" = '' then 1 else 0 end) as skipped,
@@ -47,6 +46,11 @@ export class QuizService {
     group by ce.name, qe."startedAt", qe."isPractice", qe.id;`,
       [user.userId]
     );
+
+    return results.map((r) => ({
+      ...r,
+      marks: { total: r.total * 10, gained: r?.correct * 10 },
+    }));
   }
 
   getQuiz(quizId: string) {
