@@ -97,7 +97,7 @@ export class AuthService {
         return { ...this.getAccessTokens(user), user, subscription };
       }
 
-      return { ...this.getAccessTokens(user), user };
+      return { ...this.getAccessTokens(user), user, subscription: null };
     } catch (e) {
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
     }
