@@ -32,6 +32,7 @@ export class QuizService {
       sum(case when qae."selectedAnswer" = qu.correct_answer then 1 else 0 end) as correct,
       sum(case when qae."selectedAnswer" != qu.correct_answer then 1 else 0 end) as wrong,
       ce."name" as category,
+      ee."name" as exam,
     qe."isPractice" , qe."startedAt", qe.id 
     from
       quiz_entity qe
@@ -41,15 +42,21 @@ export class QuizService {
       qu.id = qae."questionId" 
     left join category_entity ce on
       ce.id = qe."categoryId" 
+    left join exam_entity ee on
+      ee.id = qe."examId" 
     where
       qe."studentId" = $1
-    group by ce.name, qe."startedAt", qe."isPractice", qe.id;`,
+    group by ce.name, qe."startedAt", qe."isPractice", qe.id, ee.name;`,
       [user.userId]
     );
 
     return results.map((r) => ({
       ...r,
-      marks: { total: r.total * 10, gained: r?.correct * 10 },
+      exam: r?.exam ?? "Practice",
+      marks: {
+        total: r.total * 10,
+        gained: r?.correct * 10,
+      },
     }));
   }
 
