@@ -21,11 +21,15 @@ import { Roles } from "@core/gaurds/roles.decorator";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { ActivatePlanDto } from "./dto/activate-plan.dto";
+import { MollieService } from "./mollie.service";
 
 @ApiTags("plans")
 @Controller("plans")
 export class PlansController {
-  constructor(private readonly plansService: PlansService) {}
+  constructor(
+    private readonly plansService: PlansService,
+    private readonly mollieService: MollieService
+  ) {}
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -36,11 +40,16 @@ export class PlansController {
   }
 
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.STUDENT)
+  @UseGuards(JwtAuthGuard)
+  // @Roles(Role.STUDENT)
   @Post("activate")
   activate(@Body() activatePlanDto: ActivatePlanDto, @Req() req) {
     return this.plansService.activate(activatePlanDto, req.user);
+  }
+
+  @Post("webhook")
+  webhook(@Body() { id }: any) {
+    return this.mollieService.processWebhook(id);
   }
 
   @ApiQuery({

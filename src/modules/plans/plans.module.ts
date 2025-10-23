@@ -8,16 +8,23 @@ import { ConfigModule } from "@nestjs/config";
 import { CourcesModule } from "../cources/cources.module";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
 import { StudentEntity } from "../../database/entities/student.entity";
+import { MollieService } from "./mollie.service";
+import { PaymentEntity } from "../../database/entities/payment.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PlanEntity, SubscriptionEntity, StudentEntity]),
+    TypeOrmModule.forFeature([
+      PlanEntity,
+      SubscriptionEntity,
+      StudentEntity,
+      PaymentEntity,
+    ]),
     forwardRef(() => AuthModule),
     ConfigModule,
     CourcesModule,
   ],
   controllers: [PlansController],
-  providers: [PlansService],
+  providers: [PlansService, MollieService],
   exports: [PlansService],
 })
 export class PlansModule {}

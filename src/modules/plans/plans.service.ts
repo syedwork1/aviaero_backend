@@ -7,6 +7,7 @@ import { ILike, Repository } from "typeorm";
 import { ActivatePlanDto } from "./dto/activate-plan.dto";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
 import { StudentEntity } from "../../database/entities/student.entity";
+import { MollieService } from "./mollie.service";
 
 @Injectable()
 export class PlansService {
@@ -16,26 +17,16 @@ export class PlansService {
     @InjectRepository(SubscriptionEntity)
     private readonly subscriptionRepository: Repository<SubscriptionEntity>,
     @InjectRepository(StudentEntity)
-    private readonly studentRepository: Repository<StudentEntity>
+    private readonly studentRepository: Repository<StudentEntity>,
+    private readonly mollieService: MollieService
   ) {}
   async create(createPlanDto: CreatePlanDto) {
     return this.planRepository.save(createPlanDto);
   }
 
-  async activate(activatePlanDto: ActivatePlanDto, user: any) {
-    const expireAt = new Date();
-    expireAt.setMonth(expireAt.getMonth() + 1);
-    const subscriptionEntity = this.subscriptionRepository.create({
-      plan: { id: activatePlanDto.planId },
-      user: { id: user.userId },
-      expireAt,
-    });
-    const subscription =
-      await this.subscriptionRepository.save(subscriptionEntity);
-    return {
-      subscription,
-      activated: true,
-    };
+  async activate({ planId }: ActivatePlanDto, user: any) {
+    const plan = await this.planRepository.findOne({ where: { id: planId } });
+    return this.mollieService.createPayment(plan, user.userId);
   }
 
   async getUserSuscirption(userId: string) {
