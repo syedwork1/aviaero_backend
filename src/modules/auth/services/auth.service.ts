@@ -14,6 +14,8 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../../user/services/user.service";
 import { hashPassword } from "@core/helpers/core.helper";
 import { MailService } from "./mail.service";
+import { PlansService } from "../../plans/plans.service";
+import { Role } from "@core/enums/role.enum";
 
 @Injectable()
 export class AuthService {
@@ -21,7 +23,8 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+    private readonly planService: PlansService
   ) {}
 
   async validateUser(
@@ -89,7 +92,12 @@ export class AuthService {
         throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
       }
 
-      return { ...this.getAccessTokens(user), ...user };
+      if (user.role === Role.STUDENT) {
+        const subscription = await this.planService.getUserSuscirption(user.id);
+        return { ...this.getAccessTokens(user), user, subscription };
+      }
+
+      return { ...this.getAccessTokens(user), user };
     } catch (e) {
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
     }
@@ -99,7 +107,7 @@ export class AuthService {
     const payload = {
       name: user.firstName + user.lastName,
       email: user.email,
-      user_id: user.id,
+      userId: user.id,
       role: user.role,
     };
     const accessToken = this.jwtService.sign(payload, {
@@ -171,7 +179,7 @@ export class AuthService {
       return; // Empty return to make response ambiguous for security reasons
     }
 
-    const payload = { email: user.email, user_id: user.id };
+    const payload = { email: user.email, userId: user.id };
     const token = this.jwtService.sign(payload, {
       secret: this.configService.get<string>("JWT_SECRET"),
       expiresIn: this.configService.get<string>("JWT_SECRET_EXPIRY") ?? "1h",
@@ -194,11 +202,11 @@ export class AuthService {
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    const { email, user_id } = this.jwtService.verify(token, {
+    const { email, userId } = this.jwtService.verify(token, {
       secret: this.configService.get<string>("JWT_SECRET"),
     });
     const user = await this.userService.findOne({
-      id: user_id,
+      id: userId,
     });
     if (!user) {
       throw new Error("Invalid token");
@@ -207,7 +215,7 @@ export class AuthService {
     user.password = await hashPassword(newPassword); // Hash the password before saving
     await this.userService.update(
       {
-        id: user_id,
+        id: userId,
       },
       user
     );

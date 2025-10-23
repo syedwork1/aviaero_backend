@@ -10,6 +10,7 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
   UseGuards,
+  Req,
 } from "@nestjs/common";
 import { PlansService } from "./plans.service";
 import { CreatePlanDto } from "./dto/create-plan.dto";
@@ -35,10 +36,11 @@ export class PlansController {
   }
 
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
   @Post("activate")
-  activate(@Body() activatePlanDto: ActivatePlanDto) {
-    return this.plansService.activate(activatePlanDto);
+  activate(@Body() activatePlanDto: ActivatePlanDto, @Req() req) {
+    return this.plansService.activate(activatePlanDto, req.user);
   }
 
   @ApiQuery({
@@ -66,8 +68,7 @@ export class PlansController {
     required: false,
   })
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,

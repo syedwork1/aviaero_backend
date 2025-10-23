@@ -31,7 +31,7 @@ export class FeedbackService {
   ) {
     const [data, total] = await this.feedbackRepository.findAndCount({
       ...(user?.role === Role.STUDENT
-        ? { where: { student: { id: user?.user_id } } }
+        ? { where: { student: { id: user?.userId } } }
         : {}),
       relationLoadStrategy: "join",
       select: {

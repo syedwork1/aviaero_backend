@@ -35,7 +35,7 @@ export class ExamController {
   @ApiBody({ type: CreateExamDto })
   async create(@Request() req, @Body() createExamDto: CreateExamDto) {
     try {
-      await this.examService.create(createExamDto, req.user.user_id);
+      await this.examService.create(createExamDto, req.user.userId);
 
       return {
         statusCode: 200,
@@ -68,7 +68,7 @@ export class ExamController {
   @ApiBody({ type: CreateExamDto })
   async upload(@Request() req, @Body() createExamDto: CreateExamDto) {
     try {
-      await this.examService.create(createExamDto, req.user.user_id);
+      await this.examService.create(createExamDto, req.user.userId);
 
       return {
         statusCode: 200,

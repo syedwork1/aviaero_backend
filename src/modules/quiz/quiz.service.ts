@@ -45,7 +45,7 @@ export class QuizService {
     where
       qe."studentId" = $1
     group by ce.name, qe."startedAt", qe."isPractice", qe.id;`,
-      [user.user_id]
+      [user.userId]
     );
   }
 

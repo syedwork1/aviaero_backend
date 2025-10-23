@@ -4,22 +4,52 @@ import { UpdatePlanDto } from "./dto/update-plan.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PlanEntity } from "../../database/entities/plan.entity";
 import { ILike, Repository } from "typeorm";
-import { CourcesService } from "../cources/services/cources.service";
 import { ActivatePlanDto } from "./dto/activate-plan.dto";
+import { SubscriptionEntity } from "../../database/entities/subscription.entity";
+import { StudentEntity } from "../../database/entities/student.entity";
 
 @Injectable()
 export class PlansService {
   constructor(
     @InjectRepository(PlanEntity)
     private readonly planRepository: Repository<PlanEntity>,
-    private readonly coureService: CourcesService
+    @InjectRepository(SubscriptionEntity)
+    private readonly subscriptionRepository: Repository<SubscriptionEntity>,
+    @InjectRepository(StudentEntity)
+    private readonly studentRepository: Repository<StudentEntity>
   ) {}
   async create(createPlanDto: CreatePlanDto) {
     return this.planRepository.save(createPlanDto);
   }
 
-  async activate(activatePlanDto: ActivatePlanDto) {
-    return { ...activatePlanDto, activated: true };
+  async activate(activatePlanDto: ActivatePlanDto, user: any) {
+    const expireAt = new Date();
+    expireAt.setMonth(expireAt.getMonth() + 1);
+    const student = await this.studentRepository.findOne({
+      where: { user: { id: user.userId } },
+    });
+    const subscriptionEntity = this.subscriptionRepository.create({
+      plan: { id: activatePlanDto.planId },
+      student,
+      expireAt,
+    });
+    const subscription =
+      await this.subscriptionRepository.save(subscriptionEntity);
+    return {
+      subscription,
+      activated: true,
+    };
+  }
+
+  async getUserSuscirption(userId: string) {
+    const student = await this.studentRepository.findOne({
+      where: { user: { id: userId } },
+    });
+    return this.subscriptionRepository.findOne({
+      where: { student: { id: student.id } },
+      relationLoadStrategy: "join",
+      relations: ["plan"],
+    });
   }
 
   async findAll(page: number, limit: number, sortBy: string, query: string) {

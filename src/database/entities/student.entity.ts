@@ -12,6 +12,7 @@ import { FeedbackEntity } from "./feedback.entity";
 import { QuizEntity } from "./quiz.entity";
 import { UserEntity } from "./user.entity";
 import { SchoolEntity } from "./school.entity";
+import { SubscriptionEntity } from "./subscription.entity";
 @Entity()
 export class StudentEntity extends AppBaseEntity {
   @Column({ unique: true })
@@ -37,4 +38,7 @@ export class StudentEntity extends AppBaseEntity {
   @JoinColumn()
   @ManyToOne(() => SchoolEntity)
   school: SchoolEntity;
+
+  @OneToMany(() => SubscriptionEntity, (subscription) => subscription.student)
+  subscription: SubscriptionEntity;
 }
