@@ -14,9 +14,6 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../../user/services/user.service";
 import { hashPassword } from "@core/helpers/core.helper";
 import { MailService } from "./mail.service";
-import { PlansService } from "../../plans/plans.service";
-import { Role } from "@core/enums/role.enum";
-import { StudentsService } from "../../../modules/students/students.service";
 
 @Injectable()
 export class AuthService {
@@ -24,9 +21,7 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly mailService: MailService,
-    private readonly planService: PlansService,
-    private readonly studentService: StudentsService
+    private readonly mailService: MailService
   ) {}
 
   async validateUser(

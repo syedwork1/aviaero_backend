@@ -18,9 +18,7 @@ export class CourcesService {
     private readonly courceRepository: Repository<CourceEntity>,
 
     @InjectRepository(CategoryEntity)
-    private readonly categoryRepository: Repository<CategoryEntity>,
-
-    private readonly categoryService: CategoryService
+    private readonly categoryRepository: Repository<CategoryEntity>
   ) {}
 
   async create(createCourseDto: CreateCourceDto): Promise<CourceEntity> {
