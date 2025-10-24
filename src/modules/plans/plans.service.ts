@@ -8,6 +8,7 @@ import { ActivatePlanDto } from "./dto/activate-plan.dto";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
 import { StudentEntity } from "../../database/entities/student.entity";
 import { MollieService } from "./mollie.service";
+import { PaymentEntity } from "../../database/entities/payment.entity";
 
 @Injectable()
 export class PlansService {
@@ -18,6 +19,9 @@ export class PlansService {
     private readonly subscriptionRepository: Repository<SubscriptionEntity>,
     @InjectRepository(StudentEntity)
     private readonly studentRepository: Repository<StudentEntity>,
+
+    @InjectRepository(PaymentEntity)
+    private readonly paymentRepository: Repository<PaymentEntity>,
     private readonly mollieService: MollieService
   ) {}
   async create(createPlanDto: CreatePlanDto) {
@@ -27,6 +31,17 @@ export class PlansService {
   async activate({ planId }: ActivatePlanDto, user: any) {
     const plan = await this.planRepository.findOne({ where: { id: planId } });
     return this.mollieService.createPayment(plan, user.userId);
+  }
+
+  async activationStatus({ planId }: ActivatePlanDto, user: any) {
+    const { status } = await this.paymentRepository.findOne({
+      where: {
+        user: { id: user.userId },
+        plan: { id: planId },
+      },
+      order: { createAt: "DESC" },
+    });
+    return { status };
   }
 
   async getUserSuscirption(userId: string) {

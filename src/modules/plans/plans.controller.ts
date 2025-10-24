@@ -15,7 +15,12 @@ import {
 import { PlansService } from "./plans.service";
 import { CreatePlanDto } from "./dto/create-plan.dto";
 import { UpdatePlanDto } from "./dto/update-plan.dto";
-import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiExcludeEndpoint,
+  ApiQuery,
+  ApiTags,
+} from "@nestjs/swagger";
 import { Role } from "@core/enums/role.enum";
 import { Roles } from "@core/gaurds/roles.decorator";
 import { RolesGuard } from "@core/gaurds/roles.guard";
@@ -47,6 +52,15 @@ export class PlansController {
     return this.plansService.activate(activatePlanDto, req.user);
   }
 
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @Post("activation-status")
+  status(@Body() activationStatusDto: ActivatePlanDto, @Req() req) {
+    return this.plansService.activationStatus(activationStatusDto, req.user);
+  }
+
+  @ApiExcludeEndpoint()
   @Post("webhook")
   webhook(@Body() { id }: any) {
     return this.mollieService.processWebhook(id);
