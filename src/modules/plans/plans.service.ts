@@ -41,7 +41,7 @@ export class PlansService {
       },
       order: { createAt: "DESC" },
     });
-    return { status };
+    return { status: status === "paid" ? "activated" : "unactivated" };
   }
 
   async getUserSuscirption(userId: string) {
