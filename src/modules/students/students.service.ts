@@ -100,7 +100,7 @@ export class StudentsService {
           email: true,
         },
       },
-      relations: ["school"],
+      relations: ["school", "user"],
       where: { id },
     });
   }
