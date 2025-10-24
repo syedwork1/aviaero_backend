@@ -52,8 +52,7 @@ export class CourcesController {
   }
 
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @Get()
   async findAll() {
     try {
