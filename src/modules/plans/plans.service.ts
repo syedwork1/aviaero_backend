@@ -44,7 +44,7 @@ export class PlansService {
     return { status: status === "paid" ? "activated" : "unactivated" };
   }
 
-  async getUserSuscirption(userId: string) {
+  async getUserSubscirption(userId: string) {
     return this.subscriptionRepository.findOne({
       relationLoadStrategy: "join",
       relations: ["plan"],

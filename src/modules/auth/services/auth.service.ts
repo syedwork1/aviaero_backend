@@ -14,11 +14,13 @@ import { ConfigService } from "@nestjs/config";
 import { UserService } from "../../user/services/user.service";
 import { hashPassword } from "@core/helpers/core.helper";
 import { MailService } from "./mail.service";
+import { PlansService } from "../../../modules/plans/plans.service";
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
+    private readonly planService: PlansService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService
@@ -87,8 +89,9 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
       }
+      const subscription = await this.planService.getUserSubscirption(user.id);
 
-      return { ...this.getAccessTokens(user), user };
+      return { ...this.getAccessTokens(user), user, subscription };
     } catch (e) {
       console.log(e);
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
@@ -211,5 +214,12 @@ export class AuthService {
       },
       user
     );
+  }
+
+  async getProfile(user: any) {
+    const subscription = await this.planService.getUserSubscirption(
+      user.userId
+    );
+    return { ...user, subscription };
   }
 }

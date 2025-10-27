@@ -73,7 +73,7 @@ export class AuthController {
   @ApiBearerAuth("authorization")
   @Post("protected")
   getProfile(@Req() req) {
-    return req.user;
+    return this.authService.getProfile(req.user);
   }
 
   @Post("forgotPassword")
