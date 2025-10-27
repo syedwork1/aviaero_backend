@@ -37,6 +37,10 @@ export class CreateQuestionDto {
   @IsNotEmpty()
   explanation: string;
 
+  @ApiProperty({ description: "Subscription Level Bronz, Gold, Silver" })
+  @IsString()
+  suscription_level: string;
+
   // @ApiProperty({ description: 'Subscription level required' })
   // @IsString()
 

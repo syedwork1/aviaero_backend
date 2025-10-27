@@ -264,9 +264,11 @@ export class QuestionsService {
         difficulty: toNull(r["Moeilijkheid"]),
         CBR_chapter: toNull(r["CBR-code"]),
         categoryName: toNull(r["Categorie"]),
-        subscription_level: toNull(r["Membership"]),
+        subscription_level: toNull(r["Membership"]) || toNull(r["membership"]),
       });
     }
+
+    console.log(mapped);
 
     // Step 2: Extract unique categories with chapter info
     const categoryInput = new Map<
@@ -318,6 +320,7 @@ export class QuestionsService {
         difficulty: r.difficulty,
         CBR_chapter: r.CBR_chapter,
         Mobility: categoryMap.get(r.categoryName), // ManyToOne relation
+        subscription_level: r.subscription_level,
       })
     );
 

@@ -93,7 +93,7 @@ export class ExamBulkCreationService {
       const exam = this.examRepository.create({
         questions,
         name: key,
-        number_of_questions: questionTitles.length,
+        number_of_questions: questions.length,
         time: 60,
         difficulty: "Normal",
       });

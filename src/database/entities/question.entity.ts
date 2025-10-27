@@ -26,8 +26,8 @@ export class QuestionsEntity extends AppBaseEntity {
   @Column()
   explanation: string;
 
-  @Column({ default: true })
-  subscription_level: boolean;
+  @Column({ nullable: true })
+  subscription_level: string;
 
   @Column({ default: true })
   is_exam_question: boolean;
