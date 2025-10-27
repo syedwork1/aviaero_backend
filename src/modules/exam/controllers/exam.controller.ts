@@ -13,20 +13,35 @@ import {
   HttpStatus,
   DefaultValuePipe,
   ParseIntPipe,
+  UseInterceptors,
+  UploadedFile,
+  ForbiddenException,
+  BadRequestException,
 } from "@nestjs/common";
 import { ExamService } from "../services/exam.service";
 import { CreateExamDto } from "../dto/create-exam.dto";
 import { UpdateExamDto } from "../dto/update-exam.dto";
-import { ApiBody, ApiTags, ApiBearerAuth, ApiQuery } from "@nestjs/swagger";
+import {
+  ApiBody,
+  ApiTags,
+  ApiBearerAuth,
+  ApiQuery,
+  ApiConsumes,
+} from "@nestjs/swagger";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/gaurds/roles.decorator";
 import { Role } from "@core/enums/role.enum";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ExamBulkCreationService } from "../services/bulk.service";
 
 @ApiTags("exam")
 @Controller("exam")
 export class ExamController {
-  constructor(private readonly examService: ExamService) {}
+  constructor(
+    private readonly examService: ExamService,
+    private readonly bulkService: ExamBulkCreationService
+  ) {}
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -34,39 +49,6 @@ export class ExamController {
   @Post()
   @ApiBody({ type: CreateExamDto })
   async create(@Request() req, @Body() createExamDto: CreateExamDto) {
-    try {
-      await this.examService.create(createExamDto, req.user.userId);
-
-      return {
-        statusCode: 200,
-        message: "Exam has been created successfully",
-      };
-    } catch (error) {
-      // Optional: log the error for debugging
-      console.error("Exam creation failed:", error);
-
-      // If the service threw a known HttpException, rethrow it
-      if (error instanceof HttpException) {
-        throw error;
-      }
-
-      // Otherwise wrap in a generic 500 Internal Server Error
-      throw new HttpException(
-        {
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: "Failed to create exam. Please try again later.",
-        },
-        HttpStatus.INTERNAL_SERVER_ERROR
-      );
-    }
-  }
-
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  @Post("bulk")
-  @ApiBody({ type: CreateExamDto })
-  async upload(@Request() req, @Body() createExamDto: CreateExamDto) {
     try {
       await this.examService.create(createExamDto, req.user.userId);
 
@@ -143,5 +125,23 @@ export class ExamController {
   @Delete(":id")
   remove(@Param("id") id: string) {
     return this.examService.remove(+id);
+  }
+
+  @ApiBody({
+    schema: {
+      type: "object",
+      properties: {
+        file: {
+          type: "string",
+          format: "binary",
+        },
+      },
+    },
+  })
+  @ApiConsumes("multipart/form-data")
+  @Post("csvCreateQuestion/upload")
+  @UseInterceptors(FileInterceptor("file"))
+  public async upload(@UploadedFile() file: Express.Multer.File) {
+    return this.bulkService.bulkCreation(file);
   }
 }
