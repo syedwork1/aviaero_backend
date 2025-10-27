@@ -33,6 +33,7 @@ export class ExamBulkCreationService {
             headers: true,
             delimiter: ";",
             discardUnmappedColumns: true,
+            ignoreEmpty: true,
           })
         )
         .on("headers", (h: string[]) => {
