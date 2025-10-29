@@ -34,7 +34,7 @@ export class MollieService {
       },
       description: plan.name,
       redirectUrl: `${this.configService.get("APP_URL")}/subscription/processing?planId=${plan.id}&userId=${userId}`,
-      webhookUrl: "https://2a4bb36e620e.ngrok-free.app/api/plans/webhook",
+      webhookUrl: `${this.configService.get("APP_URL")}/api/plans/webhook`,
       metadata: {
         planId: plan.id,
         userId,
