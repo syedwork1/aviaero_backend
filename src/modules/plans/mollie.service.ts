@@ -33,7 +33,7 @@ export class MollieService {
         value: plan.price.toFixed(2).toString(),
       },
       description: plan.name,
-      redirectUrl: `${this.configService.get("APP_URL")}/subscription/processing?planId=${plan.id}&userId=${userId}`,
+      redirectUrl: `${this.configService.get("APP_URL")}/de/subscription/processing?planId=${plan.id}&userId=${userId}`,
       webhookUrl: `${this.configService.get("APP_URL")}/api/plans/webhook`,
       metadata: {
         planId: plan.id,
