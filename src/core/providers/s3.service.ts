@@ -12,11 +12,8 @@ export class S3Service {
       endpoint: this.configService.get("S3_ENDPOINT"), // LocalStack URL in dev
       forcePathStyle: true, // required for LocalStack
       credentials: {
-        accessKeyId: this.configService.get("AWS_ACCESS_KEY_ID", "test"),
-        secretAccessKey: this.configService.get(
-          "AWS_SECRET_ACCESS_KEY",
-          "test"
-        ),
+        accessKeyId: this.configService.get("AWS_ACCESS_KEY_ID"),
+        secretAccessKey: this.configService.get("AWS_SECRET_ACCESS_KEY"),
       },
     });
   }
@@ -43,7 +40,6 @@ export class S3Service {
       Bucket: bucket,
       Key: key,
       Body: body,
-      ACL: "public-read",
     });
     await this.s3Client.send(command);
     const publicUrl = this.getPublicUrl(bucket, key);

@@ -11,7 +11,7 @@ export class UploadService {
 
   async uploadFile(file: Express.Multer.File) {
     try {
-      const bucket = this.configService.get("S3_BUCKET_NAME", "my-bucket");
+      const bucket = this.configService.get("S3_BUCKET_NAME");
       const key = `${Date.now()}_${file.originalname}`;
 
       const { publicUrl } = await this.s3Service.uploadFile(
