@@ -255,7 +255,7 @@ export class QuizService {
       }
 
       if (
-        quiz.status === QuizStatus.COMPLETED ||
+        (quiz.exam && quiz.status === QuizStatus.COMPLETED) ||
         quiz.status === QuizStatus.TIMEOUT
       ) {
         throw new BadRequestException(`Quiz already ${quiz.status}!`);
@@ -266,7 +266,37 @@ export class QuizService {
         { status: QuizStatus.COMPLETED }
       );
 
-      return quiz;
+      const [result] = await this.quizRepository.query(
+        `select
+      count(qae.id) as total,
+      sum(case when qae."selectedAnswer" is null or qae."selectedAnswer" = '' then 1 else 0 end) as skipped,
+      sum(case when qae."selectedAnswer" = qu.correct_answer then 1 else 0 end) as correct,
+      sum(case when (qae."selectedAnswer" is null or qae."selectedAnswer" != '') and qae."selectedAnswer" != qu.correct_answer then 1 else 0 end) as wrong,
+      ee."name" as exam
+    from
+      quiz_entity qe
+    left join quiz_answer_entity qae on
+      qe.id = qae."quizId"
+    left join questions_entity qu on
+      qu.id = qae."questionId" 
+    left join category_entity ce on
+      ce.id = qe."categoryId" 
+    left join exam_entity ee on
+      ee.id = qe."examId" 
+    where
+      qe."id" = $1
+    group by ce.name, qe."startedAt", qe."isPractice", qe.id, ee.name;`,
+        [quizId]
+      );
+
+      return {
+        ...quiz,
+        ...result,
+        marks: {
+          total: result.total * 10,
+          gained: result?.correct * 10,
+        },
+      };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
