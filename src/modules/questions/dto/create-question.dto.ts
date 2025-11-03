@@ -39,7 +39,7 @@ export class CreateQuestionDto {
 
   @ApiProperty({ description: "Subscription Level Bronz, Gold, Silver" })
   @IsString()
-  suscription_level: string;
+  subscription_level: string;
 
   // @ApiProperty({ description: 'Subscription level required' })
   // @IsString()

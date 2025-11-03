@@ -1,5 +1,30 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { Type } from "class-transformer";
+import {
+  ArrayMinSize,
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsPositive,
+  IsString,
+  MinLength,
+  ValidateNested,
+} from "class-validator";
+
+class FreatureDto {
+  @IsString()
+  name: string;
+
+  @IsString()
+  @IsOptional()
+  description: string;
+
+  @IsPositive()
+  @IsNumber()
+  limit: number;
+}
 
 export class CreatePlanDto {
   @ApiProperty({ description: "Plan name", example: "Standarad" })
@@ -24,4 +49,14 @@ export class CreatePlanDto {
   @IsNumber()
   @IsNotEmpty()
   price: number;
+
+  @ApiProperty({
+    description: "Plan features",
+    example: [{ name: "ABC", limit: 1, description: "" }],
+  })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ValidateNested({ each: true })
+  @Type(() => FreatureDto)
+  features: FreatureDto[];
 }

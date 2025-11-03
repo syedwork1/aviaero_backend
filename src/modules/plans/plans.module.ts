@@ -10,11 +10,13 @@ import { SubscriptionEntity } from "../../database/entities/subscription.entity"
 import { StudentEntity } from "../../database/entities/student.entity";
 import { MollieService } from "./mollie.service";
 import { PaymentEntity } from "../../database/entities/payment.entity";
+import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
       PlanEntity,
+      PlanFeatureEntity,
       SubscriptionEntity,
       StudentEntity,
       PaymentEntity,

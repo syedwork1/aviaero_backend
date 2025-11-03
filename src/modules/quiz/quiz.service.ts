@@ -136,8 +136,25 @@ export class QuizService {
       if (examId) {
         exam = await this.examRepository.findOne({
           where: { id: examId },
-          relations: ["CBR_chapters"],
+          select: {
+            questions: {
+              id: true,
+              question: true,
+              option_A: true,
+              option_B: true,
+              option_C: true,
+              option_D: true,
+            },
+          },
+          relations: ["CBR_chapters", "questions"],
         });
+        const quiz = await this.quizRepository.save(quizEntity);
+        return {
+          questions: exam?.questions,
+          startedAt,
+          isPractice,
+          quizId: quiz.id,
+        };
       }
       const quiz = await this.quizRepository.save(quizEntity);
       const questions = await this.questionRepository.find({
@@ -151,7 +168,6 @@ export class QuizService {
         select: [
           "id",
           "question",
-          "explanation",
           "option_A",
           "option_B",
           "option_C",
@@ -216,6 +232,7 @@ export class QuizService {
         skipped: !selectedAnswer,
         isCorrect: selectedAnswer === question.correct_answer,
         correctAnswer: question.correct_answer,
+        explaination: question.explanation,
         questionId,
       };
     } catch (error) {
