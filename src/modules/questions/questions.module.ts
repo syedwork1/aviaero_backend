@@ -6,9 +6,14 @@ import { QuestionsEntity } from "../../database/entities/question.entity";
 import { ConfigModule } from "@nestjs/config";
 import { CategoryModule } from "../category/category.module";
 import { CategoryEntity } from "../../database/entities/category.entity";
+import { QuestionReportEntity } from "../../database/entities/question-report.entity";
 @Module({
   imports: [
-    TypeOrmModule.forFeature([QuestionsEntity, CategoryEntity]),
+    TypeOrmModule.forFeature([
+      QuestionsEntity,
+      CategoryEntity,
+      QuestionReportEntity,
+    ]),
     ConfigModule,
     CategoryModule,
   ],

@@ -82,6 +82,13 @@ export class QuizController {
 
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard)
+  @Get("continue/:id")
+  continue(@Param("id") quizId: string) {
+    return this.quizService.continue(quizId);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard)
   @Post("submit-answer")
   submitAnswer(@Body() body: SubmitQuizAnswerDto) {
     return this.quizService.submitAnswer(body);

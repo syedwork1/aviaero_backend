@@ -9,13 +9,16 @@ import * as fastCsv from "fast-csv";
 import { Readable } from "stream";
 import { CategoryService } from "../../category/services/category.service";
 import { CategoryEntity } from "../../../database/entities/category.entity";
+import { QuestionReportEntity } from "../../../database/entities/question-report.entity";
 
 @Injectable()
 export class QuestionsService {
   constructor(
     @InjectRepository(QuestionsEntity)
     private readonly questionRepository: Repository<QuestionsEntity>,
-    private readonly categoryService: CategoryService
+    private readonly categoryService: CategoryService,
+    @InjectRepository(QuestionReportEntity)
+    private readonly questionReportRepository: Repository<QuestionReportEntity>
   ) {}
 
   async create(createQuestionDto: CreateQuestionDto): Promise<{
@@ -50,6 +53,15 @@ export class QuestionsService {
         message: error.message || "Failed to create question",
       };
     }
+  }
+
+  async report(userId: string, questionId: string, description: string) {
+    const report = this.questionReportRepository.create({
+      description,
+      question: { id: questionId },
+      user: { id: userId },
+    });
+    return this.questionReportRepository.create(report);
   }
 
   async findAll(

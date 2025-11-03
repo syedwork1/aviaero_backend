@@ -12,6 +12,7 @@ import {
   UploadedFile,
   ParseIntPipe,
   DefaultValuePipe,
+  Req,
 } from "@nestjs/common";
 import { QuestionsService } from "../services/questions.service";
 import { CreateQuestionDto } from "../dto/create-question.dto";
@@ -30,6 +31,7 @@ import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Role } from "@core/enums/role.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Express } from "express";
+import { ReportQuestionDto } from "../dto/report-question.dto";
 
 @ApiTags("questions")
 @Controller("questions")
@@ -39,10 +41,22 @@ export class QuestionsController {
   // create single question on admin side
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Post("/single")
+  @Post("single")
   @Roles(Role.ADMIN)
   create(@Body() createQuestionDto: CreateQuestionDto) {
     return this.questionsService.create(createQuestionDto);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Post("report/:id")
+  @Roles(Role.STUDENT)
+  report(
+    @Req() req: any,
+    @Param("id") questionId: string,
+    @Body() { description }: ReportQuestionDto
+  ) {
+    return this.questionsService.report(req.user, questionId, description);
   }
 
   // get all questions

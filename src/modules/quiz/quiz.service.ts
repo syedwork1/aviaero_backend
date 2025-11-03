@@ -126,7 +126,7 @@ export class QuizService {
       const startedAt: Date = new Date();
       const quizEntity = this.quizRepository.create({
         startedAt,
-        isPractice: isPractice,
+        isPractice: isPractice || Boolean(examId),
         student: { id: studentId },
         status: QuizStatus.INPROGRESS,
         ...(categoryId ? { category: { id: categoryId } } : {}),
@@ -181,6 +181,22 @@ export class QuizService {
     }
   }
 
+  async continue(quizId: string) {
+    const quiz = await this.quizRepository.findOne({ where: { id: quizId } });
+    if (!quiz) {
+      throw new BadRequestException(`Quiz with id ${quizId} not found`);
+    }
+    if (
+      quiz.exam ||
+      quiz.status === QuizStatus.COMPLETED ||
+      quiz.status === QuizStatus.TIMEOUT
+    ) {
+      throw new BadRequestException(`Quiz already ${quiz.status}!`);
+    }
+
+    //need clarification
+  }
+
   async submitAnswer(answerData: SubmitQuizAnswerDto) {
     try {
       const { questionId, quizId, selectedAnswer } = answerData;
@@ -190,7 +206,7 @@ export class QuizService {
       }
       if (!quiz.isPractice) {
         if (
-          quiz.status === QuizStatus.COMPLETED ||
+          (quiz.exam && quiz.status === QuizStatus.COMPLETED) ||
           quiz.status === QuizStatus.TIMEOUT
         ) {
           throw new BadRequestException(`Quiz already ${quiz.status}!`);

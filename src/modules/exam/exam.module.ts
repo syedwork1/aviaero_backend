@@ -9,10 +9,16 @@ import { QuestionsEntity } from "../../database/entities/question.entity";
 import { CategoryModule } from "../category/category.module";
 import { ExamBulkCreationService } from "./services/bulk.service";
 import { CategoryEntity } from "../../database/entities/category.entity";
+import { QuestionReportEntity } from "../../database/entities/question-report.entity";
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ExamEntity, QuestionsEntity, CategoryEntity]),
+    TypeOrmModule.forFeature([
+      ExamEntity,
+      QuestionsEntity,
+      CategoryEntity,
+      QuestionReportEntity,
+    ]),
     ConfigModule,
     CategoryModule,
   ],
