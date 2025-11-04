@@ -3,6 +3,7 @@ import { AppBaseEntity } from "./base.entity";
 // import { ExamEntity } from "./exam.entity";
 import { CategoryEntity } from "./category.entity";
 import { QuizAnswerEntity } from "./quiz-answer.entity";
+import { QuestionReportEntity } from "./question-report.entity";
 @Entity()
 export class QuestionsEntity extends AppBaseEntity {
   @Column()
@@ -52,8 +53,6 @@ export class QuestionsEntity extends AppBaseEntity {
   @Column({ nullable: true })
   img_2: string;
 
-  //  @ManyToOne(() => ExamEntity, (exam) => exam.questions, {
-  //   onDelete: 'NO ACTION',
-  // })
-  // exam: ExamEntity
+  @OneToMany(() => QuestionReportEntity, (report) => report.question)
+  report: QuestionReportEntity[];
 }

@@ -5,6 +5,9 @@ import { QuestionsEntity } from "./question.entity";
 @Entity()
 export class QuestionReportEntity extends AppBaseEntity {
   @Column({ nullable: false })
+  reason: string;
+
+  @Column({ nullable: true })
   description: string;
 
   @ManyToOne(() => UserEntity)

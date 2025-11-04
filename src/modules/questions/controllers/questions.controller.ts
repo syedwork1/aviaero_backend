@@ -13,6 +13,7 @@ import {
   ParseIntPipe,
   DefaultValuePipe,
   Req,
+  ParseBoolPipe,
 } from "@nestjs/common";
 import { QuestionsService } from "../services/questions.service";
 import { CreateQuestionDto } from "../dto/create-question.dto";
@@ -47,18 +48,6 @@ export class QuestionsController {
     return this.questionsService.create(createQuestionDto);
   }
 
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Post("report/:id")
-  @Roles(Role.STUDENT)
-  report(
-    @Req() req: any,
-    @Param("id") questionId: string,
-    @Body() { description }: ReportQuestionDto
-  ) {
-    return this.questionsService.report(req.user, questionId, description);
-  }
-
   // get all questions
   @Roles(Role.ADMIN)
   @ApiQuery({
@@ -80,6 +69,12 @@ export class QuestionsController {
     required: false,
   })
   @ApiQuery({
+    name: "reported_only",
+    type: Boolean,
+    description: "reported only question",
+    required: false,
+  })
+  @ApiQuery({
     name: "query",
     type: String,
     description: "search by question",
@@ -91,11 +86,19 @@ export class QuestionsController {
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
-    @Query("limit", new DefaultValuePipe(0), ParseIntPipe) limit: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
+    @Query("reported_only", new DefaultValuePipe(false), ParseBoolPipe)
+    reportedOnly: boolean,
     @Query("query") query: string
   ) {
-    return this.questionsService.findAll(page, limit, sortBy, query);
+    return this.questionsService.findAll(
+      page,
+      limit,
+      sortBy,
+      query,
+      reportedOnly
+    );
   }
 
   @ApiBearerAuth("authorization")
@@ -134,6 +137,18 @@ export class QuestionsController {
   @Roles(Role.ADMIN)
   remove(@Param("id") id: string) {
     return this.questionsService.remove(id);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
+  @Post("report/:id")
+  report(
+    @Req() req: any,
+    @Param("id") questionId: string,
+    @Body() body: ReportQuestionDto
+  ) {
+    return this.questionsService.report(req.user, questionId, body);
   }
 
   // Question insertion through CSV in the database

@@ -61,13 +61,9 @@ export class FeedbackService {
       ...(rating ? { where: { rating: MoreThanOrEqual(rating) } } : {}),
       ...(limit ? { take: limit } : {}),
       skip: page * limit || 0,
-      ...(sortBy
-        ? {
-            order: {
-              [sortBy]: "DESC",
-            },
-          }
-        : {}),
+      order: {
+        [sortBy || "createAt"]: "DESC",
+      },
     });
 
     return { data, total };

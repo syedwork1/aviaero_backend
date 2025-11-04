@@ -10,6 +10,7 @@ import { Readable } from "stream";
 import { CategoryService } from "../../category/services/category.service";
 import { CategoryEntity } from "../../../database/entities/category.entity";
 import { QuestionReportEntity } from "../../../database/entities/question-report.entity";
+import { ReportQuestionDto } from "../dto/report-question.dto";
 
 @Injectable()
 export class QuestionsService {
@@ -55,54 +56,91 @@ export class QuestionsService {
     }
   }
 
-  async report(userId: string, questionId: string, description: string) {
+  async report(userId: string, questionId: string, body: ReportQuestionDto) {
     const report = this.questionReportRepository.create({
-      description,
+      ...body,
       question: { id: questionId },
       user: { id: userId },
     });
     return this.questionReportRepository.create(report);
   }
 
+  // async findAll(
+  //   page: number,
+  //   limit: number,
+  //   sortBy: string,
+  //   query: string,
+  //   reportedOnly: boolean
+  // ) {
+  //   const where: any = {};
+  //   if (query) {
+  //     where.question = ILike(`%${query}%`);
+  //   }
+  //   if (reportedOnly) {
+  //     where.report = {};
+  //   }
+  //   const [data, total] = await Promise.all([
+  //     this.questionRepository.find({
+  //       relationLoadStrategy: "join",
+  //       relations: ["Mobility", "report"],
+  //       ...(Object.keys(where).length ? where : {}),
+  //       skip: page * limit,
+  //       take: limit,
+  //       order: { [sortBy]: "DESC" },
+  //     }),
+  //     this.questionRepository.count({
+  //       ...(Object.keys(where).length ? where : {}),
+  //     }),
+  //   ]);
+
+  //   return {
+  //     success: true,
+  //     message: "Questions fetched successfully",
+  //     data,
+  //     total,
+  //     page,
+  //     limit,
+  //     query,
+  //     reportedOnly,
+  //   };
+  // }
+
   async findAll(
     page: number,
     limit: number,
     sortBy: string,
-    query: string
-  ): Promise<{
-    success: boolean;
-    message: string;
-    data?: QuestionsEntity[];
-    total?: number;
-    page?: number;
-    limit?: number;
-  }> {
-    try {
-      const [data, total] = await Promise.all([
-        this.questionRepository.find({
-          relations: ["Mobility"],
-          ...(query ? { where: { question: ILike(`%${query}%`) } } : {}),
-          skip: page * limit,
-          take: limit || undefined,
-          order: { [sortBy]: "DESC" },
-        }),
-        this.questionRepository.count(),
-      ]);
+    query: string,
+    reportedOnly: boolean
+  ) {
+    const qb = this.questionRepository
+      .createQueryBuilder("question")
+      .leftJoinAndSelect("question.Mobility", "Mobility")
+      .leftJoinAndSelect("question.report", "report");
 
-      return {
-        success: true,
-        message: "Questions fetched successfully",
-        data,
-        total,
-        page,
-        limit,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.message || "Failed to fetch questions ",
-      };
+    if (query) {
+      qb.where("question.question ILIKE :query", { query: `%${query}%` });
     }
+
+    if (reportedOnly) {
+      qb.innerJoin("question.report", "reported");
+    }
+
+    qb.orderBy(`question.${sortBy}`, "DESC")
+      .skip(page * limit)
+      .take(limit);
+
+    const [data, total] = await qb.getManyAndCount();
+
+    return {
+      success: true,
+      message: "Questions fetched successfully",
+      data,
+      total,
+      page,
+      limit,
+      query,
+      reportedOnly,
+    };
   }
 
   async findOne(id: string): Promise<{

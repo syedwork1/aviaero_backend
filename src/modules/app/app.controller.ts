@@ -11,6 +11,11 @@ import { RolesGuard } from "@core/gaurds/roles.guard";
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
+  @Get("ping")
+  ping() {
+    return "pong";
+  }
+
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)

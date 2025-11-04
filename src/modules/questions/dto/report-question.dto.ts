@@ -1,9 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class ReportQuestionDto {
-  @ApiProperty({ description: "description" })
+  @ApiProperty({ description: "reason" })
   @IsString()
   @IsNotEmpty()
+  reason: string;
+
+  @ApiProperty({ description: "description" })
+  @IsString()
+  @IsOptional()
   description: string;
 }
