@@ -111,25 +111,32 @@ export class PlansService {
 
   async update(id: string, updatePlanDto: UpdatePlanDto) {
     const { features, ...planData } = updatePlanDto;
+
     const plan = await this.planRepository.findOne({
       where: { id },
       relations: ["features"],
-      relationLoadStrategy: "join",
     });
 
     if (!plan) {
       throw new NotFoundException(`Plan with id ${id} not found`);
     }
 
-    const featuresEntities = this.planFeatureRepository.create(
-      features.map((f) => f)
-    );
+    Object.assign(plan, planData);
+    await this.planRepository.save(plan);
 
-    const updatedPlan = await this.planRepository.update(
-      { id },
-      { ...planData }
-    );
-    return updatedPlan;
+    if (features && features.length > 0) {
+      await this.planFeatureRepository.delete({ plan });
+      const featureEntities = features.map((f) =>
+        this.planFeatureRepository.create({ ...f, plan })
+      );
+
+      await this.planFeatureRepository.save(featureEntities);
+    }
+
+    return this.planRepository.findOne({
+      where: { id },
+      relations: ["features"],
+    });
   }
 
   async remove(id: string) {

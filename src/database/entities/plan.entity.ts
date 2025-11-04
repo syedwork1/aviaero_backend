@@ -16,5 +16,5 @@ export class PlanEntity extends AppBaseEntity {
   price: number;
 
   @OneToMany(() => PlanFeatureEntity, (feature) => feature.plan)
-  features: PlanFeatureEntity;
+  features: PlanFeatureEntity[];
 }
