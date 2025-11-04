@@ -104,7 +104,7 @@ export class PlansService {
   findOne(id: string) {
     return this.planRepository.findOne({
       where: { id },
-      relations: ["course", "features"],
+      relations: ["features"],
       relationLoadStrategy: "join",
     });
   }

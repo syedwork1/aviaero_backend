@@ -21,7 +21,6 @@ class FreatureDto {
   @IsOptional()
   description: string;
 
-  @IsPositive()
   @IsNumber()
   limit: number;
 }
