@@ -5,15 +5,12 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumber,
-  IsObject,
   IsOptional,
-  IsPositive,
   IsString,
-  MinLength,
   ValidateNested,
 } from "class-validator";
 
-class FreatureDto {
+class FeatureDto {
   @IsString()
   name: string;
 
@@ -56,6 +53,6 @@ export class CreatePlanDto {
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
-  @Type(() => FreatureDto)
-  features: FreatureDto[];
+  @Type(() => FeatureDto)
+  features: FeatureDto[];
 }
