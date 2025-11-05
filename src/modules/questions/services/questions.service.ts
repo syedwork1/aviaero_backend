@@ -56,13 +56,13 @@ export class QuestionsService {
     }
   }
 
-  async report(userId: string, questionId: string, body: ReportQuestionDto) {
+  async report(user: any, questionId: string, body: ReportQuestionDto) {
     const report = this.questionReportRepository.create({
       ...body,
       question: { id: questionId },
-      user: { id: userId },
+      user: { id: user.userId },
     });
-    return this.questionReportRepository.create(report);
+    return this.questionReportRepository.save(report);
   }
 
   // async findAll(

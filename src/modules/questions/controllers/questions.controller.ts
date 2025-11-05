@@ -142,7 +142,7 @@ export class QuestionsController {
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STUDENT)
-  @Post("report/:id")
+  @Post("/report/:id")
   report(
     @Req() req: any,
     @Param("id") questionId: string,
