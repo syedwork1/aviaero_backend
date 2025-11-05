@@ -15,6 +15,7 @@ import { UserService } from "../../user/services/user.service";
 import { hashPassword } from "@core/helpers/core.helper";
 import { MailService } from "./mail.service";
 import { PlansService } from "../../../modules/plans/plans.service";
+import { UpdateProfileDto } from "../dtos/updateProfile.dto";
 
 @Injectable()
 export class AuthService {
@@ -89,7 +90,7 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
       }
-      const subscription = await this.planService.getUserSubscirption(user.id);
+      const subscription = await this.planService.getUserSubscription(user.id);
 
       return { ...this.getAccessTokens(user), user, subscription };
     } catch (e) {
@@ -217,9 +218,23 @@ export class AuthService {
   }
 
   async getProfile(user: any) {
-    const subscription = await this.planService.getUserSubscirption(
+    const subscription = await this.planService.getUserSubscription(
       user.userId
     );
     return { ...user, subscription };
+  }
+
+  async profile({ userId }: any) {
+    const user = await this.userService.findOne({ id: userId });
+    if (user) {
+      delete user.password;
+    }
+    const subscription = await this.planService.getUserSubscription(userId);
+
+    return { ...user, subscription };
+  }
+
+  updateProfile({ userId }: any, body: UpdateProfileDto) {
+    return this.userService.update({ id: userId }, body);
   }
 }

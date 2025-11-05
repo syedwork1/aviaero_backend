@@ -23,6 +23,7 @@ import {
   ForgetPasswordDto,
   ResetPasswordDto,
 } from "../dtos/forgetPassword.dto";
+import { UpdateProfileDto } from "../dtos/updateProfile.dto";
 
 @Controller("auth")
 @ApiTags("auth")
@@ -74,6 +75,20 @@ export class AuthController {
   @Post("protected")
   getProfile(@Req() req) {
     return this.authService.getProfile(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth("authorization")
+  @Get("profile")
+  profile(@Req() req) {
+    return this.authService.profile(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth("authorization")
+  @Post("profile")
+  updateProfile(@Req() req, @Body() body: UpdateProfileDto) {
+    return this.authService.updateProfile(req.user, body);
   }
 
   @Post("forgotPassword")

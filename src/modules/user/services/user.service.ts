@@ -4,7 +4,7 @@ import {
   ForbiddenException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { FindOptionsSelect, Repository } from "typeorm";
+import { FindOptionsRelations, FindOptionsSelect, Repository } from "typeorm";
 import { UserEntity } from "../../../database/entities/user.entity";
 import { FindOptionsWhere } from "typeorm/find-options/FindOptionsWhere";
 import { UpdateResult } from "typeorm/query-builder/result/UpdateResult";
@@ -40,8 +40,13 @@ export class UserService {
     await this.userRepository.delete(userId);
   }
 
-  async findOne(where: FindOptionsWhere<UserEntity>): Promise<UserEntity> {
+  async findOne(
+    where: FindOptionsWhere<UserEntity>,
+    relations?: FindOptionsRelations<UserEntity>
+  ): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
+      relationLoadStrategy: "join",
+      relations,
       where,
     });
     if (!user) {

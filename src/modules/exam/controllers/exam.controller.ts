@@ -15,8 +15,6 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
-  ForbiddenException,
-  BadRequestException,
 } from "@nestjs/common";
 import { ExamService } from "../services/exam.service";
 import { CreateExamDto } from "../dto/create-exam.dto";
@@ -95,6 +93,12 @@ export class ExamController {
     required: false,
   })
   @ApiQuery({
+    name: "subject_id",
+    type: String,
+    description: "filter by exam id",
+    required: false,
+  })
+  @ApiQuery({
     name: "query",
     type: String,
     description: "search by firstname",
@@ -107,9 +111,10 @@ export class ExamController {
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by") sortBy: string,
+    @Query("subject_id") subjectId: string,
     @Query("query") query: string
   ) {
-    return this.examService.findAll(page, limit, sortBy, query);
+    return this.examService.findAll(page, limit, sortBy, query, subjectId);
   }
 
   @Get(":id")

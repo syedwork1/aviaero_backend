@@ -9,6 +9,9 @@ export class UserEntity extends AppBaseEntity {
   @Column({ unique: true })
   email: string;
 
+  @Column({ nullable: true })
+  avatar: string;
+
   @Column({ nullable: false })
   password: string;
 
