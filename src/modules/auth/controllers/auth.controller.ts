@@ -23,7 +23,7 @@ import {
   ForgetPasswordDto,
   ResetPasswordDto,
 } from "../dtos/forgetPassword.dto";
-import { UpdateProfileDto } from "../dtos/updateProfile.dto";
+import { UpdateProfileDto } from "../dtos/update-profile.dto";
 
 @Controller("auth")
 @ApiTags("auth")

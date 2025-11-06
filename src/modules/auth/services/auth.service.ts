@@ -15,7 +15,7 @@ import { UserService } from "../../user/services/user.service";
 import { hashPassword } from "@core/helpers/core.helper";
 import { MailService } from "./mail.service";
 import { PlansService } from "../../../modules/plans/plans.service";
-import { UpdateProfileDto } from "../dtos/updateProfile.dto";
+import { UpdateProfileDto } from "../dtos/update-profile.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { StudentEntity } from "../../../database/entities/student.entity";
 import { Repository } from "typeorm";

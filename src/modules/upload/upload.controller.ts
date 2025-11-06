@@ -14,9 +14,6 @@ import {
   ApiOperation,
   ApiTags,
 } from "@nestjs/swagger";
-import { Roles } from "@core/gaurds/roles.decorator";
-import { Role } from "@core/enums/role.enum";
-import { RolesGuard } from "@core/gaurds/roles.guard";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 
 @ApiTags("attachments")
@@ -26,8 +23,7 @@ export class UploadController {
 
   @Post()
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor("file"))
   @ApiConsumes("multipart/form-data")
   @ApiBody({

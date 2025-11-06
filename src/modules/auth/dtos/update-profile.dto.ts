@@ -18,22 +18,13 @@ export class UpdateProfileDto {
   @IsOptional()
   email: string;
 
-  @ApiProperty({
-    description: "User password (minimum 8 characters)",
-    example: "StrongPassword123!",
-  })
-  @IsString()
-  @IsOptional()
-  @MinLength(8)
-  password: string;
-
   @ApiProperty({ description: "User first name", example: "John" })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   firstName: string;
 
   @ApiProperty({ description: "User last name", example: "Doe" })
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   lastName: string;
 }
