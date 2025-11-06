@@ -16,6 +16,9 @@ import { hashPassword } from "@core/helpers/core.helper";
 import { MailService } from "./mail.service";
 import { PlansService } from "../../../modules/plans/plans.service";
 import { UpdateProfileDto } from "../dtos/updateProfile.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { StudentEntity } from "../../../database/entities/student.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class AuthService {
@@ -24,7 +27,10 @@ export class AuthService {
     private readonly planService: PlansService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-    private readonly mailService: MailService
+    private readonly mailService: MailService,
+
+    @InjectRepository(StudentEntity)
+    private readonly studentRepository: Repository<StudentEntity>
   ) {}
 
   async validateUser(
@@ -52,24 +58,18 @@ export class AuthService {
         throw new ConflictException(ExceptionEnum.USER_ALREADY_EXISTS);
       }
 
-      // Check if username already exists
-      // const existingUsername = await this.userService.findOneOptional({ username: signupDto.username });
-      // if (existingUsername) {
-      //   throw new ConflictException(ExceptionEnum.USERNAME_ALREADY_TAKEN);
-      // }
-
-      // Create new user
       const newUser = await this.userService.createUser({
         email: signupDto.email.toLowerCase(),
         password: signupDto.password,
         firstName: signupDto.firstName,
         lastName: signupDto.lastName,
-        // username: signupDto.username,
-        // phone:signupDto.phone,
-        //role:"ADMIN"
       });
 
-      // Generate tokens for the new user
+      const student = this.studentRepository.create({
+        user: { id: newUser.id },
+      });
+      await this.studentRepository.save(student);
+
       const userWithoutPassword = { ...newUser, password: undefined };
       return {
         message: "User created successfully",
@@ -234,7 +234,8 @@ export class AuthService {
     return { ...user, subscription };
   }
 
-  updateProfile({ userId }: any, body: UpdateProfileDto) {
-    return this.userService.update({ id: userId }, body);
+  async updateProfile({ userId }: any, body: UpdateProfileDto) {
+    await this.userService.update({ id: userId }, body);
+    return { message: "Profile updated successfully", isSuccess: true };
   }
 }

@@ -45,8 +45,8 @@ export class PlansController {
   }
 
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
-  // @Roles(Role.STUDENT)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.STUDENT)
   @Post("activate")
   activate(@Body() activatePlanDto: ActivatePlanDto, @Req() req) {
     return this.plansService.activate(activatePlanDto, req.user);
@@ -58,6 +58,14 @@ export class PlansController {
   @Post("activation-status")
   status(@Body() activationStatusDto: ActivatePlanDto, @Req() req) {
     return this.plansService.activationStatus(activationStatusDto, req.user);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard)
+  // @Roles(Role.STUDENT)
+  @Get("payments")
+  payments(@Req() req) {
+    return this.plansService.payments(req.user);
   }
 
   @ApiExcludeEndpoint()

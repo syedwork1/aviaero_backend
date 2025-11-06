@@ -53,6 +53,18 @@ export class PlansService {
     return { status: status === "paid" ? "activated" : "unactivated" };
   }
 
+  async payments(user: any) {
+    return this.paymentRepository.find({
+      where: {
+        user: { id: user.userId },
+        status: "paid",
+      },
+      relationLoadStrategy: "join",
+      relations: ["subscription"],
+      order: { createAt: "ASC" },
+    });
+  }
+
   async getUserSubscription(userId: string) {
     return this.subscriptionRepository.findOne({
       relationLoadStrategy: "join",

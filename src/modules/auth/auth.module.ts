@@ -9,19 +9,12 @@ import { UserService } from "../user/services/user.service";
 import { MailService } from "./services/mail.service";
 import { PlansModule } from "../plans/plans.module";
 import { StudentsModule } from "../students/students.module";
+import { StudentEntity } from "../../database/entities/student.entity";
 
 @Global()
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    // JwtModule.registerAsync({
-    //   imports: [ConfigModule],
-    //   useFactory: async (configService: ConfigService) => ({
-    //     secret: configService.get<string>('JWT_SECRET') || 'your_jwt_secret',
-    //     signOptions: { expiresIn: '60m' },
-    //   }),
-    //   inject: [ConfigService],
-    // }),
+    TypeOrmModule.forFeature([UserEntity, StudentEntity]),
     ConfigModule,
     forwardRef(() => PlansModule),
     StudentsModule,
