@@ -6,7 +6,7 @@ import {
 import { CreateCourceDto } from "../dto/create-cource.dto";
 import { UpdateCourceDto } from "../dto/update-cource.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { In, Repository } from "typeorm";
+import { ILike, In, Repository } from "typeorm";
 import { CourceEntity } from "../../../database/entities/cource.entity";
 import { CategoryService } from "../../category/services/category.service";
 import { CategoryEntity } from "../../../database/entities/category.entity";
@@ -37,17 +37,22 @@ export class CourcesService {
     }
   }
 
-  async findAll(): Promise<CourceEntity[]> {
-    try {
-      return this.courceRepository.find({
-        relations: ["category"],
-        order: { createAt: "DESC" },
-      });
-    } catch (error) {
-      // Log the original error for debugging if needed
-      console.error("Database error fetching courses:", error);
-      throw new InternalServerErrorException("Failed to fetch courses");
-    }
+  async findAll(page: number, limit: number, sortBy: string, query: string) {
+    const [data, total] = await this.courceRepository.findAndCount({
+      ...(query ? { where: { name: ILike(`%query%`) } } : {}),
+      relations: ["category"],
+      take: limit,
+      skip: page * limit,
+      order: { [sortBy]: "DESC" },
+    });
+    return {
+      data,
+      page,
+      limit,
+      sortBy,
+      query,
+      total,
+    };
   }
 
   async findOne(id: string): Promise<CourceEntity> {

@@ -10,8 +10,17 @@ import {
   HttpException,
   InternalServerErrorException,
   UseGuards,
+  Query,
+  DefaultValuePipe,
+  ParseIntPipe,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiConsumes, ApiTags, ApiBody } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiTags,
+  ApiBody,
+  ApiQuery,
+} from "@nestjs/swagger";
 import { CourcesService } from "../services/cources.service";
 import { CreateCourceDto } from "../dto/create-cource.dto";
 import { UpdateCourceDto } from "../dto/update-cource.dto";
@@ -51,24 +60,40 @@ export class CourcesController {
     }
   }
 
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    description: "page no",
+    required: false,
+  })
+  @ApiQuery({
+    name: "limit",
+    type: Number,
+    description: "page size",
+    required: false,
+  })
+  @ApiQuery({
+    name: "sort_by",
+    type: String,
+    description: "sort by",
+    required: false,
+  })
+  @ApiQuery({
+    name: "query",
+    type: String,
+    description: "search by name",
+    required: false,
+  })
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard)
   @Get()
-  async findAll() {
-    try {
-      const data = await this.courcesService.findAll();
-      return {
-        statusCode: 200,
-        message: "All courses fetched successfully",
-        data,
-      };
-    } catch (error) {
-      // Optionally re-throw known NestJS exceptions, or wrap unknown ones
-      if (error instanceof InternalServerErrorException) {
-        throw error;
-      }
-      throw new InternalServerErrorException("An unexpected error occurred");
-    }
+  async findAll(
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
+    @Query("query") query: string
+  ) {
+    return this.courcesService.findAll(page, limit, sortBy, query);
   }
 
   @ApiBearerAuth("authorization")
