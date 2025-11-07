@@ -143,6 +143,29 @@ export class QuestionsService {
     };
   }
 
+  async findAllReports(page: number, limit: number, sortBy: string) {
+    const [data, total] = await this.questionReportRepository.findAndCount({
+      relationLoadStrategy: "join",
+      relations: ["question"],
+      select: {
+        question: {
+          id: true,
+          question: true,
+        },
+      },
+      skip: page * limit,
+      take: limit,
+      order: { [sortBy]: "DESC" },
+    });
+
+    return {
+      data,
+      total,
+      page,
+      limit,
+    };
+  }
+
   async findOne(id: string): Promise<{
     success: boolean;
     message: string;

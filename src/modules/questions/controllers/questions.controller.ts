@@ -139,6 +139,37 @@ export class QuestionsController {
     return this.questionsService.remove(id);
   }
 
+  @Roles(Role.ADMIN)
+  @ApiQuery({
+    name: "page",
+    type: Number,
+    description: "page no",
+    required: false,
+  })
+  @ApiQuery({
+    name: "limit",
+    type: Number,
+    description: "page size",
+    required: false,
+  })
+  @ApiQuery({
+    name: "sort_by",
+    type: String,
+    description: "sort by",
+    required: false,
+  })
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Get("report/all")
+  findAllReports(
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string
+  ) {
+    return this.questionsService.findAllReports(page, limit, sortBy);
+  }
+
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.STUDENT)
@@ -151,7 +182,6 @@ export class QuestionsController {
     return this.questionsService.report(req.user, questionId, body);
   }
 
-  // Question insertion through CSV in the database
   @ApiBody({
     schema: {
       type: "object",
