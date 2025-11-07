@@ -65,45 +65,9 @@ export class QuestionsService {
     return this.questionReportRepository.save(report);
   }
 
-  // async findAll(
-  //   page: number,
-  //   limit: number,
-  //   sortBy: string,
-  //   query: string,
-  //   reportedOnly: boolean
-  // ) {
-  //   const where: any = {};
-  //   if (query) {
-  //     where.question = ILike(`%${query}%`);
-  //   }
-  //   if (reportedOnly) {
-  //     where.report = {};
-  //   }
-  //   const [data, total] = await Promise.all([
-  //     this.questionRepository.find({
-  //       relationLoadStrategy: "join",
-  //       relations: ["Mobility", "report"],
-  //       ...(Object.keys(where).length ? where : {}),
-  //       skip: page * limit,
-  //       take: limit,
-  //       order: { [sortBy]: "DESC" },
-  //     }),
-  //     this.questionRepository.count({
-  //       ...(Object.keys(where).length ? where : {}),
-  //     }),
-  //   ]);
-
-  //   return {
-  //     success: true,
-  //     message: "Questions fetched successfully",
-  //     data,
-  //     total,
-  //     page,
-  //     limit,
-  //     query,
-  //     reportedOnly,
-  //   };
-  // }
+  updateReport(id: string, status: string) {
+    return this.questionReportRepository.update({ id }, { status });
+  }
 
   async findAll(
     page: number,
@@ -143,8 +107,14 @@ export class QuestionsService {
     };
   }
 
-  async findAllReports(page: number, limit: number, sortBy: string) {
+  async findAllReports(
+    page: number,
+    limit: number,
+    sortBy: string,
+    status: string
+  ) {
     const [data, total] = await this.questionReportRepository.findAndCount({
+      where: { status: !status ? null : status },
       relationLoadStrategy: "join",
       relations: ["question", "user"],
       select: {

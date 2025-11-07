@@ -32,7 +32,11 @@ import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Role } from "@core/enums/role.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { Express } from "express";
-import { ReportQuestionDto } from "../dto/report-question.dto";
+import {
+  FixQuestionReportDto,
+  FixQuestionReportStatusEnum,
+  ReportQuestionDto,
+} from "../dto/report-question.dto";
 
 @ApiTags("questions")
 @Controller("questions")
@@ -158,6 +162,12 @@ export class QuestionsController {
     description: "sort by",
     required: false,
   })
+  @ApiQuery({
+    name: "status",
+    enum: FixQuestionReportStatusEnum,
+    description: "filter by status",
+    required: false,
+  })
   @ApiBearerAuth("authorization")
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.ADMIN)
@@ -165,9 +175,10 @@ export class QuestionsController {
   findAllReports(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string
+    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
+    @Query("status") status: string
   ) {
-    return this.questionsService.findAllReports(page, limit, sortBy);
+    return this.questionsService.findAllReports(page, limit, sortBy, status);
   }
 
   @ApiBearerAuth("authorization")
@@ -180,6 +191,18 @@ export class QuestionsController {
     @Body() body: ReportQuestionDto
   ) {
     return this.questionsService.report(req.user, questionId, body);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  @Post("/fix-report/:id")
+  fixReport(
+    @Req() req: any,
+    @Param("id") reportId: string,
+    @Body() { status }: FixQuestionReportDto
+  ) {
+    return this.questionsService.updateReport(reportId, status);
   }
 
   @ApiBody({

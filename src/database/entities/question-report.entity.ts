@@ -10,6 +10,9 @@ export class QuestionReportEntity extends AppBaseEntity {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ nullable: true })
+  status: string;
+
   @ManyToOne(() => UserEntity)
   user: UserEntity;
 
