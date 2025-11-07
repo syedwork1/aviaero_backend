@@ -95,7 +95,7 @@ export class ExamController {
   @ApiQuery({
     name: "subject_id",
     type: String,
-    description: "filter by exam id",
+    description: "filter by subject id",
     required: false,
   })
   @ApiQuery({

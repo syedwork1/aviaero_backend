@@ -8,12 +8,15 @@ import { UpdateExamDto } from "../dto/update-exam.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Any, In, Repository } from "typeorm";
 import { ExamEntity } from "../../../database/entities/exam.entity";
+import { CategoryEntity } from "../../../database/entities/category.entity";
 
 @Injectable()
 export class ExamService {
   constructor(
     @InjectRepository(ExamEntity)
-    private readonly examRepository: Repository<ExamEntity>
+    private readonly examRepository: Repository<ExamEntity>,
+    @InjectRepository(CategoryEntity)
+    private readonly categoryRepository: Repository<CategoryEntity>
   ) {}
   async create(createExamDto: CreateExamDto, userId: string) {
     const { CBR_chapters, coursesIds, questionIds, ...examData } =
@@ -41,8 +44,16 @@ export class ExamService {
     limit: number;
     totalPages: number;
   }> {
+    let cbrs = [];
+    if (subjectId) {
+      cbrs = await this.categoryRepository.find({
+        where: { cource: { id: subjectId } },
+      });
+    }
     const [data, total] = await this.examRepository.findAndCount({
-      ...(subjectId ? { where: { courses: { id: subjectId } } } : {}),
+      ...(subjectId
+        ? { where: { CBR_chapters: { id: In(cbrs.map((cbr) => cbr.id)) } } }
+        : {}),
       relationLoadStrategy: "join",
       relations: ["CBR_chapters", "courses"],
       skip: page * limit,
