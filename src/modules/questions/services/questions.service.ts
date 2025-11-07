@@ -146,8 +146,14 @@ export class QuestionsService {
   async findAllReports(page: number, limit: number, sortBy: string) {
     const [data, total] = await this.questionReportRepository.findAndCount({
       relationLoadStrategy: "join",
-      relations: ["question"],
+      relations: ["question", "user"],
       select: {
+        user: {
+          id: true,
+          lastName: true,
+          firstName: true,
+          email: true,
+        },
         question: {
           id: true,
           question: true,
