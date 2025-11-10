@@ -29,7 +29,7 @@ async function bootstrap() {
         bearerFormat: "JWT",
         in: "header",
       },
-      "authorization" // This is the name of the security definition
+      "authorization"
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
@@ -37,7 +37,7 @@ async function bootstrap() {
 
   await app.listen(port, async () => {
     console.log(
-      `The server is running on ${port} port: http://localhost:${port}/api/swagger-api`
+      `The server is running on ${port} port. Docs available at ${process.env.APP_URL}/api/swagger-api`
     );
   });
 }

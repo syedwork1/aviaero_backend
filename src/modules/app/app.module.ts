@@ -19,6 +19,7 @@ import { UploadModule } from "../upload/upload.module";
 import { PlansModule } from "../plans/plans.module";
 import { FeedbackModule } from "../feedback/feedback.module";
 import { QuizModule } from "../quiz/quiz.module";
+import { SESService } from "@core/providers/ses.service";
 
 @Module({
   imports: [
@@ -48,6 +49,6 @@ import { QuizModule } from "../quiz/quiz.module";
     ConfigModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SESService],
 })
 export class AppModule {}

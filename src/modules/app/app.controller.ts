@@ -5,15 +5,24 @@ import { Role } from "@core/enums/role.enum";
 import { Roles } from "@core/gaurds/roles.decorator";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
+import { SESService } from "@core/providers/ses.service";
 
 @ApiTags("dashboard")
 @Controller("dashboard")
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly sesService: SESService
+  ) {}
 
   @Get("ping")
   ping() {
     return "pong";
+  }
+
+  @Get("mail")
+  mail() {
+    return this.sesService.sendEmail("a", "b");
   }
 
   @ApiBearerAuth("authorization")
