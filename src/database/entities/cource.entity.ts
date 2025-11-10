@@ -1,4 +1,11 @@
-import { Column, Entity, ManyToMany, JoinTable, ManyToOne } from "typeorm";
+import {
+  Column,
+  Entity,
+  ManyToMany,
+  JoinTable,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { CourceStatus } from "../../modules/cources/enums/status.enum";
 import { CategoryEntity } from "./category.entity";
@@ -21,7 +28,4 @@ export class CourceEntity extends AppBaseEntity {
   @ManyToMany(() => CategoryEntity, (category) => category.cource, {})
   @JoinTable()
   category: CategoryEntity[];
-
-  @ManyToOne(() => ExamEntity, (exams) => exams.course)
-  exams: ExamEntity;
 }

@@ -1,4 +1,12 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany } from "typeorm";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+} from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { QuizEntity } from "./quiz.entity";
 import { CategoryEntity } from "./category.entity";
@@ -23,7 +31,8 @@ export class ExamEntity extends AppBaseEntity {
   @JoinTable()
   CBR_chapters: CategoryEntity[];
 
-  @OneToMany(() => CourceEntity, (course) => course.exams)
+  @ManyToOne(() => CourceEntity)
+  @JoinColumn()
   course: CourceEntity;
 
   @ManyToMany(() => QuestionsEntity)
