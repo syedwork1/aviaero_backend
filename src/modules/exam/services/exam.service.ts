@@ -50,14 +50,12 @@ export class ExamService {
       });
     }
     const [data, total] = await this.examRepository.findAndCount({
-      ...(subjectId
-        ? { where: { CBR_chapters: { id: In(cbrs.map((cbr) => cbr.id)) } } }
-        : {}),
+      ...(subjectId ? { where: { course: { id: subjectId } } } : {}),
       relationLoadStrategy: "join",
-      relations: ["CBR_chapters", "courses"],
+      relations: ["CBR_chapters", "course"],
       skip: page * limit,
       take: limit,
-      order: { createAt: "DESC" },
+      order: { [sortBy]: "DESC" },
     });
 
     return {
