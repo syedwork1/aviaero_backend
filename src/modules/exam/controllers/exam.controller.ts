@@ -144,6 +144,7 @@ export class ExamController {
       },
     },
   })
+  @ApiBody({ type: BulkUploadExamDto })
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(FileInterceptor("file"))
   @Post("bulk-upload")
