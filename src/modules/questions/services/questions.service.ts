@@ -56,7 +56,7 @@ export class QuestionsService {
     }
   }
 
-  async report(user: any, questionId: string, body: ReportQuestionDto) {
+  async createReport(user: any, questionId: string, body: ReportQuestionDto) {
     const report = this.questionReportRepository.create({
       ...body,
       question: { id: questionId },
@@ -114,7 +114,7 @@ export class QuestionsService {
     status: string
   ) {
     const [data, total] = await this.questionReportRepository.findAndCount({
-      where: { status: !status ? null : status },
+      where: { status: status ?? "" },
       relationLoadStrategy: "join",
       relations: ["question", "user"],
       select: {

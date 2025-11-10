@@ -41,7 +41,7 @@ export class CourcesService {
     const [data, total] = await this.courceRepository.findAndCount({
       ...(query ? { where: { name: ILike(`%query%`) } } : {}),
       relations: ["category"],
-      take: limit,
+      take: limit ?? undefined,
       skip: page * limit,
       order: { [sortBy]: "DESC" },
     });

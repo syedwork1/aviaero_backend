@@ -190,7 +190,7 @@ export class QuestionsController {
     @Param("id") questionId: string,
     @Body() body: ReportQuestionDto
   ) {
-    return this.questionsService.report(req.user, questionId, body);
+    return this.questionsService.createReport(req.user, questionId, body);
   }
 
   @ApiBearerAuth("authorization")
