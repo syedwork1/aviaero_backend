@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Subscription Confirmation</title>
+    <style>
+      body {
+        background-color: #f4f4f7;
+        margin: 0;
+        padding: 0;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 30px auto;
+        background-color: #ffffff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background-color: #007bff;
+        color: #ffffff;
+        padding: 20px;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+      .content {
+        padding: 30px 25px;
+        color: #333333;
+      }
+      .content h2 {
+        font-size: 20px;
+        margin-top: 0;
+      }
+      .content p {
+        line-height: 1.6;
+        font-size: 15px;
+      }
+      .subscription-box {
+        background-color: #f0f8ff;
+        border-left: 4px solid #007bff;
+        padding: 15px 20px;
+        margin: 20px 0;
+        border-radius: 5px;
+      }
+      .subscription-box p {
+        margin: 0;
+      }
+      .button {
+        display: inline-block;
+        background-color: #007bff;
+        color: #ffffff !important;
+        padding: 10px 25px;
+        border-radius: 5px;
+        text-decoration: none;
+        font-weight: 500;
+        margin-top: 20px;
+      }
+      .footer {
+        background-color: #f9fafb;
+        color: #999999;
+        text-align: center;
+        font-size: 13px;
+        padding: 15px 10px;
+      }
+      .footer a {
+        color: #007bff;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <h1>Subscription Confirmed 🎉</h1>
+      </div>
+      <div class="content">
+        <h2>Hi {{studentName}},</h2>
+        <p>
+          Thank you for subscribing! Your <strong>{{planName}}</strong> plan has
+          been successfully activated.
+        </p>
+
+        <div class="subscription-box">
+          <p><strong>Subscription Details:</strong></p>
+          <p>📅 Start Date: <strong>{{startDate}}</strong></p>
+          <p>⏰ Expiry Date: <strong>{{endDate}}</strong></p>
+          <p>💳 Amount Paid: <strong>{{amount}}</strong></p>
+          <p>🧾 Transaction ID: <strong>{{transactionId}}</strong></p>
+        </div>
+
+        <p>
+          You can now access all premium features of your plan. We’re excited to
+          have you onboard!
+        </p>
+
+        <!-- <a href="{{dashboardUrl}}" class="button">Go to Dashboard</a> -->
+
+        <p style="margin-top: 25px">
+          If you have any questions, feel free to contact us at
+          <a href="mailto:support@aviaero.nl">support@aviaero.nl</a>.
+        </p>
+      </div>
+      <div class="footer">
+        <p>© {{currentYear}} {{companyName}}. All rights reserved.</p>
+        <!-- <p>
+          <a href="{{unsubscribeUrl}}">Unsubscribe</a> |
+          <a href="{{privacyUrl}}">Privacy Policy</a>
+        </p> -->
+      </div>
+    </div>
+  </body>
+</html>

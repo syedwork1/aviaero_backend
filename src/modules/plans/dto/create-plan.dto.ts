@@ -66,7 +66,6 @@ export class CreatePlanDto {
   })
   @IsOptional()
   @IsArray()
-  @ArrayMinSize(1)
   @ValidateNested({ each: true })
   @Type(() => FeatureDto)
   features?: FeatureDto[];

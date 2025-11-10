@@ -15,23 +15,18 @@ export class SESService {
     });
   }
 
-  async sendEmail(to: string, body: string) {
+  async sendEmail(to: string[], subject: string, body: any) {
     const params = {
       Source: "info@aviaero.nl",
       Destination: {
-        ToAddresses: ["olemeinders@gmail.com"],
+        ToAddresses: to,
       },
       Message: {
         Subject: {
-          Data: "Test Email",
+          Data: subject,
           Charset: "UTF-8",
         },
-        Body: {
-          Text: {
-            Data: "Hello, this is a test email",
-            Charset: "UTF-8",
-          },
-        },
+        Body: { Html: { Data: body } },
       },
     };
     await this.sesClient.send(new SendEmailCommand(params));
