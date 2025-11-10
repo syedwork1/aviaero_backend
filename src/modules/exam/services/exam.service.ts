@@ -19,11 +19,10 @@ export class ExamService {
     private readonly categoryRepository: Repository<CategoryEntity>
   ) {}
   async create(createExamDto: CreateExamDto, userId: string) {
-    const { CBR_chapters, coursesIds, questionIds, ...examData } =
-      createExamDto;
+    const { CBR_chapters, coursesId, questionIds, ...examData } = createExamDto;
     const exam = this.examRepository.create({
       ...examData,
-      courses: coursesIds.map((cid) => ({ id: cid })),
+      course: { id: coursesId },
       CBR_chapters: CBR_chapters.map((cbr) => ({ id: cbr })),
       questions: questionIds.map((q) => ({ id: q })),
     });

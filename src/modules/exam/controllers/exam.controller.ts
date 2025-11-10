@@ -32,6 +32,7 @@ import { Roles } from "@core/gaurds/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ExamBulkCreationService } from "../services/bulk.service";
+import { BulkUploadExamDto } from "../dto/upload-exam.dto";
 
 @ApiTags("exam")
 @Controller("exam")
@@ -144,9 +145,12 @@ export class ExamController {
     },
   })
   @ApiConsumes("multipart/form-data")
-  @Post("csvCreateQuestion/upload")
   @UseInterceptors(FileInterceptor("file"))
-  public async upload(@UploadedFile() file: Express.Multer.File) {
-    return this.bulkService.bulkCreation(file);
+  @Post("bulk-upload")
+  public async upload(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() { courseId }: BulkUploadExamDto
+  ) {
+    return this.bulkService.bulkCreation(file, courseId);
   }
 }

@@ -23,14 +23,13 @@ export class ExamEntity extends AppBaseEntity {
   @JoinTable()
   CBR_chapters: CategoryEntity[];
 
-  @ManyToMany(() => CourceEntity)
-  @JoinTable()
-  courses: CourceEntity[];
+  @OneToMany(() => CourceEntity, (course) => course.exams)
+  course: CourceEntity;
 
   @ManyToMany(() => QuestionsEntity)
   @JoinTable()
   questions: QuestionsEntity[];
 
-  @OneToMany(() => QuizEntity, (feedback) => feedback.exam)
+  @OneToMany(() => QuizEntity, (quiz) => quiz.exam)
   quizes: QuizEntity;
 }

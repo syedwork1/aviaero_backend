@@ -28,9 +28,9 @@ export class CreateExamDto {
   CBR_chapters: string[];
 
   @ApiProperty()
-  @IsArray()
-  @ArrayMinSize(1)
-  coursesIds: string[];
+  @IsString()
+  @IsNotEmpty()
+  coursesId: string;
 
   @ApiProperty()
   @IsArray()

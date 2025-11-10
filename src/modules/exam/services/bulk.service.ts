@@ -60,7 +60,7 @@ export class ExamBulkCreationService {
     });
   }
 
-  async create(rows: any) {
+  async create(rows: any, courseId: string) {
     const toNull = (v: any) =>
       v === undefined || v === null || v === "" ? null : v;
 
@@ -69,7 +69,6 @@ export class ExamBulkCreationService {
       if (!toNull(r["Vraag"])) {
         continue;
       }
-      console.log(exams);
       if (exams[toNull(r["ExamID"])] === undefined) {
         exams[toNull(r["ExamID"])] = {
           questions: [toNull(r["Vraag"])],
@@ -91,6 +90,7 @@ export class ExamBulkCreationService {
       //     CBR_chapter: In(cbr),
       //   });
       const exam = this.examRepository.create({
+        course: { id: courseId },
         questions,
         name: key,
         number_of_questions: questions.length,
@@ -102,7 +102,7 @@ export class ExamBulkCreationService {
     }
   }
 
-  async bulkCreation(file: any) {
+  async bulkCreation(file: any, courseId: string) {
     if (!file) {
       throw new BadRequestException("Please select a CSV file.");
     }
@@ -132,20 +132,17 @@ export class ExamBulkCreationService {
         .map((h) => h.toLocaleLowerCase())
         .every((header) => headers.includes(header));
 
-      console.log(
-        headers,
-        expectedHeaders.map((h) => h.toLocaleLowerCase())
-      );
-
       if (!isValidCsv) {
         throw new BadRequestException(
           "Invalid CSV file format. Please upload the correct CSV file."
         );
       }
 
+      const payload = await this.create(data, courseId);
+
       return {
-        Message: "Successful",
-        payload: await this.create(data),
+        Message: "Exam created from CSV file successfully",
+        payload,
       };
     } catch (error) {
       console.log(error);
