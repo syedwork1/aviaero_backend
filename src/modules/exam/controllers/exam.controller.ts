@@ -111,7 +111,7 @@ export class ExamController {
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    @Query("sort_by") sortBy: string,
+    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
     @Query("subject_id") subjectId: string,
     @Query("query") query: string
   ) {

@@ -88,8 +88,8 @@ export class CourcesController {
   @UseGuards(JwtAuthGuard)
   @Get()
   async findAll(
-    @Query("page", ParseIntPipe) page: number,
-    @Query("limit", ParseIntPipe) limit: number,
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+    @Query("limit", new DefaultValuePipe(0), ParseIntPipe) limit: number,
     @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
     @Query("query") query: string
   ) {

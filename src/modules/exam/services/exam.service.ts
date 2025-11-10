@@ -43,12 +43,11 @@ export class ExamService {
     limit: number;
     totalPages: number;
   }> {
-    let cbrs = [];
-    if (subjectId) {
-      cbrs = await this.categoryRepository.find({
-        where: { cource: { id: subjectId } },
-      });
-    }
+    console.log(
+      subjectId,
+      subjectId ? { where: { course: { id: subjectId } } } : {}
+    );
+
     const [data, total] = await this.examRepository.findAndCount({
       ...(subjectId ? { where: { course: { id: subjectId } } } : {}),
       relationLoadStrategy: "join",
