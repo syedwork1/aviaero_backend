@@ -10,6 +10,7 @@ import { StudentEntity } from "../../database/entities/student.entity";
 import { MollieService } from "./mollie.service";
 import { PaymentEntity } from "../../database/entities/payment.entity";
 import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
+import { PlanStatusEnum } from "@core/enums/plan.enum";
 
 @Injectable()
 export class PlansService {
@@ -29,11 +30,13 @@ export class PlansService {
     private readonly mollieService: MollieService
   ) {}
   async create(createPlanDto: CreatePlanDto) {
-    const { features, ...planData } = createPlanDto;
-    const plan = await this.planRepository.save(planData);
-    await this.planFeatureRepository.insert(
-      features.map((feature) => ({ ...feature, plan }))
-    );
+    const { features, type, subjectId, ...planData } = createPlanDto;
+    const plan = await this.planRepository.save({ ...planData, type });
+    if (type === PlanStatusEnum.SUBJECT) {
+      await this.planFeatureRepository.insert([
+        { limit: 1, name: subjectId, plan },
+      ]);
+    }
     return { message: "Plan created", success: true };
   }
 

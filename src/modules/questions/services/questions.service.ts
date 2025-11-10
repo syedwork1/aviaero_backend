@@ -114,7 +114,7 @@ export class QuestionsService {
     status: string
   ) {
     const [data, total] = await this.questionReportRepository.findAndCount({
-      where: { status: status ?? null },
+      ...(status ? { where: { status } } : {}),
       relationLoadStrategy: "join",
       relations: ["question", "user"],
       select: {
