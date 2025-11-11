@@ -116,12 +116,18 @@ export class PlansService {
     };
   }
 
-  findOne(id: string) {
-    return this.planRepository.findOne({
+  async findOne(id: string) {
+    const plan = await this.planRepository.findOne({
       where: { id },
       relations: ["features"],
       relationLoadStrategy: "join",
     });
+
+    if (plan && plan.type === PlanStatusEnum.SUBJECT) {
+      const { name, limit } = plan.features[0];
+      delete plan.features;
+      return { subjectId: name, ...plan };
+    }
   }
 
   async update(id: string, updatePlanDto: UpdatePlanDto) {

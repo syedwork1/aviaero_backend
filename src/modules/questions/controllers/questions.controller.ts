@@ -37,6 +37,7 @@ import {
   FixQuestionReportStatusEnum,
   ReportQuestionDto,
 } from "../dto/report-question.dto";
+import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
 
 @ApiTags("questions")
 @Controller("questions")
@@ -182,7 +183,7 @@ export class QuestionsController {
   }
 
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
   @Roles(Role.STUDENT)
   @Post("/report/:id")
   report(

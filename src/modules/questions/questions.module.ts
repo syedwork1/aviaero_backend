@@ -7,6 +7,7 @@ import { ConfigModule } from "@nestjs/config";
 import { CategoryModule } from "../category/category.module";
 import { CategoryEntity } from "../../database/entities/category.entity";
 import { QuestionReportEntity } from "../../database/entities/question-report.entity";
+import { PlansModule } from "../plans/plans.module";
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -16,6 +17,7 @@ import { QuestionReportEntity } from "../../database/entities/question-report.en
     ]),
     ConfigModule,
     CategoryModule,
+    PlansModule,
   ],
   controllers: [QuestionsController],
   providers: [QuestionsService],
