@@ -11,6 +11,8 @@ import { StudentEntity } from "../../database/entities/student.entity";
 import { MollieService } from "./mollie.service";
 import { PaymentEntity } from "../../database/entities/payment.entity";
 import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
+import { EmailService } from "./email.service";
+import { SESService } from "@core/providers/ses.service";
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
     CourcesModule,
   ],
   controllers: [PlansController],
-  providers: [PlansService, MollieService],
+  providers: [PlansService, MollieService, EmailService, SESService],
   exports: [PlansService],
 })
 export class PlansModule {}

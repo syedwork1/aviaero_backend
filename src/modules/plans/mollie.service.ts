@@ -6,6 +6,7 @@ import { Repository } from "typeorm";
 import { ConfigService } from "@nestjs/config";
 import { PlanEntity } from "../../database/entities/plan.entity";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
+import { EmailService } from "./email.service";
 
 @Injectable()
 export class MollieService {
@@ -16,7 +17,8 @@ export class MollieService {
     private readonly paymentRepository: Repository<PaymentEntity>,
     @InjectRepository(SubscriptionEntity)
     private readonly subscriptionRepository: Repository<SubscriptionEntity>,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
+    private readonly emailService: EmailService
   ) {
     this.mollieClient = createMollieClient({
       apiKey: this.configService.get("MOLLIE_API_KEY"),
@@ -73,6 +75,17 @@ export class MollieService {
         {
           status: molliePaymentData?.status,
           subscription: { id: subscription.id },
+        }
+      );
+      await this.emailService.sendSubscriptionConfirmationEmail(
+        payment.user.email,
+        {
+          name: `${payment.user.firstName} ${payment.user.lastName}`,
+          plan: payment.plan.name,
+          startDate: subscription.createAt.toLocaleDateString(),
+          endDate: subscription.expireAt.toLocaleDateString(),
+          amount: subscription.plan.price,
+          transactionId: payment.paymentId,
         }
       );
     }

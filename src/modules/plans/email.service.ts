@@ -8,7 +8,7 @@ interface ISendSubscriptionConfirmationEmail {
   plan: string;
   startDate: string;
   endDate: string;
-  amount: string;
+  amount: number;
   transactionId: string;
 }
 
@@ -16,7 +16,7 @@ interface ISendSubscriptionConfirmationEmail {
 export class EmailService {
   constructor(private readonly sesService: SESService) {}
 
-  loadTemplate(templateName: string): string {
+  private loadTemplate(templateName: string): string {
     const filePath = join(__dirname, `./templates/${templateName}.html`);
     return readFileSync(filePath, "utf8");
   }
