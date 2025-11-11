@@ -98,8 +98,6 @@ export class PlansController {
     description: "search by name",
     required: false,
   })
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
