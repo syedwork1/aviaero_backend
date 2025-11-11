@@ -93,7 +93,17 @@ export class PlansService {
         : {}),
     });
 
-    return { data, total };
+    return {
+      data: data.map((plan) => {
+        if (plan && plan.type === PlanStatusEnum.SUBJECT) {
+          const { name, limit } = plan.features[0];
+          delete plan.features;
+          return { subjectId: name, ...plan };
+        }
+        return plan;
+      }),
+      total,
+    };
   }
 
   async stats() {
@@ -128,6 +138,8 @@ export class PlansService {
       delete plan.features;
       return { subjectId: name, ...plan };
     }
+
+    return plan;
   }
 
   async update(id: string, updatePlanDto: UpdatePlanDto) {
