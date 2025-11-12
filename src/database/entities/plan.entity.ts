@@ -19,6 +19,9 @@ export class PlanEntity extends AppBaseEntity {
   @Column("decimal", { precision: 6, scale: 2, default: 0 })
   price: number;
 
+  @Column({ default: 0 })
+  duration: number;
+
   @OneToMany(() => PlanFeatureEntity, (feature) => feature.plan)
   features: PlanFeatureEntity[];
 }

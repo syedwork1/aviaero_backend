@@ -10,6 +10,9 @@ export class PlanFeatureEntity extends AppBaseEntity {
   @Column({ nullable: true })
   description: string;
 
+  @Column({ default: true })
+  limited: boolean;
+
   @Column({ nullable: true })
   limit: number;
 

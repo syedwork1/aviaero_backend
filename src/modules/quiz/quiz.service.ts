@@ -141,7 +141,7 @@ export class QuizService {
         isPractice,
         student: { id: studentId },
         status: QuizStatus.INPROGRESS,
-        category: { id: categoryId },
+        ...(categoryId ? { category: { id: categoryId } } : {}),
         ...(examId ? { exam: { id: examId } } : {}),
       });
       if (examId) {
@@ -170,6 +170,9 @@ export class QuizService {
         };
       }
       const quiz = await this.quizRepository.save(quizEntity);
+      if (!categoryId) {
+        throw new BadRequestException("category id is required");
+      }
       const category = await this.categoryRepository.findOne({
         where: { id: categoryId },
       });

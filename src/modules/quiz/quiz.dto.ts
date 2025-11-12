@@ -16,6 +16,7 @@ export class StartQuizDto {
 
   @ApiProperty()
   @IsString()
+  @IsOptional()
   categoryId: string;
 
   @ApiProperty()
