@@ -43,13 +43,9 @@ export class QuizService {
       relationLoadStrategy: "join",
       take: limit,
       skip: page * limit || 0,
-      ...(sortBy
-        ? {
-            order: {
-              [sortBy]: "DESC",
-            },
-          }
-        : {}),
+      order: {
+        [sortBy]: "DESC",
+      },
     });
 
     return { data, total, page, limit, sortBy };

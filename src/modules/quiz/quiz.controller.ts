@@ -53,7 +53,7 @@ export class QuizController {
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    @Query("sort_by") sortBy: string,
+    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
     @Query("type") type: string,
     @Req() req: any
   ) {
