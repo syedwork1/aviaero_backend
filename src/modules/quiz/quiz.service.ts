@@ -8,6 +8,7 @@ import { QuizStatus } from "@core/enums/quiz.enum";
 import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 import { ExamEntity } from "../../database/entities/exam.entity";
 import { QuizType } from "./quiz.enum";
+import { Role } from "@core/enums/role.enum";
 
 @Injectable()
 export class QuizService {
@@ -25,9 +26,18 @@ export class QuizService {
     private readonly examRepository: Repository<ExamEntity>
   ) {}
 
-  async findAll(page: number, limit: number, sortBy: string, type: string) {
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    type: string,
+    user: any
+  ) {
     const [data, total] = await this.quizRepository.findAndCount({
-      where: { isPractice: type === QuizType.quiz },
+      where: {
+        isPractice: type === QuizType.exam ? false : true,
+        ...(user.role === Role.STUDENT ? { student: { id: user.userId } } : {}),
+      },
       take: limit,
       skip: page * limit || 0,
       ...(sortBy

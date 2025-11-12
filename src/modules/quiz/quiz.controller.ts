@@ -54,9 +54,10 @@ export class QuizController {
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by") sortBy: string,
-    @Query("type") type: string
+    @Query("type") type: string,
+    @Req() req: any
   ) {
-    return this.quizService.findAll(page, limit, sortBy, type);
+    return this.quizService.findAll(page, limit, sortBy, type, req.user);
   }
 
   @ApiBearerAuth("authorization")
