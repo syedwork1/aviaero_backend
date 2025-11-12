@@ -35,7 +35,7 @@ export class QuizService {
   ) {
     const [data, total] = await this.quizRepository.findAndCount({
       where: {
-        isPractice: type === QuizType.exam ? true : false,
+        isPractice: type === QuizType.exam ? false : true,
         ...(user.role === Role.STUDENT ? { student: { id: user.userId } } : {}),
       },
       select: ["category"],
