@@ -35,9 +35,10 @@ export class QuizService {
   ) {
     const [data, total] = await this.quizRepository.findAndCount({
       where: {
-        isPractice: type === QuizType.exam ? false : true,
+        isPractice: type === QuizType.exam ? true : false,
         ...(user.role === Role.STUDENT ? { student: { id: user.userId } } : {}),
       },
+      select: ["category"],
       take: limit,
       skip: page * limit || 0,
       ...(sortBy
@@ -196,8 +197,10 @@ export class QuizService {
     if (!quiz) {
       throw new BadRequestException(`Quiz with id ${quizId} not found`);
     }
+    if (quiz.exam) {
+      throw new BadRequestException(`Exam cannot be resumed!`);
+    }
     if (
-      quiz.exam ||
       quiz.status === QuizStatus.COMPLETED ||
       quiz.status === QuizStatus.TIMEOUT
     ) {
