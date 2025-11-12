@@ -32,7 +32,7 @@ export class MollieService {
     const payment = await this.mollieClient.payments.create({
       amount: {
         currency: "EUR",
-        value: plan.price.toFixed(2).toString(),
+        value: plan?.price,
       },
       description: plan.name,
       redirectUrl: `${this.configService.get("APP_URL")}/de/subscription/processing?planId=${plan.id}&userId=${userId}`,
