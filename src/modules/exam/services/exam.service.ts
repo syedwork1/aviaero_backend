@@ -35,7 +35,8 @@ export class ExamService {
     limit: number,
     sortBy: string,
     query: string,
-    subjectId: string
+    subjectId: string,
+    user: any
   ): Promise<{
     data: ExamEntity[];
     total: number;
@@ -43,11 +44,7 @@ export class ExamService {
     limit: number;
     totalPages: number;
   }> {
-    console.log(
-      subjectId,
-      subjectId ? { where: { course: { id: subjectId } } } : {}
-    );
-
+    console.log(user);
     const [data, total] = await this.examRepository.findAndCount({
       ...(subjectId ? { where: { course: { id: subjectId } } } : {}),
       relationLoadStrategy: "join",

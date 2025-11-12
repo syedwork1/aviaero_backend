@@ -1,4 +1,4 @@
-import { forwardRef, Module } from "@nestjs/common";
+import { forwardRef, Global, Module } from "@nestjs/common";
 import { PlansService } from "./plans.service";
 import { PlansController } from "./plans.controller";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -14,6 +14,7 @@ import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
 import { EmailService } from "./email.service";
 import { SESService } from "@core/providers/ses.service";
 
+@Global()
 @Module({
   imports: [
     TypeOrmModule.forFeature([

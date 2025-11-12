@@ -15,6 +15,7 @@ import {
   ParseIntPipe,
   UseInterceptors,
   UploadedFile,
+  Req,
 } from "@nestjs/common";
 import { ExamService } from "../services/exam.service";
 import { CreateExamDto } from "../dto/create-exam.dto";
@@ -33,6 +34,7 @@ import { Role } from "@core/enums/role.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ExamBulkCreationService } from "../services/bulk.service";
 import { BulkUploadExamDto } from "../dto/upload-exam.dto";
+import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
 
 @ApiTags("exam")
 @Controller("exam")
@@ -106,16 +108,24 @@ export class ExamController {
     required: false,
   })
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
     @Query("subject_id") subjectId: string,
-    @Query("query") query: string
+    @Query("query") query: string,
+    @Req() request: any
   ) {
-    return this.examService.findAll(page, limit, sortBy, query, subjectId);
+    return this.examService.findAll(
+      page,
+      limit,
+      sortBy,
+      query,
+      subjectId,
+      request.user
+    );
   }
 
   @Get(":id")

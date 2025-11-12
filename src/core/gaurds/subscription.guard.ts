@@ -15,22 +15,15 @@ export class SubscriptionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     try {
       const user = request.user;
-      const { userId, role } = user;
+      const { userId } = user;
       if (!userId) {
         throw new ForbiddenException("user id not found!");
       }
-      if (!role) {
-        throw new ForbiddenException("user role not found!");
-      }
-
-      if (role === Role.ADMIN) {
-        return true;
-      }
-      if (role === Role.STUDENT) {
-        const subscription = await this.planService.getUserSubscription(userId);
-        console.log("user subscription", subscription);
-        request.subscription = subscription;
-      }
+      // if (role === Role.ADMIN) {
+      //   return true;
+      // }
+      const subscription = await this.planService.getUserSubscription(userId);
+      request.user.subscription = subscription;
       return true;
     } catch (error) {
       console.log(error);
