@@ -15,13 +15,7 @@ export class StartQuizDto {
   examId: string;
 
   @ApiProperty()
-  @IsString({ each: true })
-  @IsOptional()
-  cbr_chapters: string[];
-
-  @ApiProperty()
   @IsString()
-  @IsOptional()
   categoryId: string;
 
   @ApiProperty()
@@ -33,11 +27,6 @@ export class StartQuizDto {
   @IsNumber()
   @IsNotEmpty()
   questions: number;
-
-  @ApiProperty()
-  @IsBoolean()
-  @IsNotEmpty()
-  isPractice: boolean;
 }
 
 export class FinishQuizDto {

@@ -9,6 +9,7 @@ import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 import { ExamEntity } from "../../database/entities/exam.entity";
 import { QuizType } from "./quiz.enum";
 import { Role } from "@core/enums/role.enum";
+import { CategoryEntity } from "../../database/entities/category.entity";
 
 @Injectable()
 export class QuizService {
@@ -23,7 +24,10 @@ export class QuizService {
     private readonly quizAnswerRepository: Repository<QuizAnswerEntity>,
 
     @InjectRepository(ExamEntity)
-    private readonly examRepository: Repository<ExamEntity>
+    private readonly examRepository: Repository<ExamEntity>,
+
+    @InjectRepository(CategoryEntity)
+    private readonly categoryRepository: Repository<CategoryEntity>
   ) {}
 
   async findAll(
@@ -124,25 +128,24 @@ export class QuizService {
   async start(quizData: StartQuizDto) {
     try {
       const {
-        isPractice,
         categoryId,
         studentId,
         examId,
-        cbr_chapters,
         questions: noOfQuestion,
       } = quizData;
+      const isPractice = !Boolean(examId);
 
       const startedAt: Date = new Date();
       const quizEntity = this.quizRepository.create({
         startedAt,
-        isPractice: isPractice || Boolean(examId),
+        isPractice,
         student: { id: studentId },
         status: QuizStatus.INPROGRESS,
-        ...(categoryId ? { category: { id: categoryId } } : {}),
+        category: { id: categoryId },
         ...(examId ? { exam: { id: examId } } : {}),
       });
-      let exam: ExamEntity | null;
       if (examId) {
+        let exam: ExamEntity | null;
         exam = await this.examRepository.findOne({
           where: { id: examId },
           select: {
@@ -162,18 +165,16 @@ export class QuizService {
           questions: exam?.questions,
           startedAt,
           isPractice,
+          categoryId,
           quizId: quiz.id,
         };
       }
       const quiz = await this.quizRepository.save(quizEntity);
+      const category = await this.categoryRepository.findOne({
+        where: { id: categoryId },
+      });
       const questions = await this.questionRepository.find({
-        ...(exam?.CBR_chapters?.length
-          ? {
-              where: {
-                CBR_chapter: In(exam?.CBR_chapters?.map((c) => c.CBR_chapter)),
-              },
-            }
-          : {}),
+        ...(category ? { where: { CBR_chapter: category.CBR_chapter } } : {}),
         select: [
           "id",
           "question",
@@ -182,9 +183,9 @@ export class QuizService {
           "option_C",
           "option_D",
         ],
-        take: exam?.number_of_questions ?? noOfQuestion ?? 15,
+        take: noOfQuestion ?? 15,
       });
-      return { questions, startedAt, isPractice, quizId: quiz.id };
+      return { questions, startedAt, isPractice, categoryId, quizId: quiz.id };
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -205,7 +206,26 @@ export class QuizService {
       throw new BadRequestException(`Quiz already ${quiz.status}!`);
     }
 
-    //need clarification
+    const questions = await this.questionRepository.find({
+      ...(quiz?.category?.CBR_chapter
+        ? { where: { CBR_chapter: quiz?.category?.CBR_chapter } }
+        : {}),
+      select: [
+        "id",
+        "question",
+        "option_A",
+        "option_B",
+        "option_C",
+        "option_D",
+      ],
+      take: 15,
+    });
+    return {
+      questions,
+      startedAt: quiz.startedAt,
+      isPractice: quiz.isPractice,
+      quizId: quiz.id,
+    };
   }
 
   async submitAnswer(answerData: SubmitQuizAnswerDto) {
