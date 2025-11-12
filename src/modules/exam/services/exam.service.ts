@@ -44,7 +44,6 @@ export class ExamService {
     limit: number;
     totalPages: number;
   }> {
-    console.log(user);
     const [data, total] = await this.examRepository.findAndCount({
       ...(subjectId ? { where: { course: { id: subjectId } } } : {}),
       relationLoadStrategy: "join",
