@@ -38,7 +38,9 @@ export class QuizService {
         isPractice: type === QuizType.exam ? false : true,
         ...(user.role === Role.STUDENT ? { student: { id: user.userId } } : {}),
       },
-      select: ["category"],
+      select: { category: { id: true, name: true, CBR_chapter: true } },
+      relations: ["category"],
+      relationLoadStrategy: "join",
       take: limit,
       skip: page * limit || 0,
       ...(sortBy
