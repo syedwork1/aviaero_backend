@@ -1,9 +1,10 @@
-import { PlanStatusEnum } from "@core/enums/plan.enum";
+import { PlanTypeEnum } from "@core/enums/plan.enum";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import {
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -22,6 +23,20 @@ class FeatureDto {
 
   @IsNumber()
   limit: number;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  limited: boolean;
+}
+
+class DurationDto {
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  durationInMonths: number;
 }
 
 export class CreatePlanDto {
@@ -43,16 +58,11 @@ export class CreatePlanDto {
   @IsNotEmpty()
   status: string;
 
-  @ApiProperty({ description: "Plan status", enum: PlanStatusEnum })
+  @ApiProperty({ description: "Plan status", enum: PlanTypeEnum })
   @IsNotEmpty()
-  @IsEnum(PlanStatusEnum)
+  @IsEnum(PlanTypeEnum)
   @IsString()
   type: string;
-
-  @ApiProperty({ description: "Plan price", example: 100 })
-  @IsNumber()
-  @IsNotEmpty()
-  price: number;
 
   @ApiProperty({
     description: "Plan Subject",
@@ -69,4 +79,14 @@ export class CreatePlanDto {
   @ValidateNested({ each: true })
   @Type(() => FeatureDto)
   features?: FeatureDto[];
+
+  @ApiProperty({
+    description: "Plan duration",
+    example: [{ durationInMonths: 2, price: 19.99 }],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => DurationDto)
+  durations?: DurationDto[];
 }

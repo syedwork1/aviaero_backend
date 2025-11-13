@@ -8,4 +8,11 @@ export class ActivatePlanDto {
   @IsString()
   @IsNotEmpty()
   planId: string;
+
+  @ApiProperty({
+    description: "Plan duration Id",
+  })
+  @IsString()
+  @IsNotEmpty()
+  durationId: string;
 }

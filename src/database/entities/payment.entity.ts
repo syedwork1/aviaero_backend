@@ -1,8 +1,9 @@
-import { Column, Entity, ManyToOne, OneToOne } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { UserEntity } from "./user.entity";
 import { SubscriptionEntity } from "./subscription.entity";
 import { PlanEntity } from "./plan.entity";
+import { PlanDurationEntity } from "./plan-duration.entity";
 @Entity()
 export class PaymentEntity extends AppBaseEntity {
   @Column({ nullable: false })
@@ -19,4 +20,7 @@ export class PaymentEntity extends AppBaseEntity {
 
   @ManyToOne(() => PlanEntity)
   plan: PlanEntity;
+
+  @ManyToOne(() => PlanDurationEntity)
+  duration: PlanDurationEntity;
 }

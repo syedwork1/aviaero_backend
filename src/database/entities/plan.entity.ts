@@ -1,7 +1,9 @@
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { PlanFeatureEntity } from "./plan-feature.entity";
-import { PlanStatusEnum } from "@core/enums/plan.enum";
+import { PlanTypeEnum } from "@core/enums/plan.enum";
+import { PlanDurationEntity } from "./plan-duration.entity";
+import { PlanSubjectEntity } from "./plan-subject.entity";
 @Entity()
 export class PlanEntity extends AppBaseEntity {
   @Column()
@@ -13,15 +15,15 @@ export class PlanEntity extends AppBaseEntity {
   @Column({ default: "ACTIVE" })
   status: string;
 
-  @Column({ default: PlanStatusEnum.FEATURE })
+  @Column({ default: PlanTypeEnum.FEATURE })
   type: string;
-
-  @Column("decimal", { precision: 6, scale: 2, default: 0 })
-  price: number;
-
-  @Column({ default: 0 })
-  duration: number;
 
   @OneToMany(() => PlanFeatureEntity, (feature) => feature.plan)
   features: PlanFeatureEntity[];
+
+  @OneToMany(() => PlanDurationEntity, (plan) => plan.plan)
+  durations: PlanDurationEntity[];
+
+  @OneToOne(() => PlanSubjectEntity)
+  subject: PlanSubjectEntity;
 }

@@ -4,11 +4,21 @@ import { StudentEntity } from "./student.entity";
 import { PlanEntity } from "./plan.entity";
 import { UserEntity } from "./user.entity";
 import { PaymentEntity } from "./payment.entity";
+import { PlanDurationEntity } from "./plan-duration.entity";
+import { SubjectEntity } from "./subject.entity";
 @Entity()
 export class SubscriptionEntity extends AppBaseEntity {
   @ManyToOne(() => PlanEntity)
   @JoinColumn()
   plan: PlanEntity;
+
+  @ManyToOne(() => PlanDurationEntity)
+  @JoinColumn()
+  duration: PlanDurationEntity;
+
+  @ManyToOne(() => SubjectEntity)
+  @JoinColumn()
+  subject: SubjectEntity;
 
   @ManyToOne(() => UserEntity, (student) => student.subscription)
   @JoinColumn()

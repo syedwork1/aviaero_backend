@@ -7,6 +7,8 @@ import { ConfigService } from "@nestjs/config";
 import { PlanEntity } from "../../database/entities/plan.entity";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
 import { EmailService } from "./email.service";
+import { PlanDurationEntity } from "../../database/entities/plan-duration.entity";
+import { PlanTypeEnum } from "@core/enums/plan.enum";
 
 @Injectable()
 export class MollieService {
@@ -27,12 +29,13 @@ export class MollieService {
 
   async createPayment(
     plan: PlanEntity,
+    duration: PlanDurationEntity,
     userId: string
   ): Promise<{ checkout: string }> {
     const payment = await this.mollieClient.payments.create({
       amount: {
         currency: "EUR",
-        value: plan?.price,
+        value: duration.price,
       },
       description: plan.name,
       redirectUrl: `${this.configService.get("APP_URL")}/de/subscription/processing?planId=${plan.id}&userId=${userId}`,
@@ -48,6 +51,7 @@ export class MollieService {
       status: payment.status,
       user: { id: userId },
       plan: { id: plan.id },
+      duration: { id: duration.id },
     });
 
     return { checkout: payment?._links?.checkout?.href };
@@ -59,15 +63,21 @@ export class MollieService {
       const payment = await this.paymentRepository.findOne({
         where: { paymentId },
         relationLoadStrategy: "join",
-        relations: ["plan", "user"],
+        relations: ["plan", "plan.subject", "user", "duration"],
       });
       const expireAt = new Date();
-      expireAt.setMonth(expireAt.getMonth() + 1);
+      expireAt.setMonth(
+        expireAt.getMonth() + payment.duration.durationInMonths
+      );
       const subscription = this.subscriptionRepository.create({
         expireAt,
         plan: { id: payment.plan.id },
+        duration: { id: payment.duration.id },
         user: { id: payment.user.id },
         payment: { id: payment.id },
+        ...(payment.plan.type === PlanTypeEnum.SUBJECT
+          ? { subject: { id: payment.plan.subject.subject.id } }
+          : {}),
       });
       await this.subscriptionRepository.save(subscription);
       await this.paymentRepository.update(
@@ -84,7 +94,7 @@ export class MollieService {
           plan: payment.plan.name,
           startDate: subscription.createAt.toLocaleDateString(),
           endDate: subscription.expireAt.toLocaleDateString(),
-          amount: subscription.plan.price,
+          amount: subscription.duration.price,
           transactionId: payment.paymentId,
         }
       );

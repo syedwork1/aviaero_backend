@@ -1,4 +1,4 @@
-export enum PlanStatusEnum {
+export enum PlanTypeEnum {
   FEATURE = "FEATURE",
   SUBJECT = "SUBJECT",
   PRODUCT = "PRODUCT",

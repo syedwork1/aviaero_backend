@@ -10,7 +10,9 @@ import { StudentEntity } from "../../database/entities/student.entity";
 import { MollieService } from "./mollie.service";
 import { PaymentEntity } from "../../database/entities/payment.entity";
 import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
-import { PlanStatusEnum } from "@core/enums/plan.enum";
+import { PlanTypeEnum } from "@core/enums/plan.enum";
+import { PlanDurationEntity } from "../../database/entities/plan-duration.entity";
+import { PlanSubjectEntity } from "../../database/entities/plan-subject.entity";
 
 @Injectable()
 export class PlansService {
@@ -27,22 +29,56 @@ export class PlansService {
 
     @InjectRepository(PaymentEntity)
     private readonly paymentRepository: Repository<PaymentEntity>,
+
+    @InjectRepository(PlanDurationEntity)
+    private readonly planDurationRepository: Repository<PlanDurationEntity>,
+
+    @InjectRepository(PlanSubjectEntity)
+    private readonly planSubjectRepository: Repository<PlanSubjectEntity>,
+
     private readonly mollieService: MollieService
   ) {}
   async create(createPlanDto: CreatePlanDto) {
-    const { features, type, subjectId, ...planData } = createPlanDto;
+    const { features, durations, type, subjectId, ...planData } = createPlanDto;
     const plan = await this.planRepository.save({ ...planData, type });
-    if (type === PlanStatusEnum.SUBJECT) {
-      await this.planFeatureRepository.insert([
-        { limit: 1, name: subjectId, plan },
-      ]);
+    const planDurations = this.planDurationRepository.create(
+      durations.map(({ durationInMonths, price }) => ({
+        durationInMonths,
+        price,
+      }))
+    );
+    await this.planDurationRepository.save(planDurations);
+    if (type === PlanTypeEnum.SUBJECT) {
+      const planSubject = this.planSubjectRepository.create({
+        plan,
+        subject: { id: subjectId },
+      });
+      await this.planSubjectRepository.save(planSubject);
     }
-    return { message: "Plan created", success: true };
+    if (type === PlanTypeEnum.FEATURE) {
+      const planFeatures = this.planFeatureRepository.create(
+        features.map(({ description, limit, name, limited }) => ({
+          limit,
+          limited,
+          description,
+          name,
+        }))
+      );
+      await this.planFeatureRepository.save(planFeatures);
+    }
+    return this.planRepository.findOne({
+      where: { id: plan.id },
+      relationLoadStrategy: "join",
+      relations: ["subject", "durations", "features"],
+    });
   }
 
-  async activate({ planId }: ActivatePlanDto, user: any) {
+  async activate({ planId, durationId }: ActivatePlanDto, user: any) {
     const plan = await this.planRepository.findOne({ where: { id: planId } });
-    return this.mollieService.createPayment(plan, user.userId);
+    const duration = await this.planDurationRepository.findOne({
+      where: { plan: { id: planId }, id: durationId },
+    });
+    return this.mollieService.createPayment(plan, duration, user.userId);
   }
 
   async activationStatus({ planId }: ActivatePlanDto, user: any) {
@@ -71,7 +107,13 @@ export class PlansService {
   async getUserSubscription(userId: string) {
     return this.subscriptionRepository.findOne({
       relationLoadStrategy: "join",
-      relations: ["plan", "plan.features", "payment"],
+      relations: [
+        "plan",
+        "plan.features",
+        "plan.duration",
+        "plan.subject",
+        "payment",
+      ],
       where: { user: { id: userId } },
       order: { createAt: "DESC" },
     });
@@ -95,7 +137,7 @@ export class PlansService {
 
     return {
       data: data.map((plan) => {
-        if (plan && plan.type === PlanStatusEnum.SUBJECT) {
+        if (plan && plan.type === PlanTypeEnum.SUBJECT) {
           const { name, limit } = plan.features[0];
           delete plan.features;
           return { subjectId: name, ...plan };
@@ -133,7 +175,7 @@ export class PlansService {
       relationLoadStrategy: "join",
     });
 
-    if (plan && plan.type === PlanStatusEnum.SUBJECT) {
+    if (plan && plan.type === PlanTypeEnum.SUBJECT) {
       const { name, limit } = plan.features[0];
       delete plan.features;
       return { subjectId: name, ...plan };

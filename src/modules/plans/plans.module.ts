@@ -13,6 +13,8 @@ import { PaymentEntity } from "../../database/entities/payment.entity";
 import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
 import { EmailService } from "./email.service";
 import { SESService } from "@core/providers/ses.service";
+import { PlanDurationEntity } from "../../database/entities/plan-duration.entity";
+import { PlanSubjectEntity } from "../../database/entities/plan-subject.entity";
 
 @Global()
 @Module({
@@ -20,6 +22,8 @@ import { SESService } from "@core/providers/ses.service";
     TypeOrmModule.forFeature([
       PlanEntity,
       PlanFeatureEntity,
+      PlanDurationEntity,
+      PlanSubjectEntity,
       SubscriptionEntity,
       StudentEntity,
       PaymentEntity,
