@@ -188,6 +188,13 @@ export class QuizService {
         ],
         take: noOfQuestion ?? 15,
       });
+
+      const quizQuestion = questions.map((question) =>
+        this.quizAnswerRepository.create({ question, quiz })
+      );
+
+      await this.quizAnswerRepository.save(quizQuestion);
+
       return { questions, startedAt, isPractice, categoryId, quizId: quiz.id };
     } catch (error) {
       throw new BadRequestException(error.message);
@@ -195,7 +202,11 @@ export class QuizService {
   }
 
   async continue(quizId: string) {
-    const quiz = await this.quizRepository.findOne({ where: { id: quizId } });
+    const quiz = await this.quizRepository.findOne({
+      where: { id: quizId },
+      relationLoadStrategy: "join",
+      relations: ["answers", "answers.question", "category"],
+    });
     if (!quiz) {
       throw new BadRequestException(`Quiz with id ${quizId} not found`);
     }
@@ -208,25 +219,59 @@ export class QuizService {
     ) {
       throw new BadRequestException(`Quiz already ${quiz.status}!`);
     }
+    const questions = quiz.answers.map(
+      ({
+        id: answerId,
+        selectedAnswer,
+        question: {
+          id,
+          question,
+          option_A,
+          option_B,
+          option_C,
+          option_D,
+          correct_answer,
+          explanation,
+        },
+      }) => {
+        const questionData: {
+          id: string;
+          question: string;
+          option_A: string;
+          option_B: string;
+          option_C: string;
+          option_D: string;
+          selectedAnswer: string;
+          skipped?: boolean;
+          isCorrect?: boolean;
+          correctAnswer?: string;
+          explaination?: string;
+        } = {
+          id,
+          question,
+          option_A,
+          option_B,
+          option_C,
+          option_D,
+          selectedAnswer,
+        };
+        if (selectedAnswer === "SKIPPED") {
+          questionData.skipped = true;
+        } else if (selectedAnswer) {
+          questionData.skipped = false;
+          questionData.isCorrect = selectedAnswer === correct_answer;
+          questionData.correctAnswer = correct_answer;
+          questionData.explaination = explanation;
+        }
 
-    const questions = await this.questionRepository.find({
-      ...(quiz?.category?.CBR_chapter
-        ? { where: { CBR_chapter: quiz?.category?.CBR_chapter } }
-        : {}),
-      select: [
-        "id",
-        "question",
-        "option_A",
-        "option_B",
-        "option_C",
-        "option_D",
-      ],
-      take: 15,
-    });
+        return questionData;
+      }
+    );
     return {
       questions,
       startedAt: quiz.startedAt,
       isPractice: quiz.isPractice,
+      categoryId: quiz?.category?.id,
       quizId: quiz.id,
     };
   }
@@ -277,9 +322,18 @@ export class QuizService {
           quiz: { id: quizId },
         });
       }
+      if (selectedAnswer === "SKIPPED") {
+        return {
+          skipped: true,
+          isCorrect: null,
+          correctAnswer: null,
+          explaination: null,
+          questionId,
+        };
+      }
 
       return {
-        skipped: !selectedAnswer,
+        skipped: false,
         isCorrect: selectedAnswer === question.correct_answer,
         correctAnswer: question.correct_answer,
         explaination: question.explanation,

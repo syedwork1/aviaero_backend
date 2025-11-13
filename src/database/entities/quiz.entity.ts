@@ -37,7 +37,7 @@ export class QuizEntity extends AppBaseEntity {
   startedAt: Date;
 
   @OneToMany(() => QuizAnswerEntity, (answer: QuizAnswerEntity) => answer.quiz)
-  answers: QuizAnswerEntity;
+  answers: QuizAnswerEntity[];
 
   @OneToMany(() => FeedbackEntity, (feedback: FeedbackEntity) => feedback.quiz)
   feedback: FeedbackEntity;
