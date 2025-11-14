@@ -58,6 +58,7 @@ export class PlansService {
           limited,
           description,
           name,
+          plan,
         }))
       );
       await this.planFeatureRepository.save(planFeatures);

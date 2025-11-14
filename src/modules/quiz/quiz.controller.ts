@@ -3,20 +3,24 @@ import {
   Get,
   Post,
   Body,
-  Patch,
   Param,
-  Delete,
   UseGuards,
   Req,
   Query,
   DefaultValuePipe,
   ParseIntPipe,
+  Request,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { QuizService } from "./quiz.service";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 import { QuizType } from "./quiz.enum";
+import { RolesGuard } from "@core/gaurds/roles.guard";
+import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
+import { Roles } from "@core/gaurds/roles.decorator";
+import { Role } from "@core/enums/role.enum";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 
 @ApiTags("quiz")
 @Controller("quiz")
@@ -75,10 +79,11 @@ export class QuizController {
   }
 
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
+  @Roles(Role.STUDENT)
   @Post("start")
-  start(@Body() body: StartQuizDto) {
-    return this.quizService.start(body);
+  start(@Body() body: StartQuizDto, @Request() req: RequestWithUser) {
+    return this.quizService.start(body, req);
   }
 
   @ApiBearerAuth("authorization")

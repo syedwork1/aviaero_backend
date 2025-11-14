@@ -10,6 +10,7 @@ import { ExamEntity } from "../../database/entities/exam.entity";
 import { QuizType } from "./quiz.enum";
 import { Role } from "@core/enums/role.enum";
 import { CategoryEntity } from "../../database/entities/category.entity";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 
 @Injectable()
 export class QuizService {
@@ -125,80 +126,71 @@ export class QuizService {
       .getOne();
   }
 
-  async start(quizData: StartQuizDto) {
-    try {
-      const {
-        categoryId,
-        studentId,
-        examId,
-        questions: noOfQuestion,
-      } = quizData;
-      const isPractice = !Boolean(examId);
+  async start(quizData: StartQuizDto, req: RequestWithUser) {
+    const { categoryId, studentId, examId, questions: noOfQuestion } = quizData;
+    const isPractice = !Boolean(examId);
 
-      const startedAt: Date = new Date();
-      const quizEntity = this.quizRepository.create({
+    const startedAt: Date = new Date();
+    const quizEntity = this.quizRepository.create({
+      startedAt,
+      isPractice,
+      student: { id: studentId },
+      status: QuizStatus.INPROGRESS,
+      ...(categoryId ? { category: { id: categoryId } } : {}),
+      ...(examId ? { exam: { id: examId } } : {}),
+    });
+    if (examId) {
+      let exam: ExamEntity | null;
+      exam = await this.examRepository.findOne({
+        where: { id: examId },
+        select: {
+          questions: {
+            id: true,
+            question: true,
+            option_A: true,
+            option_B: true,
+            option_C: true,
+            option_D: true,
+          },
+        },
+        relations: ["CBR_chapters", "questions"],
+      });
+      const quiz = await this.quizRepository.save(quizEntity);
+      return {
+        questions: exam?.questions,
         startedAt,
         isPractice,
-        student: { id: studentId },
-        status: QuizStatus.INPROGRESS,
-        ...(categoryId ? { category: { id: categoryId } } : {}),
-        ...(examId ? { exam: { id: examId } } : {}),
-      });
-      if (examId) {
-        let exam: ExamEntity | null;
-        exam = await this.examRepository.findOne({
-          where: { id: examId },
-          select: {
-            questions: {
-              id: true,
-              question: true,
-              option_A: true,
-              option_B: true,
-              option_C: true,
-              option_D: true,
-            },
-          },
-          relations: ["CBR_chapters", "questions"],
-        });
-        const quiz = await this.quizRepository.save(quizEntity);
-        return {
-          questions: exam?.questions,
-          startedAt,
-          isPractice,
-          categoryId,
-          quizId: quiz.id,
-        };
-      }
-      const quiz = await this.quizRepository.save(quizEntity);
-      if (!categoryId) {
-        throw new BadRequestException("category id is required");
-      }
-      const category = await this.categoryRepository.findOne({
-        where: { id: categoryId },
-      });
-      const questions = await this.questionRepository.find({
-        ...(category ? { where: { CBR_chapter: category.CBR_chapter } } : {}),
-        select: [
-          "id",
-          "question",
-          "option_A",
-          "option_B",
-          "option_C",
-          "option_D",
-        ],
-        take: noOfQuestion ?? 15,
-      });
-
-      const quizQuestion = questions.map((question) =>
-        this.quizAnswerRepository.create({ question, quiz })
-      );
-
-      await this.quizAnswerRepository.save(quizQuestion);
-
-      return { questions, startedAt, isPractice, categoryId, quizId: quiz.id };
-    } catch (error) {
-      throw new BadRequestException(error.message);
+        categoryId,
+        quizId: quiz.id,
+      };
     }
+    const quiz = await this.quizRepository.save(quizEntity);
+    if (!categoryId) {
+      throw new BadRequestException("category id is required");
+    }
+    const category = await this.categoryRepository.findOne({
+      where: { id: categoryId },
+    });
+    const questions = await this.questionRepository.find({
+      ...(category ? { where: { CBR_chapter: category.CBR_chapter } } : {}),
+      select: [
+        "id",
+        "question",
+        "option_A",
+        "option_B",
+        "option_C",
+        "option_D",
+      ],
+      take: noOfQuestion ?? 15,
+    });
+
+    const quizQuestion = questions.map((question) =>
+      this.quizAnswerRepository.create({ question, quiz })
+    );
+
+    await this.quizAnswerRepository.save(quizQuestion);
+
+    return { questions, startedAt, isPractice, categoryId, quizId: quiz.id };
   }
 
   async continue(quizId: string) {
