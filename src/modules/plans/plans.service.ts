@@ -3,7 +3,7 @@ import { CreatePlanDto } from "./dto/create-plan.dto";
 import { UpdatePlanDto } from "./dto/update-plan.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PlanEntity } from "../../database/entities/plan.entity";
-import { ILike, Repository } from "typeorm";
+import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
 import { ActivatePlanDto } from "./dto/activate-plan.dto";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
 import { StudentEntity } from "../../database/entities/student.entity";
@@ -121,7 +121,11 @@ export class PlansService {
     const [data, total] = await this.planRepository.findAndCount({
       relationLoadStrategy: "join",
       relations: ["features", "durations", "subject"],
-      ...(yearly ? { where: { durations: { durationInMonths: 12 } } } : {}),
+      where: {
+        durations: {
+          durationInMonths: yearly ? MoreThanOrEqual(12) : LessThanOrEqual(2),
+        },
+      },
       take: limit,
       skip: page * limit || 0,
       ...(sortBy
