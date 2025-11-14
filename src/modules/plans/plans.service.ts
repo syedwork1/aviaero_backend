@@ -36,18 +36,19 @@ export class PlansService {
   ) {}
   async create(createPlanDto: CreatePlanDto) {
     const { features, durations, type, subjectId, ...planData } = createPlanDto;
-    const plan = this.planRepository.create({
+    const planEntity = this.planRepository.create({
       ...planData,
       type,
       ...(type === PlanTypeEnum.SUBJECT && subjectId
         ? { subject: { id: subjectId } }
         : {}),
     });
-    await this.planRepository.save(plan);
+    const plan = await this.planRepository.save(planEntity);
     const planDurations = this.planDurationRepository.create(
       durations.map(({ durationInMonths, price }) => ({
         durationInMonths,
         price,
+        plan,
       }))
     );
     await this.planDurationRepository.save(planDurations);
