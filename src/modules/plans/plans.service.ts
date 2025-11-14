@@ -106,9 +106,9 @@ export class PlansService {
       relations: [
         "plan",
         "plan.features",
-        "plan.durations",
         "plan.subject",
         "payment",
+        "duration",
       ],
       where: { user: { id: userId } },
       order: { createAt: "DESC" },
