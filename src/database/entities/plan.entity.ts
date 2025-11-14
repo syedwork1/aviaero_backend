@@ -24,6 +24,6 @@ export class PlanEntity extends AppBaseEntity {
   @OneToMany(() => PlanDurationEntity, (plan) => plan.plan)
   durations: PlanDurationEntity[];
 
-  @OneToOne(() => PlanSubjectEntity)
+  @OneToMany(() => PlanSubjectEntity, (planSubject) => planSubject.plan)
   subject: PlanSubjectEntity;
 }
