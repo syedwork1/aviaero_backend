@@ -1,9 +1,9 @@
-import { Column, Entity, OneToMany, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { PlanFeatureEntity } from "./plan-feature.entity";
 import { PlanTypeEnum } from "@core/enums/plan.enum";
 import { PlanDurationEntity } from "./plan-duration.entity";
-import { PlanSubjectEntity } from "./plan-subject.entity";
+import { SubjectEntity } from "./subject.entity";
 @Entity()
 export class PlanEntity extends AppBaseEntity {
   @Column()
@@ -24,6 +24,7 @@ export class PlanEntity extends AppBaseEntity {
   @OneToMany(() => PlanDurationEntity, (plan) => plan.plan)
   durations: PlanDurationEntity[];
 
-  @OneToMany(() => PlanSubjectEntity, (planSubject) => planSubject.plan)
-  subject: PlanSubjectEntity;
+  @ManyToOne(() => SubjectEntity)
+  @JoinColumn()
+  subject: SubjectEntity;
 }

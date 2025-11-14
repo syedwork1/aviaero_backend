@@ -12,7 +12,6 @@ import { PaymentEntity } from "../../database/entities/payment.entity";
 import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
 import { PlanTypeEnum } from "@core/enums/plan.enum";
 import { PlanDurationEntity } from "../../database/entities/plan-duration.entity";
-import { PlanSubjectEntity } from "../../database/entities/plan-subject.entity";
 
 @Injectable()
 export class PlansService {
@@ -33,14 +32,18 @@ export class PlansService {
     @InjectRepository(PlanDurationEntity)
     private readonly planDurationRepository: Repository<PlanDurationEntity>,
 
-    @InjectRepository(PlanSubjectEntity)
-    private readonly planSubjectRepository: Repository<PlanSubjectEntity>,
-
     private readonly mollieService: MollieService
   ) {}
   async create(createPlanDto: CreatePlanDto) {
     const { features, durations, type, subjectId, ...planData } = createPlanDto;
-    const plan = await this.planRepository.save({ ...planData, type });
+    const plan = this.planRepository.create({
+      ...planData,
+      type,
+      ...(type === PlanTypeEnum.SUBJECT && subjectId
+        ? { subject: { id: subjectId } }
+        : {}),
+    });
+    await this.planRepository.save(plan);
     const planDurations = this.planDurationRepository.create(
       durations.map(({ durationInMonths, price }) => ({
         durationInMonths,
@@ -48,13 +51,6 @@ export class PlansService {
       }))
     );
     await this.planDurationRepository.save(planDurations);
-    if (type === PlanTypeEnum.SUBJECT) {
-      const planSubject = this.planSubjectRepository.create({
-        plan,
-        subject: { id: subjectId },
-      });
-      await this.planSubjectRepository.save(planSubject);
-    }
     if (type === PlanTypeEnum.FEATURE) {
       const planFeatures = this.planFeatureRepository.create(
         features.map(({ description, limit, name, limited }) => ({

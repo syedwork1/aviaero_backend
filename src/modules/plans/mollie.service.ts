@@ -76,7 +76,7 @@ export class MollieService {
         user: { id: payment.user.id },
         payment: { id: payment.id },
         ...(payment.plan.type === PlanTypeEnum.SUBJECT
-          ? { subject: { id: payment.plan.subject.subject.id } }
+          ? { subject: { id: payment.plan.subject.id } }
           : {}),
       });
       await this.subscriptionRepository.save(subscription);
