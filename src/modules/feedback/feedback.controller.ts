@@ -16,7 +16,7 @@ import { FeedbackService } from "./feedback.service";
 import { CreateFeedbackDto } from "./dto/create-feedback.dto";
 import { UpdateFeedbackDto } from "./dto/update-feedback.dto";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { Roles } from "@core/gaurds/roles.decorator";
+import { Roles } from "@core/decorators/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";

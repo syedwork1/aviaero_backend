@@ -26,7 +26,7 @@ import { CreateCourceDto } from "../dto/create-cource.dto";
 import { UpdateCourceDto } from "../dto/update-cource.dto";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
-import { Roles } from "@core/gaurds/roles.decorator";
+import { Roles } from "@core/decorators/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 
 @ApiTags("courses")

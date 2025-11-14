@@ -15,13 +15,19 @@ export class SubscriptionGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const user = request.user;
     const { userId, role } = user;
-    if (!userId) {
-      throw new ForbiddenException("user id not found!");
-    }
     if (role && role === Role.ADMIN) {
       return true;
     }
+    if (!userId) {
+      throw new ForbiddenException("User id not found!");
+    }
     const subscription = await this.planService.getUserSubscription(userId);
+
+    if (!subscription) {
+      throw new ForbiddenException(
+        "You don't have subscription to access this feature!"
+      );
+    }
 
     if (subscription.expireAt < new Date()) {
       throw new ForbiddenException("Subscription expired!");

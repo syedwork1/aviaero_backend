@@ -22,7 +22,7 @@ import {
   ApiTags,
 } from "@nestjs/swagger";
 import { Role } from "@core/enums/role.enum";
-import { Roles } from "@core/gaurds/roles.decorator";
+import { Roles } from "@core/decorators/roles.decorator";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { ActivatePlanDto } from "./dto/activate-plan.dto";
@@ -93,9 +93,9 @@ export class PlansController {
     required: false,
   })
   @ApiQuery({
-    name: "query",
-    type: String,
-    description: "search by name",
+    name: "yearly",
+    type: Boolean,
+    description: "filter by duration",
     required: false,
   })
   @Get()
@@ -103,9 +103,9 @@ export class PlansController {
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by") sortBy: string,
-    @Query("query") query: string
+    @Query("yearly", new DefaultValuePipe(false)) yearly: boolean
   ) {
-    return this.plansService.findAll(page, limit, sortBy, query);
+    return this.plansService.findAll(page, limit, sortBy, yearly);
   }
 
   @ApiBearerAuth("authorization")

@@ -18,9 +18,11 @@ import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 import { QuizType } from "./quiz.enum";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
-import { Roles } from "@core/gaurds/roles.decorator";
+import { Roles } from "@core/decorators/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 import { RequestWithUser } from "@core/types/RequestWithUser";
+import { RequireFeature } from "@core/decorators/feature-require.decorator";
+import { FeaturesListEnum } from "@core/enums/features.enum";
 
 @ApiTags("quiz")
 @Controller("quiz")
@@ -79,8 +81,9 @@ export class QuizController {
   }
 
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
   @Roles(Role.STUDENT)
+  @RequireFeature(FeaturesListEnum.mockExamLimit)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
   @Post("start")
   start(@Body() body: StartQuizDto, @Request() req: RequestWithUser) {
     return this.quizService.start(body, req);

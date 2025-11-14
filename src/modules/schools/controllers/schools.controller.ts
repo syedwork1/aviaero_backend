@@ -16,7 +16,7 @@ import { CreateSchoolDto } from "../dto/create-school.dto";
 import { UpdateSchoolDto } from "../dto/update-school.dto";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
-import { Roles } from "@core/gaurds/roles.decorator";
+import { Roles } from "@core/decorators/roles.decorator";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Role } from "@core/enums/role.enum";
 

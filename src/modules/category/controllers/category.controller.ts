@@ -19,7 +19,7 @@ import { UpdateCategoryDto } from "../dto/update-category.dto";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
-import { Roles } from "@core/gaurds/roles.decorator";
+import { Roles } from "@core/decorators/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 
 @ApiTags("category")

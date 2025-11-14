@@ -117,11 +117,11 @@ export class PlansService {
     });
   }
 
-  async findAll(page: number, limit: number, sortBy: string, query: string) {
+  async findAll(page: number, limit: number, sortBy: string, yearly: boolean) {
     const [data, total] = await this.planRepository.findAndCount({
       relationLoadStrategy: "join",
       relations: ["features", "durations", "subject"],
-      ...(query ? { where: { name: ILike(`%${query}%`) } } : {}),
+      ...(yearly ? { where: { durations: { durationInMonths: 12 } } } : {}),
       take: limit,
       skip: page * limit || 0,
       ...(sortBy
