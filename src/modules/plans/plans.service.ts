@@ -110,7 +110,7 @@ export class PlansService {
       relations: [
         "plan",
         "plan.features",
-        "plan.duration",
+        "plan.durations",
         "plan.subject",
         "payment",
       ],

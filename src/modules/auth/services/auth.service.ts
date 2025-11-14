@@ -90,9 +90,9 @@ export class AuthService {
       if (!user) {
         throw new UnauthorizedException(ExceptionEnum.INVALID_CREDENTIALS);
       }
-      const subscription = await this.planService.getUserSubscription(user.id);
+      // const subscription = await this.planService.getUserSubscription(user.id);
 
-      return { ...this.getAccessTokens(user), user, subscription };
+      return { ...this.getAccessTokens(user), user, subscription: null };
     } catch (e) {
       console.log(e);
       throw new BadRequestException(ExceptionEnum.INVALID_CREDENTIALS);
