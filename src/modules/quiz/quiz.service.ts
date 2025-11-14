@@ -268,7 +268,7 @@ export class QuizService {
       }
     );
     return {
-      questions,
+      questions: questions.reverse(),
       startedAt: quiz.startedAt,
       isPractice: quiz.isPractice,
       categoryId: quiz?.category?.id,
