@@ -27,6 +27,7 @@ import { RolesGuard } from "@core/gaurds/roles.guard";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { ActivatePlanDto } from "./dto/activate-plan.dto";
 import { MollieService } from "./mollie.service";
+import { PlanSubjectTypeEnum } from "@core/enums/plan.enum";
 
 @ApiTags("plans")
 @Controller("plans")
@@ -98,14 +99,22 @@ export class PlansController {
     description: "filter by duration",
     required: false,
   })
+  @ApiQuery({
+    name: "subject_type",
+    enum: PlanSubjectTypeEnum,
+    description: "filter based on subject type",
+    required: false,
+  })
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query("sort_by") sortBy: string,
-    @Query("yearly", new DefaultValuePipe(false)) yearly: boolean
+    @Query("yearly", new DefaultValuePipe(false)) yearly: boolean,
+    @Query("subject_type", new DefaultValuePipe(PlanSubjectTypeEnum.all))
+    subjectType: PlanSubjectTypeEnum
   ) {
-    return this.plansService.findAll(page, limit, sortBy, yearly);
+    return this.plansService.findAll(page, limit, sortBy, yearly, subjectType);
   }
 
   @ApiBearerAuth("authorization")

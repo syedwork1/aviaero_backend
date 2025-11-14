@@ -3,14 +3,20 @@ import { CreatePlanDto } from "./dto/create-plan.dto";
 import { UpdatePlanDto } from "./dto/update-plan.dto";
 import { InjectRepository } from "@nestjs/typeorm";
 import { PlanEntity } from "../../database/entities/plan.entity";
-import { Repository, MoreThanOrEqual, LessThanOrEqual } from "typeorm";
+import {
+  Repository,
+  MoreThanOrEqual,
+  LessThanOrEqual,
+  IsNull,
+  Not,
+} from "typeorm";
 import { ActivatePlanDto } from "./dto/activate-plan.dto";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
 import { StudentEntity } from "../../database/entities/student.entity";
 import { MollieService } from "./mollie.service";
 import { PaymentEntity } from "../../database/entities/payment.entity";
 import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
-import { PlanTypeEnum } from "@core/enums/plan.enum";
+import { PlanSubjectTypeEnum, PlanTypeEnum } from "@core/enums/plan.enum";
 import { PlanDurationEntity } from "../../database/entities/plan-duration.entity";
 
 @Injectable()
@@ -117,7 +123,13 @@ export class PlansService {
     });
   }
 
-  async findAll(page: number, limit: number, sortBy: string, yearly: boolean) {
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    yearly: boolean,
+    subjectType: PlanSubjectTypeEnum
+  ) {
     const [data, total] = await this.planRepository.findAndCount({
       relationLoadStrategy: "join",
       relations: ["features", "durations", "subject"],
@@ -125,6 +137,8 @@ export class PlansService {
         durations: {
           durationInMonths: yearly ? MoreThanOrEqual(12) : LessThanOrEqual(2),
         },
+        subject:
+          subjectType === PlanSubjectTypeEnum.all ? IsNull() : Not(IsNull()),
       },
       take: limit,
       skip: page * limit || 0,

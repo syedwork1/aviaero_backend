@@ -3,3 +3,8 @@ export enum PlanTypeEnum {
   SUBJECT = "SUBJECT",
   PRODUCT = "PRODUCT",
 }
+
+export enum PlanSubjectTypeEnum {
+  all = "ALL",
+  individual = "INDIVIDUAL",
+}
