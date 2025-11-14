@@ -120,7 +120,7 @@ export class PlansService {
   async findAll(page: number, limit: number, sortBy: string, query: string) {
     const [data, total] = await this.planRepository.findAndCount({
       relationLoadStrategy: "join",
-      relations: ["features"],
+      relations: ["features", "durations", "subject"],
       ...(query ? { where: { name: ILike(`%${query}%`) } } : {}),
       take: limit,
       skip: page * limit || 0,
@@ -218,6 +218,8 @@ export class PlansService {
       throw new NotFoundException(`Plan with id ${id} not found`);
     }
     await this.planFeatureRepository.delete({ plan: { id } });
-    return this.planRepository.delete({ id });
+    await this.planDurationRepository.delete({ plan: { id } });
+    await this.planRepository.delete({ id });
+    return "Plan deleted successfully";
   }
 }
