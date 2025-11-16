@@ -5,7 +5,8 @@ import { PlanEntity } from "./plan.entity";
 import { UserEntity } from "./user.entity";
 import { PaymentEntity } from "./payment.entity";
 import { PlanDurationEntity } from "./plan-duration.entity";
-import { SubjectEntity } from "./subject.entity";
+import { CourceEntity } from "./cource.entity";
+
 @Entity()
 export class SubscriptionEntity extends AppBaseEntity {
   @ManyToOne(() => PlanEntity)
@@ -16,9 +17,9 @@ export class SubscriptionEntity extends AppBaseEntity {
   @JoinColumn()
   duration: PlanDurationEntity;
 
-  @ManyToOne(() => SubjectEntity)
+  @ManyToOne(() => CourceEntity)
   @JoinColumn()
-  subject: SubjectEntity;
+  subject: CourceEntity;
 
   @ManyToOne(() => UserEntity, (student) => student.subscription)
   @JoinColumn()
