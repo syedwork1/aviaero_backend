@@ -1,10 +1,24 @@
 import { Request } from "express";
 import { SubscriptionEntity } from "../../database/entities/subscription.entity";
-import { UserEntity } from "../../database/entities/user.entity";
 import { PlanEntity } from "../../database/entities/plan.entity";
+import { Role } from "@core/enums/role.enum";
+
+export interface IPlanFeature {
+  limit: number;
+  limited: boolean;
+  name: string;
+}
+
+export interface IJWTPayload {
+  name: string;
+  email: string;
+  userId: string;
+  role: Role;
+}
 
 export type RequestWithUser = Request & {
-  user: UserEntity;
+  user: IJWTPayload;
   subscription: SubscriptionEntity;
   plan: PlanEntity;
+  requiredFeature?: IPlanFeature;
 };

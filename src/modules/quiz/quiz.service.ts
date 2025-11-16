@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../database/entities/question.entity";
 import { Repository } from "typeorm";
@@ -9,7 +13,7 @@ import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 import { QuizType } from "./quiz.enum";
 import { Role } from "@core/enums/role.enum";
 import { CategoryEntity } from "../../database/entities/category.entity";
-import { RequestWithUser } from "@core/types/RequestWithUser";
+import { IPlanFeature, RequestWithUser } from "@core/types/RequestWithUser";
 
 @Injectable()
 export class QuizService {
@@ -123,6 +127,9 @@ export class QuizService {
   }
 
   async start(quizData: StartQuizDto, req: RequestWithUser) {
+    if (!(await this.canStartQuiz(req.requiredFeature, req.user.userId))) {
+      throw new ForbiddenException("Resource allowed limit reached");
+    }
     const { categoryId, studentId, questions: noOfQuestion } = quizData;
     const startedAt: Date = new Date();
     const quizEntity = this.quizRepository.create({
@@ -342,5 +349,19 @@ export class QuizService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  async canStartQuiz(requiredFeature: IPlanFeature, userId: string) {
+    if (!requiredFeature.limited) {
+      return true;
+    }
+    const userQuizCount = await this.quizRepository.count({
+      where: { student: { id: userId } },
+    });
+    if (userQuizCount < requiredFeature.limit) {
+      return true;
+    }
+
+    return false;
   }
 }

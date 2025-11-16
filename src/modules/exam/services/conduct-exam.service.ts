@@ -1,13 +1,17 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../../database/entities/question.entity";
-import { Repository } from "typeorm";
+import { In, Repository } from "typeorm";
 import { QuizEntity } from "../../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../../database/entities/quiz-answer.entity";
 import { QuizStatus } from "@core/enums/quiz.enum";
 import { ExamEntity } from "../../../database/entities/exam.entity";
 import { CategoryEntity } from "../../../database/entities/category.entity";
-import { RequestWithUser } from "@core/types/RequestWithUser";
+import { IPlanFeature, RequestWithUser } from "@core/types/RequestWithUser";
 import { FinishExamDto, StartExamDto, SubmitExamAnswerDto } from "../exam.dto";
 
 @Injectable()
@@ -64,13 +68,22 @@ export class ConductExamService {
   }
 
   async start(quizData: StartExamDto, req: RequestWithUser) {
-    const { studentId, examId } = quizData;
+    if (
+      !(await this.canStartExam(
+        req.requiredFeature,
+        req.user.userId,
+        quizData.examId
+      ))
+    ) {
+      throw new ForbiddenException("Resource allowed limit reached");
+    }
+    const { examId } = quizData;
     const startedAt: Date = new Date();
 
     const quizEntity = this.quizRepository.create({
       startedAt,
       isPractice: false,
-      student: { id: studentId },
+      student: { id: req.user.userId },
       status: QuizStatus.INPROGRESS,
       exam: { id: examId },
     });
@@ -226,5 +239,36 @@ export class ConductExamService {
     } catch (error) {
       throw new BadRequestException(error.message);
     }
+  }
+
+  async canStartExam(
+    requiredFeature: IPlanFeature,
+    userId: string,
+    examId: string
+  ) {
+    if (!requiredFeature.limited) {
+      return true;
+    }
+    const subjectExam = await this.examRepository.findOne({
+      where: { id: examId },
+      relationLoadStrategy: "join",
+      relations: ["course"],
+    });
+    console.log(subjectExam);
+    const subjectExams = await this.examRepository.find({
+      where: { course: { id: subjectExam.course.id } },
+    });
+    const userExamCount = await this.quizRepository.count({
+      where: {
+        student: { id: userId },
+        exam: { id: In(subjectExams.map((e) => e.id)) },
+      },
+    });
+    console.log(userExamCount, "userExamCount");
+    if (userExamCount < requiredFeature.limit) {
+      return true;
+    }
+
+    return false;
   }
 }
