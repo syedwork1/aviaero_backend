@@ -18,8 +18,14 @@ import {
   Req,
 } from "@nestjs/common";
 import { ExamService } from "../services/exam.service";
-import { CreateExamDto } from "../dto/create-exam.dto";
-import { UpdateExamDto } from "../dto/update-exam.dto";
+import {
+  CreateExamDto,
+  UpdateExamDto,
+  BulkUploadExamDto,
+  StartExamDto,
+  SubmitExamAnswerDto,
+  FinishExamDto,
+} from "../exam.dto";
 import {
   ApiBody,
   ApiTags,
@@ -33,15 +39,19 @@ import { Roles } from "@core/decorators/roles.decorator";
 import { Role } from "@core/enums/role.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ExamBulkCreationService } from "../services/bulk.service";
-import { BulkUploadExamDto } from "../dto/upload-exam.dto";
 import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
+import { RequireFeature } from "@core/decorators/feature-require.decorator";
+import { FeaturesListEnum } from "@core/enums/features.enum";
+import { RequestWithUser } from "@core/types/RequestWithUser";
+import { ConductExamService } from "../services/conduct-exam.service";
 
 @ApiTags("exam")
 @Controller("exam")
 export class ExamController {
   constructor(
     private readonly examService: ExamService,
-    private readonly bulkService: ExamBulkCreationService
+    private readonly bulkService: ExamBulkCreationService,
+    private readonly conductExamService: ConductExamService
   ) {}
 
   @ApiBearerAuth("authorization")
@@ -163,5 +173,28 @@ export class ExamController {
     @Body() { courseId }: BulkUploadExamDto
   ) {
     return this.bulkService.bulkCreation(file, courseId);
+  }
+
+  @ApiBearerAuth("authorization")
+  @Roles(Role.STUDENT)
+  @RequireFeature(FeaturesListEnum.examLimit)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
+  @Post("start")
+  start(@Body() body: StartExamDto, @Request() req: RequestWithUser) {
+    return this.conductExamService.start(body, req);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard)
+  @Post("submit-answer")
+  submitAnswer(@Body() body: SubmitExamAnswerDto) {
+    return this.conductExamService.submitAnswer(body);
+  }
+
+  @ApiBearerAuth("authorization")
+  @UseGuards(JwtAuthGuard)
+  @Post("finish")
+  finish(@Body() body: FinishExamDto) {
+    return this.conductExamService.finish(body);
   }
 }

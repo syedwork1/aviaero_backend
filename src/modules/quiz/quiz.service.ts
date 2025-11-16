@@ -1,12 +1,11 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../database/entities/question.entity";
-import { In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { QuizEntity } from "../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
 import { QuizStatus } from "@core/enums/quiz.enum";
 import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
-import { ExamEntity } from "../../database/entities/exam.entity";
 import { QuizType } from "./quiz.enum";
 import { Role } from "@core/enums/role.enum";
 import { CategoryEntity } from "../../database/entities/category.entity";
@@ -23,9 +22,6 @@ export class QuizService {
 
     @InjectRepository(QuizAnswerEntity)
     private readonly quizAnswerRepository: Repository<QuizAnswerEntity>,
-
-    @InjectRepository(ExamEntity)
-    private readonly examRepository: Repository<ExamEntity>,
 
     @InjectRepository(CategoryEntity)
     private readonly categoryRepository: Repository<CategoryEntity>
@@ -84,7 +80,7 @@ export class QuizService {
 
     return results.map((r) => ({
       ...r,
-      exam: r?.exam ?? "Practice",
+      exam: "Practice",
       marks: {
         total: r.total * 10,
         gained: r?.correct * 10,
@@ -127,47 +123,16 @@ export class QuizService {
   }
 
   async start(quizData: StartQuizDto, req: RequestWithUser) {
-    const { categoryId, studentId, examId, questions: noOfQuestion } = quizData;
-    const isPractice = !Boolean(examId);
-
+    const { categoryId, studentId, questions: noOfQuestion } = quizData;
     const startedAt: Date = new Date();
     const quizEntity = this.quizRepository.create({
       startedAt,
-      isPractice,
+      isPractice: true,
       student: { id: studentId },
       status: QuizStatus.INPROGRESS,
-      ...(categoryId ? { category: { id: categoryId } } : {}),
-      ...(examId ? { exam: { id: examId } } : {}),
+      category: { id: categoryId },
     });
-    if (examId) {
-      let exam: ExamEntity | null;
-      exam = await this.examRepository.findOne({
-        where: { id: examId },
-        select: {
-          questions: {
-            id: true,
-            question: true,
-            option_A: true,
-            option_B: true,
-            option_C: true,
-            option_D: true,
-          },
-        },
-        relations: ["CBR_chapters", "questions"],
-      });
-      const quiz = await this.quizRepository.save(quizEntity);
-      return {
-        questions: exam?.questions,
-        startedAt,
-        isPractice,
-        categoryId,
-        quizId: quiz.id,
-      };
-    }
     const quiz = await this.quizRepository.save(quizEntity);
-    if (!categoryId) {
-      throw new BadRequestException("category id is required");
-    }
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
@@ -187,10 +152,15 @@ export class QuizService {
     const quizQuestion = questions.map((question) =>
       this.quizAnswerRepository.create({ question, quiz })
     );
-
     await this.quizAnswerRepository.save(quizQuestion);
 
-    return { questions, startedAt, isPractice, categoryId, quizId: quiz.id };
+    return {
+      questions,
+      startedAt,
+      isPractice: true,
+      categoryId,
+      quizId: quiz.id,
+    };
   }
 
   async continue(quizId: string) {
@@ -202,7 +172,7 @@ export class QuizService {
     if (!quiz) {
       throw new BadRequestException(`Quiz with id ${quizId} not found`);
     }
-    if (quiz.exam) {
+    if (!quiz.isPractice) {
       throw new BadRequestException(`Exam cannot be resumed!`);
     }
     if (
@@ -269,76 +239,52 @@ export class QuizService {
   }
 
   async submitAnswer(answerData: SubmitQuizAnswerDto) {
-    try {
-      const { questionId, quizId, selectedAnswer } = answerData;
-      const quiz = await this.quizRepository.findOne({ where: { id: quizId } });
-      if (!quiz) {
-        throw new BadRequestException(`Quiz with id ${quizId} not found`);
-      }
-      if (!quiz.isPractice) {
-        if (
-          (quiz.exam && quiz.status === QuizStatus.COMPLETED) ||
-          quiz.status === QuizStatus.TIMEOUT
-        ) {
-          throw new BadRequestException(`Quiz already ${quiz.status}!`);
-        }
+    const { questionId, quizId, selectedAnswer } = answerData;
+    const quiz = await this.quizRepository.findOne({ where: { id: quizId } });
+    if (!quiz) {
+      throw new BadRequestException(`Quiz with id ${quizId} not found`);
+    }
+    const question = await this.questionRepository.findOne({
+      where: { id: questionId },
+    });
+    if (!question) {
+      throw new BadRequestException(`Question with id ${quizId} not found`);
+    }
 
-        if (!this.isWithin60Min(quiz.startedAt)) {
-          await this.quizRepository.update(
-            { id: quizId },
-            { status: QuizStatus.TIMEOUT }
-          );
-          throw new BadRequestException("Quiz timeout!");
-        }
-      }
-      const question = await this.questionRepository.findOne({
-        where: { id: questionId },
+    const existedAnswer = await this.quizAnswerRepository.findOne({
+      where: { question: { id: questionId }, quiz: { id: quizId } },
+    });
+
+    if (existedAnswer) {
+      await this.quizAnswerRepository.update(
+        { question: { id: questionId }, quiz: { id: quizId } },
+        { selectedAnswer }
+      );
+    } else {
+      await this.quizAnswerRepository.save({
+        question,
+        selectedAnswer,
+        quiz: { id: quizId },
       });
-      if (!question) {
-        throw new BadRequestException(`Question with id ${quizId} not found`);
-      }
-
-      const existedAnswer = await this.quizAnswerRepository.findOne({
-        where: { question: { id: questionId }, quiz: { id: quizId } },
-      });
-
-      if (existedAnswer) {
-        await this.quizAnswerRepository.update(
-          { question: { id: questionId }, quiz: { id: quizId } },
-          { selectedAnswer }
-        );
-      } else {
-        await this.quizAnswerRepository.save({
-          question,
-          selectedAnswer,
-          quiz: { id: quizId },
-        });
-      }
-      if (selectedAnswer === "SKIPPED") {
-        return {
-          skipped: true,
-          isCorrect: null,
-          correctAnswer: null,
-          explaination: null,
-          questionId,
-        };
-      }
-
+    }
+    if (selectedAnswer === "SKIPPED") {
       return {
-        skipped: false,
-        isCorrect: selectedAnswer === question.correct_answer,
-        correctAnswer: question.correct_answer,
-        explaination: question.explanation,
+        skipped: true,
+        isCorrect: null,
+        correctAnswer: null,
+        explaination: null,
         questionId,
       };
-    } catch (error) {
-      throw new BadRequestException(error.message);
     }
-  }
 
-  isWithin60Min = (date: Date | string): boolean => {
-    return Date.now() - new Date(date).getTime() <= 60 * 60 * 1000;
-  };
+    return {
+      skipped: false,
+      isCorrect: selectedAnswer === question.correct_answer,
+      correctAnswer: question.correct_answer,
+      explaination: question.explanation,
+      questionId,
+    };
+  }
 
   async finish(quizData: FinishQuizDto) {
     try {

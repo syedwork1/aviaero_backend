@@ -10,6 +10,9 @@ import { CategoryModule } from "../category/category.module";
 import { ExamBulkCreationService } from "./services/bulk.service";
 import { CategoryEntity } from "../../database/entities/category.entity";
 import { QuestionReportEntity } from "../../database/entities/question-report.entity";
+import { ConductExamService } from "./services/conduct-exam.service";
+import { QuizEntity } from "../../database/entities/quiz.entity";
+import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
 
 @Module({
   imports: [
@@ -18,12 +21,19 @@ import { QuestionReportEntity } from "../../database/entities/question-report.en
       QuestionsEntity,
       CategoryEntity,
       QuestionReportEntity,
+      QuizEntity,
+      QuizAnswerEntity,
     ]),
     ConfigModule,
     CategoryModule,
   ],
 
   controllers: [ExamController],
-  providers: [ExamService, QuestionsService, ExamBulkCreationService],
+  providers: [
+    ExamService,
+    QuestionsService,
+    ExamBulkCreationService,
+    ConductExamService,
+  ],
 })
 export class ExamModule {}

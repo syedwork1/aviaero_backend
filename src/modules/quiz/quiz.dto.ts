@@ -11,12 +11,7 @@ import { ApiProperty } from "@nestjs/swagger";
 export class StartQuizDto {
   @ApiProperty()
   @IsString()
-  @IsOptional()
-  examId: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsOptional()
+  @IsNotEmpty()
   categoryId: string;
 
   @ApiProperty()

@@ -1,12 +1,7 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  BadRequestException,
-} from "@nestjs/common";
-import { CreateExamDto } from "../dto/create-exam.dto";
-import { UpdateExamDto } from "../dto/update-exam.dto";
+import { Injectable } from "@nestjs/common";
+import { CreateExamDto, UpdateExamDto } from "../exam.dto";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Any, In, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { ExamEntity } from "../../../database/entities/exam.entity";
 import { CategoryEntity } from "../../../database/entities/category.entity";
 
