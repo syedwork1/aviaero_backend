@@ -154,11 +154,6 @@ export class PlansService {
     return {
       data: data.map((plan) => {
         const { durations, type, ...rest } = plan;
-        if (type && type === PlanTypeEnum.SUBJECT) {
-          const { name, limit } = plan.features[0];
-          delete plan.features;
-          return { subjectId: name, duration: durations[0], type, ...rest };
-        }
         return { duration: durations[0], type, ...rest };
       }),
       total,

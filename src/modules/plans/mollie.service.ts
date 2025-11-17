@@ -84,7 +84,6 @@ export class MollieService {
         { id: payment.id },
         {
           status: molliePaymentData?.status,
-          subscription: { id: subscription.id },
         }
       );
       await this.emailService.sendSubscriptionConfirmationEmail(

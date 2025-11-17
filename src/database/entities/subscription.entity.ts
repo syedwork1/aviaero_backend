@@ -25,7 +25,7 @@ export class SubscriptionEntity extends AppBaseEntity {
   @JoinColumn()
   user: UserEntity;
 
-  @OneToOne(() => PaymentEntity, (payment) => payment.subscription)
+  @OneToOne(() => PaymentEntity)
   @JoinColumn()
   payment: PaymentEntity;
 

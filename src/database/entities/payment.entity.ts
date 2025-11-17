@@ -15,9 +15,6 @@ export class PaymentEntity extends AppBaseEntity {
   @ManyToOne(() => UserEntity)
   user: UserEntity;
 
-  @ManyToOne(() => SubscriptionEntity)
-  subscription: SubscriptionEntity;
-
   @ManyToOne(() => PlanEntity)
   plan: PlanEntity;
 
