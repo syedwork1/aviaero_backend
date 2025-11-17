@@ -8,6 +8,10 @@ import { PlansService } from "../../modules/plans/plans.service";
 import { Role } from "@core/enums/role.enum";
 import { Reflector } from "@nestjs/core";
 import { REQUIRE_FEATURE_KEY } from "@core/decorators/feature-require.decorator";
+import {
+  SUBSCRIPTION_EXPIRED,
+  SUBSCRIPTION_REQUIRED,
+} from "@core/constants/errors";
 
 @Injectable()
 export class SubscriptionGuard implements CanActivate {
@@ -22,13 +26,9 @@ export class SubscriptionGuard implements CanActivate {
       context.getHandler()
     );
 
-    if (!requiredFeatureCode) return true;
-
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    const { userId, role } = user;
-
-    if (role && role === Role.ADMIN) return true;
+    const { userId } = user;
 
     if (!userId) {
       throw new ForbiddenException("User id not found!");
@@ -37,30 +37,16 @@ export class SubscriptionGuard implements CanActivate {
     const subscription = await this.planService.getUserSubscription(userId);
 
     if (!subscription) {
-      throw new ForbiddenException(
-        "You don't have subscription to access this feature!"
-      );
+      throw new ForbiddenException(SUBSCRIPTION_REQUIRED);
     }
 
     if (subscription.expireAt < new Date()) {
-      throw new ForbiddenException("Subscription expired!");
-    }
-
-    const requiredFeature = subscription.plan.features.find(
-      (feature) => feature.name === requiredFeatureCode
-    );
-
-    if (!requiredFeature) {
-      throw new ForbiddenException("Resource not allowed");
-    }
-
-    if (requiredFeature.limited && !requiredFeature.limit) {
-      throw new ForbiddenException("Resource allowed limit reached");
+      throw new ForbiddenException(SUBSCRIPTION_EXPIRED);
     }
 
     request.subscription = subscription;
     request.plan = subscription.plan;
-    request.requiredFeature = requiredFeature;
+    request.requiredFeature = requiredFeatureCode;
 
     return true;
   }

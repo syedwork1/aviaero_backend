@@ -17,8 +17,13 @@ export class EmailService {
   constructor(private readonly sesService: SESService) {}
 
   private loadTemplate(templateName: string): string {
-    const filePath = join(__dirname, `./templates/${templateName}.html`);
-    return readFileSync(filePath, "utf8");
+    try {
+      const filePath = join(__dirname, `/templates/${templateName}.html`);
+      //this file is not including in dist folder
+      return readFileSync(filePath, "utf8");
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   async sendSubscriptionConfirmationEmail(

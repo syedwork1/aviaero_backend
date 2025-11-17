@@ -38,7 +38,7 @@ export class MollieService {
         value: duration.price,
       },
       description: plan.name,
-      redirectUrl: `${this.configService.get("APP_URL")}/de/subscription/processing?planId=${plan.id}&userId=${userId}`,
+      redirectUrl: `${this.configService.get("APP_URL")}/de/subscription/processing?planId=${plan.id}&durationId=${duration.id}`,
       webhookUrl: `${this.configService.get("APP_URL")}/api/plans/webhook`,
       metadata: {
         planId: plan.id,
@@ -86,17 +86,17 @@ export class MollieService {
           status: molliePaymentData?.status,
         }
       );
-      await this.emailService.sendSubscriptionConfirmationEmail(
-        payment.user.email,
-        {
-          name: `${payment.user.firstName} ${payment.user.lastName}`,
-          plan: payment.plan.name,
-          startDate: subscription.createAt.toLocaleDateString(),
-          endDate: subscription.expireAt.toLocaleDateString(),
-          amount: subscription.duration.price,
-          transactionId: payment.paymentId,
-        }
-      );
+      // await this.emailService.sendSubscriptionConfirmationEmail(
+      //   payment.user.email,
+      //   {
+      //     name: `${payment.user.firstName} ${payment.user.lastName}`,
+      //     plan: payment.plan.name,
+      //     startDate: subscription.createAt.toLocaleDateString(),
+      //     endDate: subscription.expireAt.toLocaleDateString(),
+      //     amount: subscription.duration.price,
+      //     transactionId: payment.paymentId,
+      //   }
+      // );
     }
   }
 }

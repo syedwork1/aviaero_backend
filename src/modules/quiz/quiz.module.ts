@@ -9,6 +9,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AuthModule } from "../auth/auth.module";
 import { ExamEntity } from "../../database/entities/exam.entity";
 import { CategoryEntity } from "../../database/entities/category.entity";
+import { CourceEntity } from "../../database/entities/cource.entity";
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CategoryEntity } from "../../database/entities/category.entity";
       QuizAnswerEntity,
       ExamEntity,
       CategoryEntity,
+      CourceEntity,
     ]),
   ],
   controllers: [QuizController],

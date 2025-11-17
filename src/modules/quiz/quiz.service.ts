@@ -13,7 +13,14 @@ import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
 import { QuizType } from "./quiz.enum";
 import { Role } from "@core/enums/role.enum";
 import { CategoryEntity } from "../../database/entities/category.entity";
-import { IPlanFeature, RequestWithUser } from "@core/types/RequestWithUser";
+import { RequestWithUser } from "@core/types/RequestWithUser";
+import { PlanTypeEnum } from "@core/enums/plan.enum";
+import { CourceEntity } from "../../database/entities/cource.entity";
+import {
+  EXAM_NOT_RESUMED_ERROR,
+  RESOURCE_NOT_ALLOWED_ERROR,
+  RESOURCE_NOT_FOUND,
+} from "@core/constants/errors";
 
 @Injectable()
 export class QuizService {
@@ -28,7 +35,10 @@ export class QuizService {
     private readonly quizAnswerRepository: Repository<QuizAnswerEntity>,
 
     @InjectRepository(CategoryEntity)
-    private readonly categoryRepository: Repository<CategoryEntity>
+    private readonly categoryRepository: Repository<CategoryEntity>,
+
+    @InjectRepository(CourceEntity)
+    private readonly courseRepository: Repository<CourceEntity>
   ) {}
 
   async findAll(
@@ -127,8 +137,8 @@ export class QuizService {
   }
 
   async start(quizData: StartQuizDto, req: RequestWithUser) {
-    if (!(await this.canStartQuiz(req.requiredFeature, req.user.userId))) {
-      throw new ForbiddenException("Resource allowed limit reached");
+    if (!(await this.canStartQuiz(req, quizData.categoryId))) {
+      throw new ForbiddenException(RESOURCE_NOT_ALLOWED_ERROR);
     }
     const { categoryId, studentId, questions: noOfQuestion } = quizData;
     const startedAt: Date = new Date();
@@ -177,10 +187,10 @@ export class QuizService {
       relations: ["answers", "answers.question", "category"],
     });
     if (!quiz) {
-      throw new BadRequestException(`Quiz with id ${quizId} not found`);
+      throw new BadRequestException(RESOURCE_NOT_FOUND);
     }
     if (!quiz.isPractice) {
-      throw new BadRequestException(`Exam cannot be resumed!`);
+      throw new BadRequestException(EXAM_NOT_RESUMED_ERROR);
     }
     if (
       quiz.status === QuizStatus.COMPLETED ||
@@ -351,12 +361,36 @@ export class QuizService {
     }
   }
 
-  async canStartQuiz(requiredFeature: IPlanFeature, userId: string) {
+  async canStartQuiz(req: RequestWithUser, categoryId: string) {
+    const plan = req.plan;
+    if (plan.type === PlanTypeEnum.SUBJECT) {
+      const subjectId = plan.subject.id;
+
+      const subject = await this.courseRepository.findOne({
+        where: { category: { id: categoryId } },
+        relationLoadStrategy: "join",
+        relations: ["course"],
+      });
+
+      if (subject && subject.id === subjectId) {
+        return true;
+      }
+    }
+
+    const requiredFeature = req.plan.features.find(
+      (feature) => feature.name === req.requiredFeature
+    );
+
+    if (!requiredFeature) {
+      return false;
+    }
+
     if (!requiredFeature.limited) {
       return true;
     }
+
     const userQuizCount = await this.quizRepository.count({
-      where: { student: { id: userId } },
+      where: { student: { id: req.user.userId } },
     });
     if (userQuizCount < requiredFeature.limit) {
       return true;

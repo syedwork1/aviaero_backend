@@ -13,6 +13,7 @@ import { ExamEntity } from "../../../database/entities/exam.entity";
 import { CategoryEntity } from "../../../database/entities/category.entity";
 import { IPlanFeature, RequestWithUser } from "@core/types/RequestWithUser";
 import { FinishExamDto, StartExamDto, SubmitExamAnswerDto } from "../exam.dto";
+import { PlanTypeEnum } from "@core/enums/plan.enum";
 
 @Injectable()
 export class ConductExamService {
@@ -68,13 +69,7 @@ export class ConductExamService {
   }
 
   async start(quizData: StartExamDto, req: RequestWithUser) {
-    if (
-      !(await this.canStartExam(
-        req.requiredFeature,
-        req.user.userId,
-        quizData.examId
-      ))
-    ) {
+    if (!(await this.canStartExam(req, quizData.examId))) {
       throw new ForbiddenException("Resource allowed limit reached");
     }
     const { examId } = quizData;
@@ -241,30 +236,44 @@ export class ConductExamService {
     }
   }
 
-  async canStartExam(
-    requiredFeature: IPlanFeature,
-    userId: string,
-    examId: string
-  ) {
+  async canStartExam(req: RequestWithUser, examId: string) {
+    const plan = req.plan;
+    let subjectExam: ExamEntity | null = null;
+    if (plan.type === PlanTypeEnum.SUBJECT) {
+      const subjectId = plan.subject.id;
+
+      subjectExam = await this.examRepository.findOne({
+        where: { id: examId },
+        relationLoadStrategy: "join",
+        relations: ["course"],
+      });
+
+      if (subjectId === subjectExam.course.id) {
+        return true;
+      }
+    }
+
+    const requiredFeature = req.plan.features.find(
+      (feature) => feature.name === req.requiredFeature
+    );
+
+    if (!requiredFeature) {
+      return false;
+    }
+
     if (!requiredFeature.limited) {
       return true;
     }
-    const subjectExam = await this.examRepository.findOne({
-      where: { id: examId },
-      relationLoadStrategy: "join",
-      relations: ["course"],
-    });
-    console.log(subjectExam);
+
     const subjectExams = await this.examRepository.find({
       where: { course: { id: subjectExam.course.id } },
     });
     const userExamCount = await this.quizRepository.count({
       where: {
-        student: { id: userId },
+        student: { id: req.user.userId },
         exam: { id: In(subjectExams.map((e) => e.id)) },
       },
     });
-    console.log(userExamCount, "userExamCount");
     if (userExamCount < requiredFeature.limit) {
       return true;
     }
