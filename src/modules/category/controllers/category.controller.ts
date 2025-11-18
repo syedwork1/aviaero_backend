@@ -12,6 +12,7 @@ import {
   DefaultValuePipe,
   Query,
   ParseIntPipe,
+  Req,
 } from "@nestjs/common";
 import { CategoryService } from "../services/category.service";
 import { CreateCategoryDto } from "../dto/create-category.dto";
@@ -21,6 +22,8 @@ import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/decorators/roles.decorator";
 import { Role } from "@core/enums/role.enum";
+import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 
 @ApiTags("category")
 @Controller("category")
@@ -60,15 +63,23 @@ export class CategoryController {
     required: false,
   })
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit") limit: string,
     @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
-    @Query("query") query: string
+    @Query("query") query: string,
+    @Req() req: RequestWithUser
   ) {
-    return this.categoryService.findAll(undefined, page, limit, sortBy, query);
+    return this.categoryService.findAll(
+      undefined,
+      page,
+      limit,
+      sortBy,
+      query,
+      req
+    );
   }
 
   @ApiBearerAuth("authorization")

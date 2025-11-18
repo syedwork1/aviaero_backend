@@ -10,6 +10,7 @@ import { ILike, In, Repository } from "typeorm";
 import { CourceEntity } from "../../../database/entities/cource.entity";
 import { CategoryService } from "../../category/services/category.service";
 import { CategoryEntity } from "../../../database/entities/category.entity";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 
 @Injectable()
 export class CourcesService {
@@ -37,9 +38,22 @@ export class CourcesService {
     }
   }
 
-  async findAll(page: number, limit: number, sortBy: string, query: string) {
+  async findAll(
+    page: number,
+    limit: number,
+    sortBy: string,
+    query: string,
+    req: RequestWithUser
+  ) {
+    let where: { id?: string; name?: any } = {};
+    if (req?.plan?.subject !== null) {
+      where.id = req.plan.subject.id;
+    }
+    if (query) {
+      where.name = ILike(`%query%`);
+    }
     const [data, total] = await this.courceRepository.findAndCount({
-      ...(query ? { where: { name: ILike(`%query%`) } } : {}),
+      ...(query ? { where } : {}),
       relations: ["category"],
       take: limit ? limit : undefined,
       skip: page * limit,

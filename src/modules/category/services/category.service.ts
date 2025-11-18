@@ -10,6 +10,7 @@ import {
   Repository,
 } from "typeorm";
 import { CategoryEntity } from "../../../database/entities/category.entity";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 
 @Injectable()
 export class CategoryService {
@@ -33,14 +34,18 @@ export class CategoryService {
     page?: number,
     limit?: string,
     sortBy?: string,
-    query?: string
+    query?: string,
+    req: RequestWithUser
   ) {
     let whereObj = {};
     if (where) {
       whereObj = { ...where };
     }
     if (query) {
-      whereObj = { name: ILike(`%${query}%`) };
+      whereObj = { ...whereObj, name: ILike(`%${query}%`) };
+    }
+    if (req?.plan?.subject !== null) {
+      whereObj = { ...whereObj, cource: { id: req.plan.subject.id } };
     }
 
     const [categories, total] =

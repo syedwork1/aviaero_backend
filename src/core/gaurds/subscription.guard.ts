@@ -28,7 +28,9 @@ export class SubscriptionGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest();
     const user = request.user;
-    const { userId } = user;
+    const { userId, role } = user;
+
+    if (role === Role.ADMIN) return true;
 
     if (!userId) {
       throw new ForbiddenException("User id not found!");

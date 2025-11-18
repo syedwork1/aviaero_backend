@@ -13,6 +13,7 @@ import {
   Query,
   DefaultValuePipe,
   ParseIntPipe,
+  Req,
 } from "@nestjs/common";
 import {
   ApiBearerAuth,
@@ -28,6 +29,8 @@ import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { Roles } from "@core/decorators/roles.decorator";
 import { Role } from "@core/enums/role.enum";
+import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 
 @ApiTags("courses")
 @Controller("cources")
@@ -85,15 +88,16 @@ export class CourcesController {
     required: false,
   })
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
   @Get()
   async findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
     @Query("limit", new DefaultValuePipe(0), ParseIntPipe) limit: number,
     @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
-    @Query("query") query: string
+    @Query("query") query: string,
+    @Req() req: RequestWithUser
   ) {
-    return this.courcesService.findAll(page, limit, sortBy, query);
+    return this.courcesService.findAll(page, limit, sortBy, query, req);
   }
 
   @ApiBearerAuth("authorization")
