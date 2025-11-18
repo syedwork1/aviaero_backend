@@ -181,27 +181,20 @@ export class PlansService {
   }
 
   async findOne(id: string) {
-    const plan = await this.planRepository.findOne({
+    return this.planRepository.findOne({
       where: { id },
-      relations: ["features"],
+      relations: ["features", "durations", "subject"],
       relationLoadStrategy: "join",
     });
-
-    if (plan && plan.type === PlanTypeEnum.SUBJECT) {
-      const { name, limit } = plan.features[0];
-      delete plan.features;
-      return { subjectId: name, ...plan };
-    }
-
-    return plan;
   }
 
   async update(id: string, updatePlanDto: UpdatePlanDto) {
-    const { features, ...planData } = updatePlanDto;
+    const { features, durations, ...planData } = updatePlanDto;
 
     const plan = await this.planRepository.findOne({
       where: { id },
-      relations: ["features"],
+      relations: ["features", "durations", "subject"],
+      relationLoadStrategy: "join",
     });
 
     if (!plan) {
@@ -216,13 +209,20 @@ export class PlansService {
       const featureEntities = features.map((f) =>
         this.planFeatureRepository.create({ ...f, plan })
       );
-
       await this.planFeatureRepository.save(featureEntities);
+    }
+
+    if (durations && durations.length > 0) {
+      await this.planDurationRepository.delete({ plan });
+      const durationEntities = durations.map((d) =>
+        this.planDurationRepository.create({ ...d, plan })
+      );
+      await this.planDurationRepository.save(durationEntities);
     }
 
     return this.planRepository.findOne({
       where: { id },
-      relations: ["features"],
+      relations: ["features", "durations", "subject"],
     });
   }
 

@@ -5,7 +5,7 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QuestionsEntity } from "../../../database/entities/question.entity";
-import { In, Repository } from "typeorm";
+import { ILike, In, Repository } from "typeorm";
 import { QuizEntity } from "../../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../../database/entities/quiz-answer.entity";
 import { QuizStatus } from "@core/enums/quiz.enum";
@@ -14,6 +14,7 @@ import { CategoryEntity } from "../../../database/entities/category.entity";
 import { IPlanFeature, RequestWithUser } from "@core/types/RequestWithUser";
 import { FinishExamDto, StartExamDto, SubmitExamAnswerDto } from "../exam.dto";
 import { PlanTypeEnum } from "@core/enums/plan.enum";
+import { RESOURCE_NOT_ALLOWED_ERROR } from "@core/constants/errors";
 
 @Injectable()
 export class ConductExamService {
@@ -70,8 +71,9 @@ export class ConductExamService {
 
   async start(quizData: StartExamDto, req: RequestWithUser) {
     if (!(await this.canStartExam(req, quizData.examId))) {
-      throw new ForbiddenException("Resource allowed limit reached");
+      throw new ForbiddenException(RESOURCE_NOT_ALLOWED_ERROR);
     }
+    const planName = req?.plan?.name?.[0]?.toLocaleLowerCase();
     const { examId } = quizData;
     const startedAt: Date = new Date();
 
@@ -84,7 +86,13 @@ export class ConductExamService {
     });
 
     const exam: ExamEntity = await this.examRepository.findOne({
-      where: { id: examId },
+      where: {
+        id: examId,
+        questions: {
+          is_exam_question: true,
+          ...(planName ? { subscription_level: ILike(planName) } : {}),
+        },
+      },
       select: {
         questions: {
           id: true,
