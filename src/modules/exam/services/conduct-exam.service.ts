@@ -254,12 +254,15 @@ export class ConductExamService {
       relationLoadStrategy: "join",
       relations: ["course"],
     });
+
     if (plan.type === PlanTypeEnum.SUBJECT) {
       const subjectId = plan.subject.id;
 
       if (subjectId === subjectExam.course.id) {
         return true;
       }
+
+      return false;
     }
 
     const requiredFeature = req.plan.features.find(

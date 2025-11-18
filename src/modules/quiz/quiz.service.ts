@@ -369,12 +369,14 @@ export class QuizService {
       const subject = await this.courseRepository.findOne({
         where: { category: { id: categoryId } },
         relationLoadStrategy: "join",
-        relations: ["course"],
+        relations: ["category"],
       });
 
       if (subject && subject.id === subjectId) {
         return true;
       }
+
+      return false;
     }
 
     const requiredFeature = req.plan.features.find(
