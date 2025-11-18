@@ -11,6 +11,7 @@ import { CourceEntity } from "../../../database/entities/cource.entity";
 import { CategoryService } from "../../category/services/category.service";
 import { CategoryEntity } from "../../../database/entities/category.entity";
 import { RequestWithUser } from "@core/types/RequestWithUser";
+import { Role } from "@core/enums/role.enum";
 
 @Injectable()
 export class CourcesService {
@@ -46,7 +47,7 @@ export class CourcesService {
     req: RequestWithUser
   ) {
     let where: { id?: string; name?: any } = {};
-    if (req?.plan?.subject !== null) {
+    if (req.user.role !== Role.ADMIN && req?.plan?.subject !== null) {
       where.id = req.plan.subject.id;
     }
     if (query) {

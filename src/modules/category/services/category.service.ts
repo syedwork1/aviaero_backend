@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import { CategoryEntity } from "../../../database/entities/category.entity";
 import { RequestWithUser } from "@core/types/RequestWithUser";
+import { Role } from "@core/enums/role.enum";
 
 @Injectable()
 export class CategoryService {
@@ -44,7 +45,7 @@ export class CategoryService {
     if (query) {
       whereObj = { ...whereObj, name: ILike(`%${query}%`) };
     }
-    if (req?.plan?.subject !== null) {
+    if (req.user.role !== Role.ADMIN && req?.plan?.subject !== null) {
       whereObj = { ...whereObj, cource: { id: req.plan.subject.id } };
     }
 
