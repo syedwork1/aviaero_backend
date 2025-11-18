@@ -4,6 +4,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { ExamEntity } from "../../../database/entities/exam.entity";
 import { CategoryEntity } from "../../../database/entities/category.entity";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 
 @Injectable()
 export class ExamService {
@@ -31,7 +32,7 @@ export class ExamService {
     sortBy: string,
     query: string,
     subjectId: string,
-    user: any
+    req: RequestWithUser
   ): Promise<{
     data: ExamEntity[];
     total: number;
@@ -39,8 +40,15 @@ export class ExamService {
     limit: number;
     totalPages: number;
   }> {
+    const where: { course?: { id: string } } = {};
+    if (subjectId) {
+      where.course = { id: subjectId };
+    }
+    if (req?.plan?.subject !== null) {
+      where.course = { id: req.plan.subject.id };
+    }
     const [data, total] = await this.examRepository.findAndCount({
-      ...(subjectId ? { where: { course: { id: subjectId } } } : {}),
+      ...(Object.keys(where).length ? { where } : {}),
       relationLoadStrategy: "join",
       relations: ["CBR_chapters", "course"],
       skip: page * limit,

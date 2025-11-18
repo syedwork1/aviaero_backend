@@ -126,7 +126,7 @@ export class ExamController {
     @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
     @Query("subject_id") subjectId: string,
     @Query("query") query: string,
-    @Req() request: any
+    @Req() request: RequestWithUser
   ) {
     return this.examService.findAll(
       page,
@@ -134,7 +134,7 @@ export class ExamController {
       sortBy,
       query,
       subjectId,
-      request.user
+      request
     );
   }
 
