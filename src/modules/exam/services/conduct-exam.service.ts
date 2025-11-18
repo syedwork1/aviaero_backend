@@ -90,7 +90,7 @@ export class ConductExamService {
         id: examId,
         questions: {
           is_exam_question: true,
-          ...(planName && planName !== "g"
+          ...(!req.plan.subject && planName && planName !== "g"
             ? { subscription_level: ILike(planName) }
             : {}),
         },
