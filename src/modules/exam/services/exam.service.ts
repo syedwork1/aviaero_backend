@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { ExamEntity } from "../../../database/entities/exam.entity";
 import { CategoryEntity } from "../../../database/entities/category.entity";
 import { RequestWithUser } from "@core/types/RequestWithUser";
+import { Role } from "@core/enums/role.enum";
 
 @Injectable()
 export class ExamService {
@@ -44,8 +45,8 @@ export class ExamService {
     if (subjectId) {
       where.course = { id: subjectId };
     }
-    if (req?.plan?.subject !== null) {
-      where.course = { id: req.plan.subject.id };
+    if (req.user.role !== Role.ADMIN && req?.plan?.subject !== null) {
+      where.course = { id: req?.plan?.subject?.id };
     }
     const [data, total] = await this.examRepository.findAndCount({
       ...(Object.keys(where).length ? { where } : {}),
