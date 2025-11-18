@@ -35,7 +35,7 @@ export class CategoryService {
     limit?: string,
     sortBy?: string,
     query?: string,
-    req: RequestWithUser
+    req?: RequestWithUser
   ) {
     let whereObj = {};
     if (where) {
