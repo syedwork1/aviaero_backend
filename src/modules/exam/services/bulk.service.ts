@@ -132,11 +132,11 @@ export class ExamBulkCreationService {
         .map((h) => h.toLocaleLowerCase())
         .every((header) => headers.includes(header));
 
-      if (!isValidCsv) {
-        throw new BadRequestException(
-          "Invalid CSV file format. Please upload the correct CSV file."
-        );
-      }
+      // if (!isValidCsv) {
+      //   throw new BadRequestException(
+      //     "Invalid CSV file format. Please upload the correct CSV file."
+      //   );
+      // }
 
       const payload = await this.create(data, courseId);
 
