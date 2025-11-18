@@ -106,6 +106,7 @@ export class ConductExamService {
       relations: ["CBR_chapters", "questions"],
     });
     const quiz = await this.quizRepository.save(quizEntity);
+
     return {
       questions: exam?.questions,
       startedAt,
@@ -246,15 +247,13 @@ export class ConductExamService {
 
   async canStartExam(req: RequestWithUser, examId: string) {
     const plan = req.plan;
-    let subjectExam: ExamEntity | null = null;
+    const subjectExam = await this.examRepository.findOne({
+      where: { id: examId },
+      relationLoadStrategy: "join",
+      relations: ["course"],
+    });
     if (plan.type === PlanTypeEnum.SUBJECT) {
       const subjectId = plan.subject.id;
-
-      subjectExam = await this.examRepository.findOne({
-        where: { id: examId },
-        relationLoadStrategy: "join",
-        relations: ["course"],
-      });
 
       if (subjectId === subjectExam.course.id) {
         return true;
@@ -273,13 +272,13 @@ export class ConductExamService {
       return true;
     }
 
-    const subjectExams = await this.examRepository.find({
+    const examSubject = await this.examRepository.find({
       where: { course: { id: subjectExam.course.id } },
     });
     const userExamCount = await this.quizRepository.count({
       where: {
         student: { id: req.user.userId },
-        exam: { id: In(subjectExams.map((e) => e.id)) },
+        exam: { id: In(examSubject.map((e) => e.id)) },
       },
     });
     if (userExamCount < requiredFeature.limit) {
