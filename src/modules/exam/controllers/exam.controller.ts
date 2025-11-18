@@ -118,7 +118,7 @@ export class ExamController {
     required: false,
   })
   @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
   @Get()
   findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
