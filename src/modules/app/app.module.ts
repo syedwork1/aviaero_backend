@@ -1,6 +1,5 @@
 import { Module } from "@nestjs/common";
 import { AppController } from "./app.controller";
-import { AppService } from "./app.service";
 import { configService } from "../../database/config/db-config.service";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { JwtModule } from "@nestjs/jwt";
@@ -20,6 +19,7 @@ import { PlansModule } from "../plans/plans.module";
 import { FeedbackModule } from "../feedback/feedback.module";
 import { QuizModule } from "../quiz/quiz.module";
 import { SESService } from "@core/providers/ses.service";
+import { DashboardModule } from "../dashboard/dashboard.module";
 
 @Module({
   imports: [
@@ -37,6 +37,7 @@ import { SESService } from "@core/providers/ses.service";
     UploadModule,
     PlansModule,
     FeedbackModule,
+    DashboardModule,
     QuizModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -49,6 +50,6 @@ import { SESService } from "@core/providers/ses.service";
     ConfigModule,
   ],
   controllers: [AppController],
-  providers: [AppService, SESService],
+  providers: [SESService],
 })
 export class AppModule {}

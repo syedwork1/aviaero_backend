@@ -1,34 +1,11 @@
-import { Controller, Get, UseGuards } from "@nestjs/common";
-import { AppService } from "./app.service";
-import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { Role } from "@core/enums/role.enum";
-import { Roles } from "@core/decorators/roles.decorator";
-import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
-import { RolesGuard } from "@core/gaurds/roles.guard";
+import { Controller, Get } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 
-@ApiTags("dashboard")
-@Controller("dashboard")
+@ApiTags("app")
+@Controller("app")
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
   @Get("ping")
   ping() {
     return "pong";
-  }
-
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.ADMIN)
-  @Get()
-  admin() {
-    return this.appService.stats();
-  }
-
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.STUDENT)
-  @Get("student")
-  student() {
-    return this.appService.stats();
   }
 }
