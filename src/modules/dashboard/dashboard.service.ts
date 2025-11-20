@@ -45,12 +45,6 @@ export class DashboardService {
       },
       feedback,
       courseCompletion: [],
-      // {
-      //   three_starts: 4,
-      //   four_stars: 5,
-      //   five_stars: 5,
-      // },
-      // courseCompletion: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 12, 1, 11, 22, 12],
     };
   }
 
@@ -81,9 +75,6 @@ export class DashboardService {
           name: quiz.exam.name,
           passingMarks: quiz.exam.number_of_questions * 10,
           practiceMarks: quiz.answers.reduce((marks, answer) => {
-            console.log(
-              answer.selectedAnswer === answer.question.correct_answer
-            );
             if (answer.selectedAnswer === answer.question.correct_answer) {
               return (marks += 1);
             }
@@ -98,20 +89,21 @@ export class DashboardService {
         exam: totalExams,
         quiz: totalQuizzes,
       },
-      exams: [
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-      ],
+      exams,
+      // [
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      // ],
     };
   }
 }
