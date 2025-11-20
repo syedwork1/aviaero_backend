@@ -148,7 +148,7 @@ export class QuizService {
     const quizEntity = this.quizRepository.create({
       startedAt,
       isPractice: true,
-      student: { id: studentId },
+      student: { id: req.user.userId },
       status: QuizStatus.INPROGRESS,
       category: { id: categoryId },
     });
