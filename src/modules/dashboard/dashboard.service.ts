@@ -55,49 +55,63 @@ export class DashboardService {
   }
 
   async student(req: RequestWithUser) {
-    let totalExam = 0,
-      totalQuizes = 0;
-    const quizes = await this.quizRepository.find({
+    let totalExams = 0,
+      totalQuizzes = 0,
+      totalSubjects = {},
+      exams = [];
+    const quizzes = await this.quizRepository.find({
       where: { student: { id: req.user.userId } },
+      relationLoadStrategy: "join",
+      relations: ["answers", "exam", "exam.course", "answers.question"],
     });
-    for (const quiz of quizes) {
+    for (const quiz of quizzes) {
       if (quiz.isPractice) {
-        totalQuizes += 1;
+        totalQuizzes += 1;
       } else {
-        totalExam += 1;
+        totalExams += 1;
+        if (
+          quiz?.exam?.course?.id &&
+          totalSubjects[quiz?.exam?.course?.id] === undefined
+        ) {
+          totalSubjects[quiz?.exam?.course?.id] = 1;
+        } else if (quiz?.exam?.course?.id) {
+          totalSubjects[quiz?.exam?.course?.id]++;
+        }
+        exams.push({
+          name: quiz.exam.name,
+          passingMarks: quiz.exam.number_of_questions * 10,
+          practiceMarks: quiz.answers.reduce((marks, answer) => {
+            console.log(
+              answer.selectedAnswer === answer.question.correct_answer
+            );
+            if (answer.selectedAnswer === answer.question.correct_answer) {
+              return (marks += 1);
+            }
+            return marks;
+          }, 0),
+        });
       }
     }
-
     return {
-      totalExam,
-      totalQuizes,
+      total: {
+        subject: Object.keys(totalSubjects).length,
+        exam: totalExams,
+        quiz: totalQuizzes,
+      },
+      exams: [
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+        { name: "exam ", passingMarks: 80, practiceMarks: 55 },
+      ],
     };
-    // return {
-    //   total: {
-    //     subject: 1,
-    //     exam: 1,
-    //     quiz: 1,
-    //   },
-    //   courses: [
-    //     { name: "course", progress: 89 },
-    //     { name: "course", progress: 89 },
-    //     { name: "course", progress: 89 },
-    //     { name: "course", progress: 89 },
-    //   ],
-    //   exams: [
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //     { name: "exam ", passingMarks: 80, practiceMarks: 55 },
-    //   ],
-    // };
   }
 }
