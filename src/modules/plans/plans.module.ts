@@ -14,6 +14,8 @@ import { PlanFeatureEntity } from "../../database/entities/plan-feature.entity";
 import { EmailService } from "./email.service";
 import { SESService } from "@core/providers/ses.service";
 import { PlanDurationEntity } from "../../database/entities/plan-duration.entity";
+import { PlansUsageService } from "./plan-usage.service";
+import { PlanUsageEntity } from "../../database/entities/plan-usage.entity";
 
 @Global()
 @Module({
@@ -25,13 +27,20 @@ import { PlanDurationEntity } from "../../database/entities/plan-duration.entity
       SubscriptionEntity,
       StudentEntity,
       PaymentEntity,
+      PlanUsageEntity,
     ]),
     forwardRef(() => AuthModule),
     ConfigModule,
     CourcesModule,
   ],
   controllers: [PlansController],
-  providers: [PlansService, MollieService, EmailService, SESService],
-  exports: [PlansService],
+  providers: [
+    PlansService,
+    MollieService,
+    EmailService,
+    SESService,
+    PlansUsageService,
+  ],
+  exports: [PlansService, PlansUsageService],
 })
 export class PlansModule {}

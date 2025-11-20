@@ -13,6 +13,8 @@ import { QuestionReportEntity } from "../../database/entities/question-report.en
 import { ConductExamService } from "./services/conduct-exam.service";
 import { QuizEntity } from "../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
+import { PlanUsageEntity } from "../../database/entities/plan-usage.entity";
+import { PlansUsageService } from "../plans/plan-usage.service";
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
       QuestionReportEntity,
       QuizEntity,
       QuizAnswerEntity,
+      PlanUsageEntity,
     ]),
     ConfigModule,
     CategoryModule,
@@ -34,6 +37,7 @@ import { QuizAnswerEntity } from "../../database/entities/quiz-answer.entity";
     QuestionsService,
     ExamBulkCreationService,
     ConductExamService,
+    PlansUsageService,
   ],
 })
 export class ExamModule {}

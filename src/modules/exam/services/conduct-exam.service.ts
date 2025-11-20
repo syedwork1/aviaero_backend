@@ -10,11 +10,11 @@ import { QuizEntity } from "../../../database/entities/quiz.entity";
 import { QuizAnswerEntity } from "../../../database/entities/quiz-answer.entity";
 import { QuizStatus } from "@core/enums/quiz.enum";
 import { ExamEntity } from "../../../database/entities/exam.entity";
-import { CategoryEntity } from "../../../database/entities/category.entity";
-import { IPlanFeature, RequestWithUser } from "@core/types/RequestWithUser";
+import { RequestWithUser } from "@core/types/RequestWithUser";
 import { FinishExamDto, StartExamDto, SubmitExamAnswerDto } from "../exam.dto";
 import { PlanTypeEnum } from "@core/enums/plan.enum";
 import { RESOURCE_NOT_ALLOWED_ERROR } from "@core/constants/errors";
+import { PlansUsageService } from "../../../modules/plans/plan-usage.service";
 
 @Injectable()
 export class ConductExamService {
@@ -31,8 +31,7 @@ export class ConductExamService {
     @InjectRepository(ExamEntity)
     private readonly examRepository: Repository<ExamEntity>,
 
-    @InjectRepository(CategoryEntity)
-    private readonly categoryRepository: Repository<CategoryEntity>
+    private readonly planUsageService: PlansUsageService
   ) {}
 
   getQuiz(quizId: string) {
@@ -108,6 +107,7 @@ export class ConductExamService {
       relations: ["CBR_chapters", "questions"],
     });
     const quiz = await this.quizRepository.save(quizEntity);
+    await this.planUsageService.increment(req.user.userId, req.requiredFeature);
 
     return {
       questions: exam?.questions,

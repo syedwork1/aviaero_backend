@@ -52,7 +52,8 @@ export class DashboardService {
     let totalExams = 0,
       totalQuizzes = 0,
       totalSubjects = {},
-      exams = [];
+      exams = [],
+      quizzesMarks = [];
     const quizzes = await this.quizRepository.find({
       where: { student: { id: req.user.userId } },
       relationLoadStrategy: "join",
@@ -61,6 +62,15 @@ export class DashboardService {
     for (const quiz of quizzes) {
       if (quiz.isPractice) {
         totalQuizzes += 1;
+        quizzesMarks.push({
+          passingMarks: quiz.answers.length * 10,
+          practiceMarks: quiz.answers.reduce((marks, answer) => {
+            if (answer.selectedAnswer === answer.question.correct_answer) {
+              return (marks += 10);
+            }
+            return marks;
+          }, 0),
+        });
       } else {
         totalExams += 1;
         if (
@@ -76,7 +86,7 @@ export class DashboardService {
           passingMarks: quiz.exam.number_of_questions * 10,
           practiceMarks: quiz.answers.reduce((marks, answer) => {
             if (answer.selectedAnswer === answer.question.correct_answer) {
-              return (marks += 1);
+              return (marks += 10);
             }
             return marks;
           }, 0),
@@ -90,6 +100,7 @@ export class DashboardService {
         quiz: totalQuizzes,
       },
       exams,
+      quizzes: quizzesMarks,
       // [
       //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
       //   { name: "exam ", passingMarks: 80, practiceMarks: 55 },
