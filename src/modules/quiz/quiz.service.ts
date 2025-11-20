@@ -21,6 +21,7 @@ import {
   RESOURCE_NOT_ALLOWED_ERROR,
   RESOURCE_NOT_FOUND,
 } from "@core/constants/errors";
+import { PlansUsageService } from "../plans/plan-usage.service";
 
 @Injectable()
 export class QuizService {
@@ -38,7 +39,9 @@ export class QuizService {
     private readonly categoryRepository: Repository<CategoryEntity>,
 
     @InjectRepository(CourceEntity)
-    private readonly courseRepository: Repository<CourceEntity>
+    private readonly courseRepository: Repository<CourceEntity>,
+
+    private readonly planUsageRepository: PlansUsageService
   ) {}
 
   async findAll(
@@ -170,6 +173,10 @@ export class QuizService {
       this.quizAnswerRepository.create({ question, quiz })
     );
     await this.quizAnswerRepository.save(quizQuestion);
+    await this.planUsageRepository.increment(
+      req.user.userId,
+      req.requiredFeature
+    );
 
     return {
       questions,
@@ -391,9 +398,10 @@ export class QuizService {
       return true;
     }
 
-    const userQuizCount = await this.quizRepository.count({
-      where: { student: { id: req.user.userId } },
-    });
+    const userQuizCount = await this.planUsageRepository.currentUsage(
+      req.user.userId,
+      req.requiredFeature
+    );
     if (userQuizCount < requiredFeature.limit) {
       return true;
     }

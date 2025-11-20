@@ -9,6 +9,7 @@ import { SubscriptionEntity } from "../../database/entities/subscription.entity"
 import { EmailService } from "./email.service";
 import { PlanDurationEntity } from "../../database/entities/plan-duration.entity";
 import { PlanTypeEnum } from "@core/enums/plan.enum";
+import { PlansUsageService } from "./plan-usage.service";
 
 @Injectable()
 export class MollieService {
@@ -20,7 +21,8 @@ export class MollieService {
     @InjectRepository(SubscriptionEntity)
     private readonly subscriptionRepository: Repository<SubscriptionEntity>,
     private readonly configService: ConfigService,
-    private readonly emailService: EmailService
+    private readonly emailService: EmailService,
+    private readonly planUsageService: PlansUsageService
   ) {
     this.mollieClient = createMollieClient({
       apiKey: this.configService.get("MOLLIE_API_KEY"),
@@ -86,6 +88,7 @@ export class MollieService {
           status: molliePaymentData?.status,
         }
       );
+      await this.planUsageService.reset(payment.user.id);
       // await this.emailService.sendSubscriptionConfirmationEmail(
       //   payment.user.email,
       //   {

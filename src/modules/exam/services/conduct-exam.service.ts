@@ -277,15 +277,10 @@ export class ConductExamService {
       return true;
     }
 
-    const examSubject = await this.examRepository.find({
-      where: { course: { id: subjectExam.course.id } },
-    });
-    const userExamCount = await this.quizRepository.count({
-      where: {
-        student: { id: req.user.userId },
-        exam: { id: In(examSubject.map((e) => e.id)) },
-      },
-    });
+    const userExamCount = await this.planUsageService.currentUsage(
+      req.user.userId,
+      req.requiredFeature
+    );
     if (userExamCount < requiredFeature.limit) {
       return true;
     }
