@@ -192,7 +192,7 @@ export class PlansService {
   }
 
   async update(id: string, updatePlanDto: UpdatePlanDto) {
-    const { features, durations, ...planData } = updatePlanDto;
+    const { features, durations, subjectId, ...planData } = updatePlanDto;
 
     const plan = await this.planRepository.findOne({
       where: { id },
@@ -205,7 +205,16 @@ export class PlansService {
     }
 
     Object.assign(plan, planData);
-    await this.planRepository.save(plan);
+
+    if (subjectId) {
+      const planEntity = this.planRepository.create({
+        ...plan,
+        subject: { id: subjectId },
+      });
+      await this.planRepository.save(planEntity);
+    } else {
+      await this.planRepository.save(plan);
+    }
 
     if (features && features.length > 0) {
       await this.planFeatureRepository.delete({ plan });
