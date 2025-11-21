@@ -33,7 +33,7 @@ export class CategoryService {
       | FindOptionsWhere<CategoryEntity>
       | FindOptionsWhere<CategoryEntity>[],
     page?: number,
-    limit?: number,
+    limit?: string,
     sortBy?: string,
     query?: string,
     req?: RequestWithUser
@@ -52,8 +52,8 @@ export class CategoryService {
     const [categories, total] =
       await this.categoryEntityRepository.findAndCount({
         ...(Object.keys(whereObj).length ? { where: whereObj } : {}),
-        ...(limit ? { take: limit } : {}),
-        skip: page * limit || 0,
+        ...(limit ? { take: parseInt(limit) } : {}),
+        skip: page * parseInt(limit) || 0,
         order: { [sortBy]: "DESC" },
       });
 
