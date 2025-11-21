@@ -181,11 +181,14 @@ export class PlansService {
   }
 
   async findOne(id: string) {
-    return this.planRepository.findOne({
+    const planEntity = await this.planRepository.findOne({
       where: { id },
       relations: ["features", "durations", "subject"],
       relationLoadStrategy: "join",
     });
+    const plan = { ...planEntity, subjectId: planEntity?.subject?.id };
+    delete plan?.subject;
+    return plan;
   }
 
   async update(id: string, updatePlanDto: UpdatePlanDto) {
