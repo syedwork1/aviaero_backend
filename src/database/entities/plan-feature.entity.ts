@@ -16,7 +16,9 @@ export class PlanFeatureEntity extends AppBaseEntity {
   @Column({ nullable: true })
   limit: number;
 
-  @ManyToOne(() => PlanEntity)
+  @ManyToOne(() => PlanEntity, {
+    onDelete: "SET NULL",
+  })
   @JoinColumn()
   plan: PlanEntity;
 }

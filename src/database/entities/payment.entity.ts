@@ -1,7 +1,6 @@
 import { Column, Entity, ManyToOne } from "typeorm";
 import { AppBaseEntity } from "./base.entity";
 import { UserEntity } from "./user.entity";
-import { SubscriptionEntity } from "./subscription.entity";
 import { PlanEntity } from "./plan.entity";
 import { PlanDurationEntity } from "./plan-duration.entity";
 @Entity()
@@ -12,12 +11,18 @@ export class PaymentEntity extends AppBaseEntity {
   @Column({ nullable: false })
   paymentId: string;
 
-  @ManyToOne(() => UserEntity)
+  @ManyToOne(() => UserEntity, {
+    onDelete: "SET NULL",
+  })
   user: UserEntity;
 
-  @ManyToOne(() => PlanEntity)
+  @ManyToOne(() => PlanEntity, {
+    onDelete: "SET NULL",
+  })
   plan: PlanEntity;
 
-  @ManyToOne(() => PlanDurationEntity)
+  @ManyToOne(() => PlanDurationEntity, {
+    onDelete: "SET NULL",
+  })
   duration: PlanDurationEntity;
 }

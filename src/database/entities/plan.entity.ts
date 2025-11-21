@@ -19,13 +19,19 @@ export class PlanEntity extends AppBaseEntity {
   @Column({ default: PlanTypeEnum.FEATURE })
   type: string;
 
-  @OneToMany(() => PlanFeatureEntity, (feature) => feature.plan)
+  @OneToMany(() => PlanFeatureEntity, (feature) => feature.plan, {
+    onDelete: "SET NULL",
+  })
   features: PlanFeatureEntity[];
 
-  @OneToMany(() => PlanDurationEntity, (plan) => plan.plan)
+  @OneToMany(() => PlanDurationEntity, (plan) => plan.plan, {
+    onDelete: "SET NULL",
+  })
   durations: PlanDurationEntity[];
 
-  @ManyToOne(() => CourceEntity)
+  @ManyToOne(() => CourceEntity, {
+    onDelete: "SET NULL",
+  })
   @JoinColumn()
   subject: CourceEntity;
 }

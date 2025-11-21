@@ -10,7 +10,9 @@ export class PlanDurationEntity extends AppBaseEntity {
   @Column("decimal", { precision: 6, scale: 2, default: 0 })
   price: number;
 
-  @ManyToOne(() => PlanEntity)
+  @ManyToOne(() => PlanEntity, {
+    onDelete: "SET NULL",
+  })
   @JoinColumn()
   plan: PlanEntity;
 }
