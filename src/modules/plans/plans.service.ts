@@ -137,8 +137,10 @@ export class PlansService {
         durations: {
           durationInMonths: yearly ? MoreThanOrEqual(12) : LessThanOrEqual(2),
         },
-        subject:
-          subjectType === PlanSubjectTypeEnum.all ? IsNull() : Not(IsNull()),
+        type:
+          subjectType === PlanSubjectTypeEnum.all
+            ? PlanTypeEnum.FEATURE
+            : PlanTypeEnum.SUBJECT,
       },
       take: limit,
       skip: page * limit || 0,
