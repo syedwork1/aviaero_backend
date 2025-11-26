@@ -128,7 +128,7 @@ export class QuizService {
             limit,
             // sort_by: sortBy,
             result_type: resultType,
-            count: filtered.length,
+            Total: filtered.length,
         };
     }
     // -------------------------------------------------------------------------
