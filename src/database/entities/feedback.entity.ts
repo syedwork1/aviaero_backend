@@ -21,4 +21,8 @@ export class FeedbackEntity extends AppBaseEntity {
   @ManyToOne(() => QuizEntity, (quiz: QuizEntity) => quiz.feedback)
   @JoinColumn()
   quiz: QuizEntity;
+
+ @ManyToOne(() => ExamEntity, { nullable: false })
+ exam: ExamEntity;
 }
+

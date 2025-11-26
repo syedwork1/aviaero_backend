@@ -19,6 +19,7 @@ export class FeedbackService {
       student: { id: createFeedbackDto.studentId },
       quiz: { id: createFeedbackDto.quizId },
     });
+
     return this.feedbackRepository.save(feedback);
   }
 

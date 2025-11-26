@@ -15,7 +15,8 @@ export class CreateFeedbackDto {
   @ApiProperty({ description: "quiz id" })
   @IsString()
   @IsNotEmpty()
-  quizId: string;
+  quizId?: string;
+  examId?: string;
 
   @ApiProperty({ description: "student id" })
   @IsString()

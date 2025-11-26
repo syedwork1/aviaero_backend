@@ -1,20 +1,20 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  UseGuards,
-  Req,
-  Query,
-  DefaultValuePipe,
-  ParseIntPipe,
-  Request,
+    Controller,
+    Get,
+    Post,
+    Body,
+    Param,
+    UseGuards,
+    Req,
+    Query,
+    DefaultValuePipe,
+    ParseIntPipe,
+    Request,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiQuery, ApiTags } from "@nestjs/swagger";
 import { QuizService } from "./quiz.service";
 import { JwtAuthGuard } from "@core/gaurds/jwt-auth.gaurd";
-import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto } from "./quiz.dto";
+import { StartQuizDto, SubmitQuizAnswerDto, FinishQuizDto, ResultQueryDto } from "./quiz.dto";
 import { QuizType } from "./quiz.enum";
 import { RolesGuard } from "@core/gaurds/roles.guard";
 import { SubscriptionGuard } from "@core/gaurds/subscription.guard";
@@ -27,86 +27,101 @@ import { FeaturesListEnum } from "@core/enums/features.enum";
 @ApiTags("quiz")
 @Controller("quiz")
 export class QuizController {
-  constructor(private readonly quizService: QuizService) {}
+    constructor(private readonly quizService: QuizService) {}
 
-  @ApiQuery({
-    name: "page",
-    type: Number,
-    description: "page no",
-    required: false,
-  })
-  @ApiQuery({
-    name: "limit",
-    type: Number,
-    description: "page size",
-    required: false,
-  })
-  @ApiQuery({
-    name: "sort_by",
-    type: String,
-    description: "sort by",
-    required: false,
-  })
-  @ApiQuery({
-    name: "type",
-    enum: QuizType,
-    description: "get quiz type",
-    required: false,
-  })
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  findAll(
-    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
-    @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
-    @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
-    @Query("type") type: string,
-    @Req() req: any
-  ) {
-    return this.quizService.findAll(page, limit, sortBy, type, req.user);
-  }
+    @ApiQuery({
+        name: "page",
+        type: Number,
+        description: "page no",
+        required: false,
+    })
+    @ApiQuery({
+        name: "limit",
+        type: Number,
+        description: "page size",
+        required: false,
+    })
+    // @ApiQuery({
+    //     name: "sort_by",
+    //     type: String,
+    //     description: "sort by",
+    //     required: false,
+    // })
+    @ApiQuery({
+        name: "type",
+        enum: QuizType,
+        description: "get quiz type",
+        required: false,
+    })
+    @ApiBearerAuth("authorization")
+    @UseGuards(JwtAuthGuard)
+    @Get()
+    findAll(
+        @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number,
+        @Query("limit", new DefaultValuePipe(10), ParseIntPipe) limit: number,
+        // @Query("sort_by", new DefaultValuePipe("createAt")) sortBy: string,
+        @Query("type") type: string,
+        @Req() req: any
+    ) {
+        return this.quizService.findAll(page, limit, type, req.user);
+    }
 
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
-  @Get("results")
-  resutls(@Req() req) {
-    return this.quizService.results(req.user);
-  }
+    /**
+     * UPDATED RESULTS API WITH PAGINATION + result_type
+     * result_type:
+     *   true  → exam results
+     *   false → practice results
+     */
+    @ApiBearerAuth("authorization")
+    @UseGuards(JwtAuthGuard)
+    @ApiQuery({ name: "page", required: false, type: Number })
+    @ApiQuery({ name: "limit", required: false, type: Number })
+    // @ApiQuery({ name: "sort_by", required: false, type: String })
+    @ApiQuery({
+        name: "result_type",
+        required: false,
+        enum: ["true", "false"],
+        description: "result_type",
+    })
+    @Get("results")
+    results(@Query() query: ResultQueryDto, @Req() req) {
+        return this.quizService.results(query, req.user);
+    }
 
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
-  @Get(":id")
-  get(@Param("id") quizId: string) {
-    return this.quizService.getQuiz(quizId);
-  }
+    @ApiBearerAuth("authorization")
+    @UseGuards(JwtAuthGuard)
+    @Get(":id")
+    get(@Param("id") quizId: string) {
+        return this.quizService.getQuiz(quizId);
+    }
 
-  @ApiBearerAuth("authorization")
-  @Roles(Role.STUDENT)
-  @RequireFeature(FeaturesListEnum.mockExamLimit)
-  @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
-  @Post("start")
-  start(@Body() body: StartQuizDto, @Request() req: RequestWithUser) {
-    return this.quizService.start(body, req);
-  }
+    @ApiBearerAuth("authorization")
+    @Roles(Role.STUDENT)
+    @RequireFeature(FeaturesListEnum.mockExamLimit)
+    @UseGuards(JwtAuthGuard, RolesGuard, SubscriptionGuard)
+    @Post("start")
+    start(@Body() body: StartQuizDto, @Request() req: RequestWithUser) {
+        return this.quizService.start(body, req);
+    }
 
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
-  @Get("continue/:id")
-  continue(@Param("id") quizId: string) {
-    return this.quizService.continue(quizId);
-  }
+    @ApiBearerAuth("authorization")
+    @UseGuards(JwtAuthGuard)
+    @Get("continue/:id")
+    continue(@Param("id") quizId: string) {
+        return this.quizService.continue(quizId);
+    }
 
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
-  @Post("submit-answer")
-  submitAnswer(@Body() body: SubmitQuizAnswerDto) {
-    return this.quizService.submitAnswer(body);
-  }
+    @ApiBearerAuth("authorization")
+    @UseGuards(JwtAuthGuard)
+    @Post("submit-answer")
+    submitAnswer(@Body() body: SubmitQuizAnswerDto) {
+        return this.quizService.submitAnswer(body);
+    }
 
-  @ApiBearerAuth("authorization")
-  @UseGuards(JwtAuthGuard)
-  @Post("finish")
-  finish(@Body() body: FinishQuizDto) {
-    return this.quizService.finish(body);
-  }
+    @ApiBearerAuth("authorization")
+    @UseGuards(JwtAuthGuard)
+    @Post("finish")
+    finish(@Body() body: FinishQuizDto) {
+        return this.quizService.finish(body);
+    }
 }
