@@ -8,13 +8,13 @@ import { CategoryModule } from "../category/category.module";
 import { CategoryEntity } from "../../database/entities/category.entity";
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([CourceEntity, CategoryEntity]),
-    ConfigModule,
-    CategoryModule,
-  ],
-  controllers: [CourcesController],
-  providers: [CourcesService],
-  exports: [CourcesService],
+    imports: [
+        TypeOrmModule.forFeature([CourceEntity, CategoryEntity]),
+        ConfigModule,
+        CategoryModule,
+    ],
+    controllers: [CourcesController],
+    providers: [CourcesService],
+    exports: [CourcesService],
 })
 export class CourcesModule {}

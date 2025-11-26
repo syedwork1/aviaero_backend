@@ -22,34 +22,34 @@ import { SESService } from "@core/providers/ses.service";
 import { DashboardModule } from "../dashboard/dashboard.module";
 
 @Module({
-  imports: [
-    TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
-    AuthModule,
-    UserModule,
-    QuestionsModule,
-    SchoolsModule,
-    SchoolStudentsModule,
-    CategoryModule,
-    SubjectModule,
-    ExamModule,
-    CourcesModule,
-    StudentsModule,
-    UploadModule,
-    PlansModule,
-    FeedbackModule,
-    DashboardModule,
-    QuizModule,
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => ({
-        secret: configService.get<string>("JWT_SECRET") || "your_jwt_secret",
-        signOptions: { expiresIn: "60m" },
-      }),
-      inject: [ConfigService],
-    }),
-    ConfigModule,
-  ],
-  controllers: [AppController],
-  providers: [SESService],
+    imports: [
+        TypeOrmModule.forRoot(configService.getTypeOrmConfig()),
+        AuthModule,
+        UserModule,
+        QuestionsModule,
+        SchoolsModule,
+        SchoolStudentsModule,
+        CategoryModule,
+        SubjectModule,
+        ExamModule,
+        CourcesModule,
+        StudentsModule,
+        UploadModule,
+        PlansModule,
+        FeedbackModule,
+        DashboardModule,
+        QuizModule,
+        JwtModule.registerAsync({
+            imports: [ConfigModule],
+            useFactory: async (configService: ConfigService) => ({
+                secret: configService.get<string>("JWT_SECRET") || "your_jwt_secret",
+                signOptions: { expiresIn: "60m" },
+            }),
+            inject: [ConfigService],
+        }),
+        ConfigModule,
+    ],
+    controllers: [AppController],
+    providers: [SESService],
 })
 export class AppModule {}

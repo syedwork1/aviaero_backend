@@ -94,7 +94,7 @@ export class ResultQueryDto {
 // }
     @ApiPropertyOptional({
         enum: ["true", "false"],
-        description: "Quiz mode: true = exam, false = practice",
+        description: "Quiz mode: true = practice, false = exam",
         example: "true",
     })
     @IsOptional()
