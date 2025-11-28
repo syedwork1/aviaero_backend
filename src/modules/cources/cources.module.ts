@@ -9,7 +9,7 @@ import { CategoryEntity } from "../../database/entities/category.entity";
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([CourceEntity, CategoryEntity]),
+        TypeOrmModule.forFeature([CourceEntity, CategoryEntity,]),
         ConfigModule,
         CategoryModule,
     ],

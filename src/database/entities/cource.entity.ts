@@ -9,7 +9,9 @@ import {
 import { AppBaseEntity } from "./base.entity";
 import { CourceStatus } from "../../modules/cources/enums/status.enum";
 import { CategoryEntity } from "./category.entity";
-import { ExamEntity } from "./exam.entity";
+
+
+
 
 @Entity()
 export class CourceEntity extends AppBaseEntity {
@@ -28,4 +30,5 @@ export class CourceEntity extends AppBaseEntity {
     @ManyToMany(() => CategoryEntity, (category) => category.cource, {})
     @JoinTable()
     category: CategoryEntity[];
+
 }

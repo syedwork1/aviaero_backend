@@ -63,7 +63,7 @@ export class QuizService {
             // order: { [sortBy]: "DESC" },
         });
 
-        return { data, total, page, limit, };
+        return { data, total, page, limit };
     }
 
     // -------------------------------------------------------------------------
@@ -72,40 +72,39 @@ export class QuizService {
     async results(query: ResultQueryDto, user: any) {
         const page = query.page ?? 0;
         const limit = query.limit ?? 10;
-        // const sortBy = query.sort_by ?? "startedAt";
-        const resultType = query.result_type === "true"; // true=exam, false=practice
-
         const offset = page * limit;
+
+        // Expect query.result_type to be boolean directly
+        const resultType = query.result_type === "true";
 
         const raw = await this.quizRepository.query(
             `
-      SELECT
-          COUNT(qae.id) AS total,
-          SUM(CASE WHEN qae."selectedAnswer" IS NULL OR qae."selectedAnswer" = '' THEN 1 ELSE 0 END) AS skipped,
-          SUM(CASE WHEN qae."selectedAnswer" = qu.correct_answer THEN 1 ELSE 0 END) AS correct,
-          SUM(
-              CASE
-                  WHEN (qae."selectedAnswer" IS NULL OR qae."selectedAnswer" != '')
-                       AND qae."selectedAnswer" != qu.correct_answer THEN 1
-                  ELSE 0
-              END
-          ) AS wrong,
-          ce."name" AS category,
-          ee."name" AS exam,
-          qe."isPractice",
-          qe."startedAt",
-          qe.id
-      FROM quiz_entity qe
-          LEFT JOIN quiz_answer_entity qae ON qe.id = qae."quizId"
-          LEFT JOIN questions_entity qu ON qu.id = qae."questionId"
-          LEFT JOIN category_entity ce ON ce.id = qe."categoryId"
-          LEFT JOIN exam_entity ee ON ee.id = qe."examId"
-      WHERE qe."studentId" = $1
-      GROUP BY ce.name, qe."startedAt", qe."isPractice", qe.id, ee.name
-      
-      LIMIT ${limit}
-      OFFSET ${offset}
-      `,
+    SELECT
+        COUNT(qae.id) AS total,
+        SUM(CASE WHEN qae."selectedAnswer" IS NULL OR qae."selectedAnswer" = '' THEN 1 ELSE 0 END) AS skipped,
+        SUM(CASE WHEN qae."selectedAnswer" = qu.correct_answer THEN 1 ELSE 0 END) AS correct,
+        SUM(
+            CASE
+                WHEN (qae."selectedAnswer" IS NOT NULL AND qae."selectedAnswer" != qu.correct_answer) THEN 1
+                ELSE 0
+            END
+        ) AS wrong,
+        ce."name" AS category,
+        ee."name" AS exam,
+        qe."isPractice",
+        qe."startedAt",
+        qe.id
+    FROM quiz_entity qe
+        LEFT JOIN quiz_answer_entity qae ON qe.id = qae."quizId"
+        LEFT JOIN questions_entity qu ON qu.id = qae."questionId"
+        LEFT JOIN category_entity ce ON ce.id = qe."categoryId"
+        LEFT JOIN exam_entity ee ON ee.id = qe."examId"
+    WHERE qe."studentId" = $1
+    GROUP BY ce.name, qe."startedAt", qe."isPractice", qe.id, ee.name
+    OFFSET ${offset}
+    LIMIT ${limit}
+   
+    `,
             [user.userId]
         );
 
@@ -115,22 +114,21 @@ export class QuizService {
                 total: Number(r.total) * 10,
                 gained: Number(r.correct) * 10,
             },
+            isPractice: r.isPractice === true || r.isPractice === "true", // normalize boolean
         }));
 
-        const filtered = formatted.filter((item) => {
-            const isPractice = item.isPractice === true || item.isPractice === "true";
-            return resultType ? !isPractice : isPractice;
-        });
+        // Filter by the boolean directly
+        const filtered = formatted.filter((item) => item.isPractice === resultType);
 
         return {
             data: filtered,
             page,
             limit,
-            // sort_by: sortBy,
             result_type: resultType,
-            Total: filtered.length,
+            total: filtered.length,
         };
     }
+
     // -------------------------------------------------------------------------
 
     getQuiz(quizId: string) {
@@ -191,7 +189,14 @@ export class QuizService {
 
         const questions = await this.questionRepository.find({
             ...(category ? { where: { CBR_chapter: category.CBR_chapter } } : {}),
-            select: ["id", "question", "option_A", "option_B", "option_C", "option_D"],
+            select: [
+                "id",
+                "question",
+                "option_A",
+                "option_B",
+                "option_C",
+                "option_D",
+            ],
             take: noOfQuestion ?? 15,
         });
 
@@ -315,7 +320,8 @@ export class QuizService {
             const { quizId } = quizData;
 
             const quiz = await this.getQuiz(quizId);
-            if (!quiz) throw new BadRequestException(`Quiz not found with id ${quizId}`);
+            if (!quiz)
+                throw new BadRequestException(`Quiz not found with id ${quizId}`);
 
             if (
                 (quiz.exam && quiz.status === QuizStatus.COMPLETED) ||
@@ -331,25 +337,25 @@ export class QuizService {
 
             const [result] = await this.quizRepository.query(
                 `
-        SELECT
-             COUNT(qae.id) AS total,
-             SUM(CASE WHEN qae."selectedAnswer" IS NULL OR qae."selectedAnswer" = '' THEN 1 ELSE 0 END) AS skipped,
-             SUM(CASE WHEN qae."selectedAnswer" = qu.correct_answer THEN 1 ELSE 0 END) AS correct,
-             SUM(
-                 CASE WHEN (qae."selectedAnswer" IS NULL OR qae."selectedAnswer" != '')
-                      AND qae."selectedAnswer" != qu.correct_answer THEN 1
-                 ELSE 0
-             END
-             ) AS wrong,
-             ee."name" AS exam
-         FROM quiz_entity qe
-             LEFT JOIN quiz_answer_entity qae ON qe.id = qae."quizId"
-             LEFT JOIN questions_entity qu ON qu.id = qae."questionId"
-             LEFT JOIN category_entity ce ON ce.id = qe."categoryId"
-             LEFT JOIN exam_entity ee ON ee.id = qe."examId"
-         WHERE qe."id" = $1
-         GROUP BY ce.name, qe."startedAt", qe."isPractice", qe.id, ee.name;
-        `,
+                    SELECT
+                        COUNT(qae.id) AS total,
+                        SUM(CASE WHEN qae."selectedAnswer" IS NULL OR qae."selectedAnswer" = '' THEN 1 ELSE 0 END) AS skipped,
+                        SUM(CASE WHEN qae."selectedAnswer" = qu.correct_answer THEN 1 ELSE 0 END) AS correct,
+                        SUM(
+                                CASE WHEN (qae."selectedAnswer" IS NULL OR qae."selectedAnswer" != '')
+                                    AND qae."selectedAnswer" != qu.correct_answer THEN 1
+                                     ELSE 0
+                                    END
+                        ) AS wrong,
+                        ee."name" AS exam
+                    FROM quiz_entity qe
+                             LEFT JOIN quiz_answer_entity qae ON qe.id = qae."quizId"
+                             LEFT JOIN questions_entity qu ON qu.id = qae."questionId"
+                             LEFT JOIN category_entity ce ON ce.id = qe."categoryId"
+                             LEFT JOIN exam_entity ee ON ee.id = qe."examId"
+                    WHERE qe."id" = $1
+                    GROUP BY ce.name, qe."startedAt", qe."isPractice", qe.id, ee.name;
+                `,
                 [quizId]
             );
 

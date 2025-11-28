@@ -4,6 +4,8 @@ import { AppBaseEntity } from "./base.entity";
 import { CategoryEntity } from "./category.entity";
 import { QuizAnswerEntity } from "./quiz-answer.entity";
 import { QuestionReportEntity } from "./question-report.entity";
+import {CourceEntity} from "./cource.entity";
+
 
 @Entity()
 export class QuestionsEntity extends AppBaseEntity {
@@ -56,4 +58,9 @@ export class QuestionsEntity extends AppBaseEntity {
 
     @OneToMany(() => QuestionReportEntity, (report) => report.question)
     report: QuestionReportEntity[];
+
+
+    @ManyToOne(() => CourceEntity, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'course_id' })
+    course: CourceEntity;
 }
